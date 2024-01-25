@@ -1,5 +1,6 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.context;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.EmptyContextStack;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariableName;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.NotContainVariable;
@@ -9,7 +10,7 @@ import java.io.PrintStream;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Stack;
-
+@Slf4j
 public class Context {
   private final Stack<Double> _values;
   private final HashMap<String, Double> _variables;
@@ -26,6 +27,7 @@ public class Context {
   }
   public void push(final Double x) {
     _values.push(x);
+    log.debug("values: " + _values.toString());
   }
 
   public double peek() {

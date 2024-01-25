@@ -13,6 +13,7 @@ public class Push implements Command {
       context.push(a);
     } catch (NotContainVariable ignored) {
       double a = Double.parseDouble(args.getFirst());
+      context.push(a);
     }
   }
 }

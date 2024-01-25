@@ -2,13 +2,15 @@ package ru.nsu.ccfit.zhdanov.firstAttemp.cliParser;
 
 //import org.apache.commons.cli.CommandLineParser;
 
+import lombok.Getter;
 import org.apache.commons.cli.*;
 
-public class CliParser {
-  public static CommandLine parse(String[] args) throws ParseException {
-    CommandLineParser parser = new DefaultParser();
-    Options opts = new Options();
-//    todo make HelpFormatter
+public class CalcCliParser implements AutoCloseable {
+  @Getter
+  private Options opts;
+
+  public CalcCliParser() {
+    opts = new Options();
     opts.addOption(Option.builder()
                     .option("h")
                     .longOpt("help")
@@ -32,6 +34,19 @@ public class CliParser {
                     .argName("path")
                     .type(String.class)
                     .build());
+  }
+
+  public CommandLine parse(String[] args) throws ParseException {
+    CommandLineParser parser = new DefaultParser();
     return parser.parse(opts, args);
+  }
+
+  public void printHelp(){
+    HelpFormatter helpFormatter = new HelpFormatter();
+    helpFormatter.printHelp("calc", opts, true);
+  }
+
+  @Override
+  public void close() throws Exception {
   }
 }

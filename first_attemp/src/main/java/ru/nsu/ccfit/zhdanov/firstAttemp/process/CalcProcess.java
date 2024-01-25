@@ -32,17 +32,15 @@ public class CalcProcess {
     try {
       in = (kInputPath == null) ? System.in : new FileInputStream(kInputPath);
     } catch (IOException e) {
-      throw new UnavailableInputFile();
+      throw new UnavailableInputFile(kInputPath);
     }
 
-    try {
-      CommandFactory.instance(CommandProperties);
+    /*try {
     } catch (Exception e) {
       log.error(e.getMessage());
       throw e;
-    }
-
-
+    }*/
+    CommandFactory.makeInstance(CommandProperties);
     context = new Context(out);
     try (Scanner scanner = new Scanner(in)) {
       while (scanner.hasNextLine()) {
@@ -65,9 +63,10 @@ public class CalcProcess {
           log.error("unable to create command: " + commandName);
         }
       }
-    } catch (Exception e) {
-      log.error(e.getMessage());
     }
+    /*catch (Exception e) {
+      log.error(e.getMessage());
+    }*/
   }
 }
 

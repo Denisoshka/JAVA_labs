@@ -51,7 +51,7 @@ public class CommandFactory implements AutoCloseable {
     }
   }
 
-  public static void instance(final String properties) {
+  public static void makeInstance(final String properties) {
     if (instance == null) {
       instance = new CommandFactory(properties);
     } else {
