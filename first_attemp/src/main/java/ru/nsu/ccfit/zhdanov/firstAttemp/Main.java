@@ -1,15 +1,13 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import ru.nsu.ccfit.zhdanov.firstAttemp.cliParser.CliParser;
 import ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess;
 
-import java.util.logging.Logger;
-
-
+@Slf4j
 public class Main {
-  private static final Logger logger = Logger.getLogger(Main.class.getName());
 
   public static void main(String[] args) {
     CommandLine commandLine;
@@ -20,8 +18,18 @@ public class Main {
       return;
     }
 
-    final String input = commandLine.getOptionValue("input");
-    final String output = commandLine.getOptionValue("output");
-    CalcProcess.process(input, output);
+    final String kInput = commandLine.getOptionValue("input");
+    final String kOutput = commandLine.getOptionValue("output");
+    final String kCommandProperties = "commands.properties";
+    log.info("start process with");
+    log.info("input="+ kInput);
+    log.info("output="+ kOutput);
+    log.info("command properties="+ kCommandProperties);
+
+    try {
+      CalcProcess.process(kInput, kOutput, kCommandProperties);
+    } catch (Exception e) {
+      log.info("process finished with exception ", e);
+    }
   }
 }
