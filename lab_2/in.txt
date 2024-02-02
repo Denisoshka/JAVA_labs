@@ -1,4 +1,6 @@
+define a 90
 push 10
-push 9
+push a
+push b
 +
 print

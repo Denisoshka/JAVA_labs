@@ -20,8 +20,8 @@ public class CalcProcess {
   final static char kSkipLineSymbol = '#';
 
   public static void process(final String kInputPath, final String kOutputPath, final String CommandProperties) throws IOException {
-    Writer out = (kOutputPath.isEmpty()) ? new OutputStreamWriter(System.out) : new FileWriter(kOutputPath);
-    Reader in = (kInputPath.isEmpty()) ? new InputStreamReader(System.in) : new FileReader(kInputPath);
+    Writer out = (kOutputPath == null || kOutputPath.isEmpty()) ? new OutputStreamWriter(System.out) : new FileWriter(kOutputPath);
+    Reader in = (kInputPath == null || kInputPath.isEmpty()) ? new InputStreamReader(System.in) : new FileReader(kInputPath);
     Context context = new Context(out);
     CommandFactory.makeInstance(CommandProperties);
 
@@ -37,8 +37,8 @@ public class CalcProcess {
         try {
           Command command = CommandFactory.getInstance().create(commandName);
           try {
+            log.info("run command: \"" + commandName + "\" with args " + args);
             command.perform(args, context);
-            log.info("run command: " + commandName + " with args " + args);
           } catch (CommandException e) {
             log.error("unable to run command: " + commandName, e);
           }

@@ -1,5 +1,6 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commands;
 
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.IncorrectVariable;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.Context;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.NotContainVariable;
 
@@ -12,7 +13,12 @@ public class Push implements Command {
       double a = context.peekVariable(args.getFirst());
       context.push(a);
     } catch (NotContainVariable ignored) {
-      double a = Double.parseDouble(args.getFirst());
+      double a;
+      try {
+         a = Double.parseDouble(args.getFirst());
+      }catch (NumberFormatException e){
+        throw new IncorrectVariable(args.getFirst());
+      }
       context.push(a);
     }
   }

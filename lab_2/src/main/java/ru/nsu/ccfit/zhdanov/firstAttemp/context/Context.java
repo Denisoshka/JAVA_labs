@@ -69,5 +69,6 @@ public class Context {
 
   public void print(double var) throws IOException {
     _out.write(String.valueOf(var));
+    _out.flush();
   }
 }
