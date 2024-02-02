@@ -1,12 +1,11 @@
-package ru.nsu.zhdanov.lab4.parts_section.engine_section.body_section;
+package ru.nsu.zhdanov.lab4.parts_section.body_section;
 
 import lombok.Setter;
-import ru.nsu.zhdanov.lab4.parts_section.engine_section.PartSupplier;
+import ru.nsu.zhdanov.lab4.parts_section.SparePartSupplier;
 
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class BodyProvider implements Runnable, PartSupplier<Body> {
+public class BodyProvider implements Runnable, SparePartSupplier<Body> {
   @Setter
   private BodyRepository rep;
   @Setter

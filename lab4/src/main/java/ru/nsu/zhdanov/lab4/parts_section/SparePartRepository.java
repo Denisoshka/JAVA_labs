@@ -1,17 +1,17 @@
-package ru.nsu.zhdanov.lab4.parts_section.engine_section.body_section;
+package ru.nsu.zhdanov.lab4.parts_section;
 
 import lombok.Setter;
-import ru.nsu.zhdanov.lab4.parts_section.engine_section.PartSupplier;
+import ru.nsu.zhdanov.lab4.parts_section.engine_section.Engine;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class BodyRepository implements Runnable, BodySupplier {
+public class SparePartRepository<SparePartT extends SparePart> implements Runnable, SparePartSupplier<SparePartT> {
   @Setter
-  private PartSupplier<Body> partSupplier;
-  final private BlockingQueue<Body> repository;
+  protected SparePartSupplier<SparePartT> bodySupplier;
+  final private BlockingQueue<SparePartT> repository;
 
-  public BodyRepository(final int repositorySize) {
+  public SparePartRepository(final int repositorySize) {
     this.repository = new ArrayBlockingQueue<>(repositorySize);
   }
 
@@ -19,7 +19,7 @@ public class BodyRepository implements Runnable, BodySupplier {
   public void run() {
     while (Thread.currentThread().isAlive()) {
       synchronized (repository) {
-        Body tmp = partSupplier.getSparePart();
+        SparePartT tmp = bodySupplier.getSparePart();
         try {
           repository.put(tmp);
         } catch (InterruptedException e) {
@@ -35,9 +35,13 @@ public class BodyRepository implements Runnable, BodySupplier {
   }
 
   @Override
-  public Body getBody() {
+  public SparePartT getSparePart() {
     synchronized (repository) {
       try {
+        while(repository.isEmpty()){
+          wait();
+        }
+        repository.notifyAll();
         return repository.take();
       } catch (InterruptedException ignored) {
         return null;

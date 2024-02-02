@@ -4,15 +4,16 @@ import lombok.Setter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Repository<Car, Controller> implements CarSupplier<Car> {
+public class CarRepository<Car, Controller> implements CarSupplier<Car> {
   final BlockingQueue<Car> repository;
   @Setter
   Controller controller;
   @Setter
-  int delay;
+  AtomicInteger delay;
 
-  Repository(int repSize) {
+  CarRepository(int repSize) {
     this.repository = new ArrayBlockingQueue<>(repSize);
   }
 
@@ -24,7 +25,7 @@ public class Repository<Car, Controller> implements CarSupplier<Car> {
         while (repository.isEmpty()) {
           wait();
         }
-        return repository.poll();
+        return repository.take();
       } catch (InterruptedException ignored) {
         return null;
       }
