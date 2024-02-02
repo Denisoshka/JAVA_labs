@@ -1,14 +1,13 @@
 package ru.nsu.zhdanov.lab4.parts_section;
 
 import lombok.Setter;
-import ru.nsu.zhdanov.lab4.parts_section.engine_section.Engine;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class SparePartRepository<SparePartT extends SparePart> implements Runnable, SparePartSupplier<SparePartT> {
   @Setter
-  protected SparePartSupplier<SparePartT> bodySupplier;
+  protected SparePartSupplier<SparePartT> Supplier;
   final private BlockingQueue<SparePartT> repository;
 
   public SparePartRepository(final int repositorySize) {
@@ -19,7 +18,7 @@ public class SparePartRepository<SparePartT extends SparePart> implements Runnab
   public void run() {
     while (Thread.currentThread().isAlive()) {
       synchronized (repository) {
-        SparePartT tmp = bodySupplier.getSparePart();
+        SparePartT tmp = Supplier.getSparePart();
         try {
           repository.put(tmp);
         } catch (InterruptedException e) {
