@@ -18,8 +18,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainContext {
-
-
   private final Properties workersProperties;
 
   public MainContext(final String properties) throws IOException {

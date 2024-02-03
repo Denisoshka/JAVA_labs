@@ -32,6 +32,9 @@ public class CarFactory implements CarsRequest {
     this.workers = new CustomThreadPool(workersQuantity);
   }
 
+  public void shutdown(){
+    this.workers.shutdown();
+  }
 
   @Override
   public void requestCars(int orderSize) {

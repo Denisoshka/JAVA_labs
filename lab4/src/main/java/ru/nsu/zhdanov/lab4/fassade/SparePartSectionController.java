@@ -29,12 +29,12 @@ public class SparePartSectionController<SparePartT extends SparePart> {
   }
 
   public void perform() {
-    repository.perform();
+//    repository.perform();
     provider.perform();
   }
 
   public void shutdown() {
-    repository.shutdown();
+//    repository.shutdown();
     provider.shutdown();
   }
 }
