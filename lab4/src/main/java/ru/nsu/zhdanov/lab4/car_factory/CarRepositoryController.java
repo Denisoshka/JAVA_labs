@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab4.dealer_repository;
+package ru.nsu.zhdanov.lab4.car_factory;
 
 public class CarRepositoryController<Car> implements Runnable {
   //  Repository repository;
@@ -21,7 +21,7 @@ public class CarRepositoryController<Car> implements Runnable {
       synchronized (repository) {
         int repSize = repository.getSize();
         int repRemCap = repository.getRemainingCapacity();
-//todo
+//todo make controller request implementation
       }
     }
   }

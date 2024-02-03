@@ -4,4 +4,8 @@ import ru.nsu.zhdanov.lab4.parts_section.SparePart;
 
 public class Body extends SparePart {
 
+  public Body() {
+    super();
+
+  }
 }
