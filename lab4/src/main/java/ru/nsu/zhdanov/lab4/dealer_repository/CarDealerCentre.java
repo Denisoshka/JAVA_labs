@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class CarDealerCentre<Car> {
   final ArrayList<Thread> managers;
-  final @Getter AtomicInteger delay;
+   @Getter AtomicInteger delay;
   protected @Setter CarSupplier<Car> carRepo;
   Runnable task = () -> {
     while (Thread.currentThread().isAlive()) {

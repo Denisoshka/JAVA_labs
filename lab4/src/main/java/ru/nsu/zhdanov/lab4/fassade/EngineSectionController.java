@@ -9,6 +9,6 @@ public class EngineSectionController extends SparePartSectionController<Engine> 
     super(provideDelay);
     provider = new EngineProvider(this.providerDelay);
     repository = new EngineRepository(repoSize);
-    repository.setSupplier(repository);
+    provider.setRepository(repository);
   }
 }

@@ -11,6 +11,6 @@ public class AccessoriesSectionController extends SparePartSectionController<Acc
     super(provideDelay);
     provider = new AccessoriesProviders(providersQuantity, this.providerDelay);
     repository = new AccessoriesRepository(repoSize);
-    repository.setSupplier(provider);
+    provider.setRepository(repository);
   }
 }

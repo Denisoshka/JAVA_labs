@@ -4,19 +4,18 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SparePartProvider<SparePartT extends SparePart> {
   protected AtomicInteger delay;
   //  todo сделать здесь какой то контроллек который позволяет менять извне
   protected final ArrayList<Thread> providers;
-  protected SparePartConsumer<SparePartT> repo;
+  protected @Setter SparePartConsumer<SparePartT> repository;
   protected Runnable task = () -> {
     while (Thread.currentThread().isAlive()) {
 //      todo что то не так
       try {
-        repo.acceptCar((SparePartT) SparePartFactory.getInstance().newInstance(SparePartT.partName));
+        repository.acceptCar((SparePartT) SparePartFactory.getInstance().newInstance(SparePartT.partName));
         Thread.sleep(delay.get());
       } catch (InterruptedException e) {
         return;

@@ -9,6 +9,6 @@ public class BodySectionController extends SparePartSectionController<Body>{
     super(provideDelay);
     repository = new BodyRepository(repoSize);
     provider = new BodyProvider(this.providerDelay);
-    repository.setSupplier(repository);
+    provider.setRepository(repository);
   }
 }

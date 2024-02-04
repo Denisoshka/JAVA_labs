@@ -7,7 +7,7 @@ import ru.nsu.zhdanov.lab4.parts_section.engine_section.Engine;
 
 import java.util.UUID;
 
-public class Car implements CarSupplier<Car> {
+public class Car {
   final Body body;
   final Engine engine;
   final Accessories acc;

@@ -2,7 +2,7 @@ package ru.nsu.zhdanov.lab4.car_factory;
 
 public class CarRepositoryController<Car> {
   //  Repository repository;
-  final CarRepository<Car, CarRepositoryController<Car>> repository;
+   CarRepository<Car, CarRepositoryController<Car>> repository = null;
   final int dealersQuantity;
   final Thread worker;
   Runnable task = () -> {
