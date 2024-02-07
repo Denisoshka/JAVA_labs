@@ -17,7 +17,7 @@ public class MainContext {
   final ArrayList<String> sparePartList;
   Map<String, SparePartSectionController> sparePartSectionControllers;
 
-  final Eng
+//  final Eng
 
 
   public MainContext(final ArrayList<String> sparePartList,
