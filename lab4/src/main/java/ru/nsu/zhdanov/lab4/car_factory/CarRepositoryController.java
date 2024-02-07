@@ -2,8 +2,9 @@ package ru.nsu.zhdanov.lab4.car_factory;
 
 public class CarRepositoryController<Car> {
   //  Repository repository;
-   CarRepository<Car, CarRepositoryController<Car>> repository = null;
-  final int dealersQuantity;
+  CarRepository<Car, CarRepositoryController<Car>> repository = null;
+  CarsRequest factory;
+  int dealersQuantity = 0;
   final Thread worker;
   Runnable task = () -> {
     while (Thread.currentThread().isAlive()) {
@@ -13,9 +14,9 @@ public class CarRepositoryController<Car> {
         throw new RuntimeException(e);
       }
       synchronized (repository) {
-        int repSize = repository.getSize();
-        int repRemCap = repository.getRemainingCapacity();
-//todo make controller request implementation
+        if (repository.getSize() - repository.getRemainingCapacity() < dealersQuantity) {
+          factory.requestCars(repository.getRemainingCapacity());
+        }
       }
     }
   };
@@ -26,11 +27,11 @@ public class CarRepositoryController<Car> {
     this.worker = new Thread(task);
   }
 
-  public void perform(){
+  public void perform() {
     worker.start();
   }
 
-  public void shutdown(){
+  public void shutdown() {
     worker.interrupt();
   }
 }

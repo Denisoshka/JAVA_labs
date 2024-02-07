@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab4.fassade;
+package ru.nsu.zhdanov.lab4.facade;
 
 import ru.nsu.zhdanov.lab4.car_factory.Car;
 import ru.nsu.zhdanov.lab4.dealer_repository.CarDealerCentre;

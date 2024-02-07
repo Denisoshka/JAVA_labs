@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab4.fassade;
+package ru.nsu.zhdanov.lab4.facade;
 
 import ru.nsu.zhdanov.lab4.parts_section.body_section.Body;
 import ru.nsu.zhdanov.lab4.parts_section.body_section.BodyProvider;

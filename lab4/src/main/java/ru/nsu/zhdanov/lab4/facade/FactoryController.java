@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab4.fassade;
+package ru.nsu.zhdanov.lab4.facade;
 
 import ru.nsu.zhdanov.lab4.car_factory.Car;
 import ru.nsu.zhdanov.lab4.car_factory.CarFactory;
@@ -29,6 +29,7 @@ public class FactoryController {
     factory.setBodyRep(bodyRepo);
     factory.setAccRep(accRepo);
     factory.setEngRep(engineRepo);
+//    todo make repo in MAP
   }
 
   public int getFactoryDelay() {

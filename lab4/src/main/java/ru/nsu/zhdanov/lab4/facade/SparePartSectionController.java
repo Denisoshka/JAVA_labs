@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab4.fassade;
+package ru.nsu.zhdanov.lab4.facade;
 
 import lombok.Getter;
 import ru.nsu.zhdanov.lab4.parts_section.SparePart;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SparePartSectionController<SparePartT extends SparePart> {
   protected final AtomicInteger providerDelay;
-  protected SparePartProvider<SparePartT> provider;
+  protected @Getter SparePartProvider<SparePartT> provider;
   protected @Getter SparePartRepository<SparePartT> repository;
 
   public SparePartSectionController(final int provideDelay) {
@@ -29,12 +29,10 @@ public class SparePartSectionController<SparePartT extends SparePart> {
   }
 
   public void perform() {
-//    repository.perform();
     provider.perform();
   }
 
   public void shutdown() {
-//    repository.shutdown();
     provider.shutdown();
   }
 }
