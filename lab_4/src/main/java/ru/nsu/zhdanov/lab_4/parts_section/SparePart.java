@@ -4,17 +4,18 @@ import lombok.Getter;
 
 import java.util.UUID;
 
-public class SparePart {
-  @Getter
-  protected static String partName;
+public abstract class SparePart {
   @Getter
   protected UUID id;
 
   public SparePart() {
     this.id = UUID.randomUUID();
   }
+
   @Override
-  public String toString(){
-    return partName + " "  + id.toString();
+  public String toString() {
+    return getSparePartName() + " " + id.toString();
   }
+
+  public abstract String getSparePartName();
 }

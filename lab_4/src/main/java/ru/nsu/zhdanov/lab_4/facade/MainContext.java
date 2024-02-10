@@ -1,62 +1,68 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
-import ru.nsu.zhdanov.lab_4.lab_4.Application;
-import ru.nsu.zhdanov.lab_4.parts_section.SparePart;
-import ru.nsu.zhdanov.lab_4.parts_section.exceptions.ClassLoaderException;
+import lombok.extern.slf4j.Slf4j;
+import ru.nsu.zhdanov.lab_4.parts_section.SparePartFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Properties;
-
+@Slf4j
 public class MainContext {
-  private final Properties sparePartProperties;
-  final ArrayList<String> sparePartList;
-  Map<String, SparePartSectionController> sparePartSectionControllers;
+  private final int standardProvideDelay = 1000;
+  private final Properties contextProperties;
+  //  final Map<String, SparePartSectionController> sparePartSectionControllers;
+  final FactoryController factoryController;
+  final DealerController dealerController;
+  final EngineSectionController engineSectionController;
+  final BodySectionController bodySectionController;
+  final AccessoriesSectionController accessoriesSectionController;
+  //  final Eng
 
-//  final Eng
+  public MainContext(final Properties sparePartProperties, final Properties contextProperties) {
+    log.info("init main context");
+    this.contextProperties = contextProperties;
 
+    SparePartFactory.Instance(sparePartProperties);
+    this.engineSectionController = new EngineSectionController(standardProvideDelay, Integer.parseInt(this.contextProperties.get("engineRepoSize").toString()));
+    this.bodySectionController = new BodySectionController(standardProvideDelay, Integer.parseInt(this.contextProperties.get("bodyRepoSize").toString()));
+    this.accessoriesSectionController = new AccessoriesSectionController(
+            standardProvideDelay,
+            Integer.parseInt(this.contextProperties.get("accessoriesProviders").toString()),
+            Integer.parseInt(this.contextProperties.get("accessoriesRepoSize").toString())
+    );
 
-  public MainContext(final ArrayList<String> sparePartList,
-                     final String sparePartProperties,
-                     final String sparePartControllerProperties, ArrayList<String> sparePartList1) throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
-    this.sparePartList = sparePartList;
-    ClassLoader classLoader;
-    try {
-      classLoader = MainContext.class.getClassLoader();
-      if (classLoader == null) {
-        throw new ClassLoaderException();
-      }
-    } catch (SecurityException e) {
-      throw new ClassLoaderException();
-    }
+    this.factoryController = new FactoryController(
+            Integer.parseInt(this.contextProperties.get("factoryWorkersQuantity").toString()),
+            Integer.parseInt(this.contextProperties.get("factoryRepoSize").toString()),
+            Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()),
+            standardProvideDelay,
+            this.bodySectionController.getRepository(),
+            this.engineSectionController.getRepository(),
+            this.accessoriesSectionController.getRepository()
+    );
 
-    try (InputStream in = classLoader.getResourceAsStream(sparePartProperties)) {
-      (this.sparePartProperties = new Properties()).load(in);
-    } catch (Exception e) {
-//      todo
-      throw e;
-    }
-
-    try (InputStream in = classLoader.getResourceAsStream(sparePartControllerProperties)) {
-      Properties properties = new Properties();
-      properties.load(in);
-      for (String s : sparePartList) {
-        SparePartSectionController<SparePart> controller = (SparePartSectionController<SparePart>) Class.forName(properties.getProperty(s))
-                .getDeclaredConstructor()
-                .newInstance();
-        sparePartSectionControllers.put(s, controller);
-      }
-    } catch (Exception e) {
-//      todo
-      throw e;
-    }
-
-
-
+    this.dealerController = new DealerController(Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()), standardProvideDelay);
+    this.dealerController.setCarSupplier(factoryController.getCarSupplier());
   }
 
+  public int getCarsQuantity() {
+    log.info("call factoryController.getRepositoryOccupancy()");
+    return factoryController.getRepositoryOccupancy();
+  }
 
+  public void perform() {
+    log.info("perform work");
+    factoryController.perform();
+    dealerController.perform();
+    engineSectionController.perform();
+    bodySectionController.perform();
+    accessoriesSectionController.perform();
+  }
+
+  public void shutdown() {
+    log.info("shut down controller");
+    factoryController.shutdown();
+    dealerController.shutdown();
+    engineSectionController.shutdown();
+    bodySectionController.shutdown();
+    accessoriesSectionController.shutdown();
+  }
 }

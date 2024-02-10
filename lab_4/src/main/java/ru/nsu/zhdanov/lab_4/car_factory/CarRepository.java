@@ -33,11 +33,12 @@ public class CarRepository<Car, Controller> implements CarSupplier<Car>, CarCons
       }
     }
   }
+
   @Override
   public void acceptCar(Car car) {
-    synchronized (repository){
-      try{
-        while(repository.remainingCapacity() == 0){
+    synchronized (repository) {
+      try {
+        while (repository.remainingCapacity() == 0) {
           wait();
         }
         repository.add(car);
@@ -45,6 +46,7 @@ public class CarRepository<Car, Controller> implements CarSupplier<Car>, CarCons
       }
     }
   }
+
   synchronized public int getSize() {
     return repository.size();
   }
@@ -53,5 +55,7 @@ public class CarRepository<Car, Controller> implements CarSupplier<Car>, CarCons
     return repository.remainingCapacity();
   }
 
-
+  synchronized public int getRepositoryOccupancy() {
+    return repository.size() - repository.remainingCapacity();
+  }
 }

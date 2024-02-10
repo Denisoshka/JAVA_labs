@@ -1,6 +1,7 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
 import ru.nsu.zhdanov.lab_4.car_factory.Car;
+import ru.nsu.zhdanov.lab_4.car_factory.CarSupplier;
 import ru.nsu.zhdanov.lab_4.dealer_repository.CarDealerCentre;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +14,11 @@ public class DealerController {
     this.delay = new AtomicInteger(delay);
     this.dealer = new CarDealerCentre<>(managersQuantity, this.delay);
   }
+
+  public void setCarSupplier(CarSupplier<Car> repo) {
+    dealer.setCarRepo(repo);
+  }
+
 
   public void perform() {
     dealer.perform();

@@ -1,16 +1,19 @@
 package ru.nsu.zhdanov.lab_4.parts_section;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-public class SparePartRepository<SparePartT extends SparePart> implements SparePartSupplier<SparePartT>, SparePartConsumer<SparePartT> {
+@Slf4j
+public class SparePartRepository<SparePartT> implements SparePartSupplier<SparePartT>, SparePartConsumer<SparePartT> {
   @Setter
-  protected SparePartSupplier<SparePartT> supplier;
+  protected SparePartSupplier supplier;
   final private BlockingQueue<SparePartT> repository;
+  protected final String sparePartName;
 
-  public SparePartRepository(final int repositorySize) {
+  public SparePartRepository(final String sparePartName, final int repositorySize) {
+    this.sparePartName = sparePartName;
     this.repository = new ArrayBlockingQueue<>(repositorySize);
   }
 
@@ -25,6 +28,7 @@ public class SparePartRepository<SparePartT extends SparePart> implements SpareP
         while (repository.isEmpty()) {
           wait();
         }
+        log.info("getSparePart()" + sparePartName);
         return repository.take();
       } catch (InterruptedException ignored) {
         return null;
@@ -35,13 +39,14 @@ public class SparePartRepository<SparePartT extends SparePart> implements SpareP
   }
 
   @Override
-  public void acceptCar(SparePartT car) {
+  public void acceptSparePart(SparePartT sparePart) {
     synchronized (repository) {
       try {
         while (repository.remainingCapacity() == 0) {
           wait();
         }
-        repository.add(car);
+        log.info("acceptSparePart " + sparePartName);
+        repository.add(sparePart);
         repository.notifyAll();
       } catch (InterruptedException ignored) {
       }

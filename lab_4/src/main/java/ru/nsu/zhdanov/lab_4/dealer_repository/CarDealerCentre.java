@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
+//@Slf4j
 public class CarDealerCentre<Car> {
   final ArrayList<Thread> managers;
    @Getter AtomicInteger delay;
@@ -18,7 +18,7 @@ public class CarDealerCentre<Car> {
     while (Thread.currentThread().isAlive()) {
       try {
         Car car = carRepo.getCar();
-        log.info(car.toString());
+//        log.info(car.toString());
         Thread.sleep(delay.get());
       } catch (InterruptedException e) {
         return;

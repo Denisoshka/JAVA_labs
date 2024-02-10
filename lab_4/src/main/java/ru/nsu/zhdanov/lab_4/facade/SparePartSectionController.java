@@ -1,7 +1,6 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
 import lombok.Getter;
-//import ru.nsu.zhdanov.lab_4.parts_section.SparePart;
 import ru.nsu.zhdanov.lab_4.parts_section.SparePart;
 import ru.nsu.zhdanov.lab_4.parts_section.SparePartProvider;
 import ru.nsu.zhdanov.lab_4.parts_section.SparePartRepository;

@@ -6,6 +6,9 @@ public class Body extends SparePart {
 
   public Body() {
     super();
-
+  }
+@Override
+  public String  getSparePartName() {
+    return "BODY";
   }
 }

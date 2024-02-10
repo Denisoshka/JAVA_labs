@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AccessoriesProviders extends SparePartProvider<Accessories> {
    public AccessoriesProviders(final int providersQuantity, final AtomicInteger delay) {
-    super(providersQuantity, delay);
+    super("ACCESSORIES", providersQuantity, delay);
 //    todo хули ты ебешь мне мозг дура
   }
 }

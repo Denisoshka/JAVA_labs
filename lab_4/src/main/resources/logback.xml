@@ -1,0 +1,31 @@
+<configuration>
+
+    <!-- Настройка вывода в консоль -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg at %class.%method\(%file:%line\)%n</pattern>
+
+            <!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg at %file:%line%n</pattern>-->
+        </encoder>
+    </appender>
+
+    <!-- Настройка вывода в отдельные файлы для каждого класса -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${loggerName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/${loggerName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg at %file:%line%n</pattern>
+        </encoder>
+        <fileAppend>false</fileAppend>
+    </appender>
+
+    <!-- Уровень логирования -->
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

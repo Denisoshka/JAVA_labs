@@ -6,4 +6,9 @@ public class Accessories extends SparePart {
   public Accessories() {
     super();
   }
+
+  @Override
+  public String getSparePartName() {
+    return "ACCESSORIES";
+  }
 }

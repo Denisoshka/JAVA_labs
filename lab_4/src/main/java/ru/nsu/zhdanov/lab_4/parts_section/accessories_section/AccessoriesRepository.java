@@ -4,6 +4,6 @@ import ru.nsu.zhdanov.lab_4.parts_section.SparePartRepository;
 
 public class AccessoriesRepository extends SparePartRepository<Accessories> {
   public AccessoriesRepository(final int repositorySize) {
-    super(repositorySize);
+    super("ACCESSORIES", repositorySize);
   }
 }
