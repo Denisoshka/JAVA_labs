@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 @Slf4j
 public class SparePartRepository<SparePartT> implements SparePartSupplier<SparePartT>, SparePartConsumer<SparePartT> {
   @Setter
@@ -23,33 +24,21 @@ public class SparePartRepository<SparePartT> implements SparePartSupplier<SpareP
 
   @Override
   public SparePartT getSparePart() {
-    synchronized (repository) {
-      try {
-        while (repository.isEmpty()) {
-          wait();
-        }
-        log.info("getSparePart()" + sparePartName);
-        return repository.take();
-      } catch (InterruptedException ignored) {
-        return null;
-      } finally {
-        repository.notifyAll();
-      }
+    SparePartT part = null;
+    try {
+      log.info("getSparePart() " + sparePartName);
+      part = repository.take();
+    } catch (InterruptedException ignored) {
     }
+    return part;
   }
 
   @Override
   public void acceptSparePart(SparePartT sparePart) {
-    synchronized (repository) {
-      try {
-        while (repository.remainingCapacity() == 0) {
-          wait();
-        }
-        log.info("acceptSparePart " + sparePartName);
-        repository.add(sparePart);
-        repository.notifyAll();
-      } catch (InterruptedException ignored) {
-      }
+    try {
+      repository.put(sparePart);
+      log.info("acceptSparePart() " + sparePartName);
+    } catch (InterruptedException ignored) {
     }
   }
 }

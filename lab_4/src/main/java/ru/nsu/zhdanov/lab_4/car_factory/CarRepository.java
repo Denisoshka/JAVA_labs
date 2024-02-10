@@ -1,15 +1,16 @@
 package ru.nsu.zhdanov.lab_4.car_factory;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CarRepository<Car, Controller> implements CarSupplier<Car>, CarConsumer<Car> {
+@Slf4j
+public class CarRepository implements CarSupplier, CarConsumer {
   final BlockingQueue<Car> repository;
-  @Setter
-  Controller controller;
+  private @Setter CarRepositoryController controller;
   @Setter
   AtomicInteger delay;
 
@@ -19,43 +20,32 @@ public class CarRepository<Car, Controller> implements CarSupplier<Car>, CarCons
 
   @Override
   public Car getCar() {
-    controller.notify();
-    synchronized (repository) {
-      try {
-        while (repository.isEmpty()) {
-          wait();
-        }
-        Car tmp = repository.take();
-        repository.notifyAll();
-        return tmp;
-      } catch (InterruptedException ignored) {
-        return null;
+    Car car = null;
+    try {
+      synchronized (controller) {
+        controller.notify();
       }
+      car = repository.take();
+      log.debug("getCar()");
+    } catch (InterruptedException ignored) {
     }
+    return car;
   }
 
   @Override
   public void acceptCar(Car car) {
-    synchronized (repository) {
-      try {
-        while (repository.remainingCapacity() == 0) {
-          wait();
-        }
-        repository.add(car);
-      } catch (InterruptedException ignored) {
-      }
+    try {
+      repository.put(car);
+      log.debug("acceptCar()");
+    } catch (InterruptedException ignored) {
     }
   }
 
-  synchronized public int getSize() {
-    return repository.size();
-  }
-
-  synchronized public int getRemainingCapacity() {
+  public int getRemainingCapacity() {
     return repository.remainingCapacity();
   }
 
-  synchronized public int getRepositoryOccupancy() {
-    return repository.size() - repository.remainingCapacity();
+  public int occupancy() {
+    return repository.size();
   }
 }

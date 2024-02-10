@@ -12,8 +12,8 @@ public class CustomThreadPool {
     workers = new ArrayList<>(poolSize);
 
     for (int i = 0; i < poolSize; ++i) {
-      workers.add(i, new WorkerThread());
-      workers.get(i).start();
+      workers.add(new WorkerThread());
+      workers.getLast().start();
     }
   }
 

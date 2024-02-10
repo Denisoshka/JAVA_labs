@@ -23,7 +23,6 @@ public abstract class SparePartProvider<SparePartT> {
     this.sparePartName = sparePartName;
     this.task = () -> {
       while (Thread.currentThread().isAlive()) {
-//      todo что то не так
         try {
           log.info(sparePartName + " instance new sparePart ");
           SparePartT sparePart = (SparePartT) SparePartFactory.getInstance().newInstance(sparePartName);

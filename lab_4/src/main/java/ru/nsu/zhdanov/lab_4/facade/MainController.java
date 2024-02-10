@@ -42,7 +42,6 @@ public class MainController {
     Properties sparePartsProperties = null;
     Properties controllerProperties = null;
 
-//    initMainContextProperties(controllerProperties, sparePartsProperties);
     ClassLoader classLoader = MainController.class.getClassLoader();
     if (classLoader == null) {
       throw new RuntimeException("pizda ryly dorogoi");

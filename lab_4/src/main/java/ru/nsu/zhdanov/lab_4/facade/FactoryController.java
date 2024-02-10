@@ -2,22 +2,19 @@ package ru.nsu.zhdanov.lab_4.facade;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.car_factory.*;
-import ru.nsu.zhdanov.lab_4.parts_section.SparePartProvider;
 import ru.nsu.zhdanov.lab_4.parts_section.SparePartSupplier;
 import ru.nsu.zhdanov.lab_4.parts_section.accessories_section.Accessories;
-import ru.nsu.zhdanov.lab_4.parts_section.accessories_section.AccessoriesRepository;
 import ru.nsu.zhdanov.lab_4.parts_section.body_section.Body;
-import ru.nsu.zhdanov.lab_4.parts_section.body_section.BodyRepository;
 import ru.nsu.zhdanov.lab_4.parts_section.engine_section.Engine;
-import ru.nsu.zhdanov.lab_4.parts_section.engine_section.EngineRepository;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
 @Slf4j
 public class FactoryController {
   private final AtomicInteger factoryDelay;
   private final CarFactory factory;
-  private final CarRepositoryController<Car> controller;
-  private final CarRepository<Car, CarRepositoryController<Car>> repository;
+  private final CarRepositoryController controller;
+  private final CarRepository repository;
 
   FactoryController(final int workersQuantity, final int repoSize,
                     final int dealersQuantity, final int factoryDelay,
@@ -26,22 +23,18 @@ public class FactoryController {
                     final SparePartSupplier<Accessories> accRepo) {
     log.info("init FactoryController");
     this.factoryDelay = new AtomicInteger(factoryDelay);
-    this.factory = new CarFactory(workersQuantity, this.factoryDelay);
-    this.repository = new CarRepository<>(repoSize);
-    this.controller = new CarRepositoryController<>(this.repository, dealersQuantity);
-    factory.setCarRepo(repository);
-    factory.setBodyRep(bodyRepo);
-    factory.setAccRep(accRepo);
-    factory.setEngRep(engineRepo);
-//    todo make repo in MAP
+    this.repository = new CarRepository(repoSize);
+    this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, this.factoryDelay);
+    this.controller = new CarRepositoryController(this.repository, this.factory, dealersQuantity);
+    this.repository.setController( this.controller);
   }
 
-  public CarSupplier<Car> getCarSupplier() {
+  public CarSupplier getCarSupplier() {
     return repository;
   }
 
   public int getRepositoryOccupancy() {
-    return repository.getRepositoryOccupancy();
+    return repository.occupancy();
   }
 
   public int getFactoryDelay() {

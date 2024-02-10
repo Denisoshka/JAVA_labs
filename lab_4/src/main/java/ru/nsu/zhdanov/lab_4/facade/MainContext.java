@@ -39,13 +39,14 @@ public class MainContext {
             this.accessoriesSectionController.getRepository()
     );
 
-    this.dealerController = new DealerController(Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()), standardProvideDelay);
-    this.dealerController.setCarSupplier(factoryController.getCarSupplier());
+    this.dealerController = new DealerController(factoryController.getCarSupplier(), Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()), standardProvideDelay);
+//    this.dealerController.setCarSupplier(factoryController.getCarSupplier());
   }
 
   public int getCarsQuantity() {
-    log.info("call factoryController.getRepositoryOccupancy()");
-    return factoryController.getRepositoryOccupancy();
+    int x = factoryController.getRepositoryOccupancy();
+    log.info("call factoryController.getRepositoryOccupancy():" + x);
+    return x;
   }
 
   public void perform() {

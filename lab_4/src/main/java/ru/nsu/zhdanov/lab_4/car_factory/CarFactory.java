@@ -14,14 +14,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class CarFactory implements CarsRequest {
   final private CustomThreadPool workers;
-
-  private @Setter SparePartSupplier<Body> bodyRep;
-  private @Setter SparePartSupplier<Engine> engRep;
-  private @Setter SparePartSupplier<Accessories> accRep;
-  private @Setter CarConsumer<Car> carRepo;
-  @Getter
-  AtomicInteger delay;
-
+  final private SparePartSupplier<Body> bodyRepo;
+  final private SparePartSupplier<Engine> engRepo;
+  final private SparePartSupplier<Accessories> accRepo;
+  final private CarConsumer carRepo;
+  final private @Getter AtomicInteger delay;
+  final private Runnable task;
   //todo make normal setter возможно при инициализации
   // объектов нужно взять ссылки на их методы и потом
   // уже через контроллер дергать
@@ -29,11 +27,40 @@ public class CarFactory implements CarsRequest {
   //todo сделать здесь какой то метод склада наверное чтобы
   // когда мы изготовили товар уведомить
 
-  public CarFactory(final int workersQuantity, final AtomicInteger delay) {
-    log.info("init CarFactory");
+  public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
+                    SparePartSupplier<Engine> engRepo,
+                    SparePartSupplier<Accessories> accRepo,
+                    final int workersQuantity, final AtomicInteger delay) {
     this.delay = delay;
+    this.bodyRepo = bodyRepo;
+    this.engRepo = engRepo;
+    this.accRepo = accRepo;
+    this.carRepo = carRepo;
+
     log.info("make CustomThreadPool");
     this.workers = new CustomThreadPool(workersQuantity);
+    this.task = () -> {
+      log.info("make new car request");
+      log.info("call bodyRep.getSparePart()");
+      Body body = this.bodyRepo.getSparePart();
+      log.info("call engRep.getSparePart()");
+      Engine engine = this.engRepo.getSparePart();
+      log.info("call accRep.getSparePart()");
+      Accessories acc = this.accRepo.getSparePart();
+      try {
+        log.debug("make new car");
+        Thread.sleep(delay.get());
+      } catch (InterruptedException e) {
+        return;
+      }
+      log.info("new Car(body, engine, acc) " + body.toString() + " " + engine.toString() + " " + acc.toString());
+      Car car = new Car(body, engine, acc);
+      log.info("call carRepo.acceptCar(car)");
+      carRepo.acceptCar(car);
+    };
+
+
+    log.info("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
   }
 
   public void shutdown() {
@@ -43,28 +70,10 @@ public class CarFactory implements CarsRequest {
 
   @Override
   public void requestCars(int orderSize) {
-    synchronized (workers) {
-      for (int i = 0; i < orderSize; ++i) {
-        Runnable task = () -> {
-          log.info("call bodyRep.getSparePart()");
-          Body body = (Body) bodyRep.getSparePart();
-          log.info("call engRep.getSparePart()");
-          Engine engine = (Engine) engRep.getSparePart();
-          log.info("call accRep.getSparePart()");
-          Accessories acc = (Accessories) accRep.getSparePart();
-          try {
-            Thread.sleep(delay.get());
-          } catch (InterruptedException e) {
-            return;
-          }
-          log.info("new Car(body, engine, acc) " + body.toString() + " " + engine.toString() + " " + acc.toString());
-          Car car = new Car(body, engine, acc);
-          log.info("call carRepo.acceptCar(car)");
-          carRepo.acceptCar(car);
-        };
+    log.info("request Cars: " + orderSize);
+    for (int i = 0; i < orderSize; ++i) {
 //        todo нужно сделать notify на склад чтобы забрали эту херню как то так
-        workers.execute(task);
-      }
+      workers.execute(task);
     }
   }
 }
