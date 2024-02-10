@@ -20,6 +20,7 @@ public class CarRepository implements CarSupplier, CarConsumer {
 
   @Override
   public Car getCar() {
+
     Car car = null;
     try {
       synchronized (controller) {

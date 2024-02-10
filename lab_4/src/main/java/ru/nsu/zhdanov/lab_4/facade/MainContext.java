@@ -6,7 +6,7 @@ import ru.nsu.zhdanov.lab_4.parts_section.SparePartFactory;
 import java.util.Properties;
 @Slf4j
 public class MainContext {
-  private final int standardProvideDelay = 1000;
+  private final int standardProvideDelay = 10000;
   private final Properties contextProperties;
   //  final Map<String, SparePartSectionController> sparePartSectionControllers;
   final FactoryController factoryController;
@@ -33,7 +33,7 @@ public class MainContext {
             Integer.parseInt(this.contextProperties.get("factoryWorkersQuantity").toString()),
             Integer.parseInt(this.contextProperties.get("factoryRepoSize").toString()),
             Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()),
-            standardProvideDelay,
+            standardProvideDelay/10,
             this.bodySectionController.getRepository(),
             this.engineSectionController.getRepository(),
             this.accessoriesSectionController.getRepository()
