@@ -20,12 +20,6 @@ public class CarFactory implements CarsRequest {
   final private CarConsumer carRepo;
   final private @Getter AtomicInteger delay;
   final private Runnable task;
-  //todo make normal setter возможно при инициализации
-  // объектов нужно взять ссылки на их методы и потом
-  // уже через контроллер дергать
-
-  //todo сделать здесь какой то метод склада наверное чтобы
-  // когда мы изготовили товар уведомить
 
   public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
                     SparePartSupplier<Engine> engRepo,
@@ -72,7 +66,6 @@ public class CarFactory implements CarsRequest {
   public void requestCars(int orderSize) {
     log.info("request Cars: " + orderSize);
     for (int i = 0; i < orderSize; ++i) {
-//        todo нужно сделать notify на склад чтобы забрали эту херню как то так
       workers.execute(task);
     }
   }
