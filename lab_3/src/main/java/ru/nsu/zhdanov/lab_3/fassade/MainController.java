@@ -12,25 +12,22 @@ import java.util.Map;
 public class MainController {
   //todo maybe perenesti into hello Application?
   private GameEngine engine;
-  protected @Getter Map<KeyCode, Boolean> keyInput;
+  protected @Getter Map<KeyCode, Boolean> keysInput;
   protected @Getter Map<String, Double> mouseInput;
   private Map<KeyCode, Boolean> pressedKeys;
   Scene gameScreen;
 
   @FXML
   private void initialize() {
-    MainController.class.getClassLoader();
-    gameScreen.setOnKeyPressed(event -> {
-      if (keyInput.containsKey(event.getCode())) {
-        keyInput.compute(event.getCode(), (key, currentValue) -> true);
-      }
-    });
+//    MainController.class.getClassLoader();
+
+
   }
 
   private void getUserInput() {
 
 
-    keyInput.replaceAll((key, oldValue) -> false);
+    keysInput.replaceAll((key, oldValue) -> false);
   }
 
   private void perform() {
@@ -39,6 +36,25 @@ public class MainController {
       engine.update();
 
     }
+  }
+
+
+  private void initKeyboard() {
+    gameScreen.setOnKeyPressed(event -> {
+      keysInput.replace(event.getCode(), true);
+    });
+    gameScreen.setOnKeyReleased(event -> {
+      keysInput.replace(event.getCode(), false);
+    });
+  }
+
+  private void initMouse() {
+
+    gameScreen.setOnMpressed(event -> {
+      if (keysInput.containsKey(event.getCode())) {
+        keysInput.compute(event.getCode(), (key, currentValue) -> true);
+      }
+    });
   }
 
 }
