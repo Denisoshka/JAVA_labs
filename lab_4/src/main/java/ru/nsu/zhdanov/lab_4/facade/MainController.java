@@ -37,7 +37,7 @@ public class MainController {
   private MainContext context = null;
 
   @FXML
-  private void initialize() throws IOException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException {
+  private void initialize() throws IOException {
     log.info("init MainController");
     Properties sparePartsProperties = null;
     Properties controllerProperties = null;
@@ -70,7 +70,6 @@ public class MainController {
     log.info("init slider " + spController.toString());
     textField.setText(String.valueOf(slider.getValue()));
     slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-//      log.info(slider + " set value " + newValue);
       textField.setText(String.valueOf(newValue.intValue()));
       spController.setProviderDelay(newValue.intValue());
     });
