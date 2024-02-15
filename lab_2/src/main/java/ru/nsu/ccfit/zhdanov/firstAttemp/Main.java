@@ -18,7 +18,7 @@ public class Main {
       log.info("process finished by \"help\" call");
       return;
     }
-    String commandsProperties = commandLine.getOptionValue("config", "ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader/commands.properties");
+    String commandsProperties = commandLine.getOptionValue("config", "commands.properties");
     String input = commandLine.getOptionValue("input");
     String output = commandLine.getOptionValue("output");
 
