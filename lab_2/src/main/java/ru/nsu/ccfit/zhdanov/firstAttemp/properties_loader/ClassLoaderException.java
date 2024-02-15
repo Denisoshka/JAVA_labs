@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.zhdanov.firstAttemp.commandFactory.exception;
+package ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader;
 
 public class ClassLoaderException extends RuntimeException {
   public ClassLoaderException(final String message) {

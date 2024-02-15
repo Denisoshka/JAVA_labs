@@ -1,7 +1,5 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader;
 
-import ru.nsu.ccfit.zhdanov.firstAttemp.commandFactory.exception.ClassLoaderException;
-
 import java.io.InputStream;
 import java.util.Properties;
 
