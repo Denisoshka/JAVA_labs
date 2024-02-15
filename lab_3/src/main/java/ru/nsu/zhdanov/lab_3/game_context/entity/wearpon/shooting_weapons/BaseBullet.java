@@ -32,11 +32,14 @@ public class BaseBullet extends Entity implements WeaponImpl {
 
   @Override
   public boolean checkCollisions(GameContext context) {
-    if (isAlive()) {
+    if (!isAlive()) {
       return true;
     }
     for (Entity ent : context.getEntities()) {
       if (ent.isCollision(this) && ent.isAlive()) {
+        if (!isAlive()) {
+          return true;
+        }
         ent.acceptDamage(this);
       }
     }
@@ -45,7 +48,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
 
   @Override
   public int getDamage() {
-//    todo maybe useless
+    livesQuantity = 0;
     return damage;
   }
 }
