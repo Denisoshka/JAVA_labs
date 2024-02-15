@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesLoader {
-  public static Properties load(Object classObject, String propertiesPath) {
+  public static Properties load(String propertiesPath) {
     ClassLoader classLoader;
     try {
-      if ((classLoader = classObject.getClass().getClassLoader()) == null) {
+      if ((classLoader = PropertiesLoader.class.getClassLoader()) == null) {
         throw new ClassLoaderException(null);
       }
     } catch (Exception e) {

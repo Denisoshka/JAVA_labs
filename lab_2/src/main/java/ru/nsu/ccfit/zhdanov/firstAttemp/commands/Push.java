@@ -9,7 +9,8 @@ public class Push implements Command {
   @Override
   public void perform(List<String> args, ContextInterface context) {
     try {
-      double a = context.decode(args.getFirst());
+      double a;
+      a = context.decode(args.getFirst());
       context.push(a);
     } catch (NotContainVariable ignored) {
       throw new IncorrectVariable(args.getFirst());

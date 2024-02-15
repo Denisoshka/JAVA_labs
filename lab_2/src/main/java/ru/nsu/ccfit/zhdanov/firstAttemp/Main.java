@@ -3,12 +3,9 @@ package ru.nsu.ccfit.zhdanov.firstAttemp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import ru.nsu.ccfit.zhdanov.firstAttemp.cliParser.CalcCliParser;
-import ru.nsu.ccfit.zhdanov.firstAttemp.commandFactory.exception.ClassLoaderException;
 import ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader.PropertiesLoader;
-import ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader.ResourceException;
 import ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess;
 
-import java.io.InputStream;
 import java.util.Properties;
 
 @Slf4j
@@ -21,7 +18,7 @@ public class Main {
       log.info("process finished by \"help\" call");
       return;
     }
-    String commandsProperties = commandLine.getOptionValue("config", "commands.properties");
+    String commandsProperties = commandLine.getOptionValue("config", "ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader/commands.properties");
     String input = commandLine.getOptionValue("input");
     String output = commandLine.getOptionValue("output");
 
@@ -31,7 +28,7 @@ public class Main {
     log.info("commands properties=" + commandsProperties);
 
     try {
-      Properties properties = PropertiesLoader.load(Main.class, commandsProperties);
+      Properties properties = PropertiesLoader.load(commandsProperties);
       CalcProcess calc = new CalcProcess(properties);
       calc.process(
               commandLine.getOptionValue("input"),

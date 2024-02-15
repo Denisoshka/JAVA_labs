@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * desc: delete top of context stack and return this value
- * arguments: none
+ * Delete top of context stack
  */
 public class Pop implements Command {
   @Override

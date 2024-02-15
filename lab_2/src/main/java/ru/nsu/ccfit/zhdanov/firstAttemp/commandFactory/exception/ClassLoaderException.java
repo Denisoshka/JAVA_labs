@@ -1,7 +1,7 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commandFactory.exception;
 
-public class ClassLoaderException extends FactoryException {
+public class ClassLoaderException extends RuntimeException {
   public ClassLoaderException(final String message) {
-    super("Couldn't make instance of factory class loader");
+    super("Couldn't make instance of class loader " + message);
   }
 }
