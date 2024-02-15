@@ -5,19 +5,19 @@ import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.VariableHasAlreadyDe
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.Context;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.NotContainVariable;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Define implements Command {
   @Override
-  public void perform(ArrayList<String> args, Context context) {
-    if (args.size() != 2) {
+  public void perform(List<String> args, Context context) {
+    if (args.size() < 2) {
       throw new IncorrectStackParametersQuantity(2, args.size());
     }
     try {
       context.peekVariable(args.getFirst());
       throw new VariableHasAlreadyDefined(args.getFirst());
     } catch (NotContainVariable ignored) {
-      context.pushVariable(args.getFirst(), Double.valueOf(args.get(1)));
+      context.pushVariable(args.getFirst(), Double.parseDouble(args.get(1)));
     }
   }
 }

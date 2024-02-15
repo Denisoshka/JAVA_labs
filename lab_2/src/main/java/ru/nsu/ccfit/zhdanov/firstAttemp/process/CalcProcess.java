@@ -20,25 +20,29 @@ public class CalcProcess {
   final static char kSkipLineSymbol = '#';
 
   public static void process(final String kInputPath, final String kOutputPath, final String CommandProperties) throws IOException {
-    Writer out = (kOutputPath == null || kOutputPath.isEmpty()) ? new OutputStreamWriter(System.out) : new FileWriter(kOutputPath);
-    Reader in = (kInputPath == null || kInputPath.isEmpty()) ? new InputStreamReader(System.in) : new FileReader(kInputPath);
+    Writer out = (kOutputPath == null || kOutputPath.isEmpty()) ?
+            new OutputStreamWriter(System.out)
+            : new FileWriter(kOutputPath);
+    Reader in = (kInputPath == null || kInputPath.isEmpty()) ?
+            new InputStreamReader(System.in)
+            : new FileReader(kInputPath);
     Context context = new Context(out);
     CommandFactory.makeInstance(CommandProperties);
 
-    try (Scanner scanner = new Scanner(in)) {
-      while (scanner.hasNextLine()) {
-        String ArgsLine = scanner.nextLine();
-        if (ArgsLine.isEmpty() || ArgsLine.charAt(0) == kSkipLineSymbol) {
+    try (BufferedReader reader = new BufferedReader(in)) {
+      String args;
+      while ((args = reader.readLine()) != null) {
+        if (args.isEmpty() || args.charAt(0) == kSkipLineSymbol) {
           continue;
         }
 
-        ArrayList<String> args = new ArrayList<>(Arrays.asList(ArgsLine.split(" ")));
-        String commandName = args.removeFirst();
+        ArrayList<String> tokens = new ArrayList<>(Arrays.asList(args.split(" ")));
+        String commandName = tokens.removeFirst();
         try {
           Command command = CommandFactory.getInstance().create(commandName);
           try {
-            log.info("run command: \"" + commandName + "\" with args " + args);
-            command.perform(args, context);
+            log.info("run command: \"" + commandName + "\" with args " + tokens);
+            command.perform(tokens, context);
           } catch (CommandException e) {
             log.error("unable to run command: " + commandName, e);
           }

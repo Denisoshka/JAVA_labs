@@ -10,30 +10,33 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
+
+
 @Slf4j
 public class Context {
-  private final Stack<Double> _values;
-  private final HashMap<String, Double> _variables;
-  private final BufferedWriter _out;
+  private final Stack<Double> values;
+  private final Map<String, Double> variables;
+  private final BufferedWriter out;
 
   public Context(Writer out) {
-    this._values = new Stack<>();
-    this._variables = new HashMap<>();
-    this._out = new BufferedWriter(out);
+    this.values = new Stack<>();
+    this.variables = new HashMap<>();
+    this.out = new BufferedWriter(out);
   }
 
-  public int capacity(){
-    return _values.capacity();
+  public int capacity() {
+    return values.capacity();
   }
+
   public void push(final Double x) {
-    _values.push(x);
-    log.debug("values: " + _values.toString());
+    values.push(x);
   }
 
   public double peek() {
     try {
-      return _values.peek();
+      return values.peek();
     } catch (EmptyStackException e) {
       throw new EmptyContextStack();
     }
@@ -41,7 +44,7 @@ public class Context {
 
   public double pop() {
     try {
-      return _values.pop();
+      return values.pop();
     } catch (EmptyStackException e) {
       throw new EmptyContextStack();
     }
@@ -51,24 +54,24 @@ public class Context {
     if (name == null || name.isEmpty()) {
       throw new IncorrectVariableName();
     }
-    _variables.put(name, value);
+    variables.put(name, value);
   }
 
   public double peekVariable(String name) {
     Double val;
     try {
-      val = _variables.get(name);
+      val = variables.get(name);
     } catch (NullPointerException e) {
       throw new IncorrectVariableName();
     }
-    if (val == null){
+    if (val == null) {
       throw new NotContainVariable(name);
     }
     return val;
   }
 
   public void print(double var) throws IOException {
-    _out.write(String.valueOf(var));
-    _out.flush();
+    out.write(String.valueOf(var));
+    out.flush();
   }
 }

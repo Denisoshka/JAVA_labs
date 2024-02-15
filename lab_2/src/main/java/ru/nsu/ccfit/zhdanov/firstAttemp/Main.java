@@ -7,35 +7,28 @@ import ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess;
 
 @Slf4j
 public class Main {
-
   public static void main(String[] args) throws Exception {
     final String kCommandProperties = "commands.properties";
-    String kInput;
-    String kOutput;
 
-    try (CalcCliParser parser = new CalcCliParser()) {
-      CommandLine commandLine = parser.parse(args);
-      if (commandLine.hasOption("help")) {
-        parser.printHelp();
-        log.info("process finished by \"help\" call");
-        return;
-      }
-
-      kInput = commandLine.getOptionValue("input");
-      kOutput = commandLine.getOptionValue("output");
-
-    }catch (Exception e){
-      log.error("process finished with exception ", e);
-      throw e;
+    CalcCliParser parser = new CalcCliParser();
+    CommandLine commandLine = parser.parse(args);
+    if (commandLine.hasOption("help")) {
+      parser.printHelp();
+      log.info("process finished by \"help\" call");
+      return;
     }
 
     log.info("start process with:");
-    log.info("input=" + kInput);
-    log.info("output=" + kOutput);
+    log.info("input=" + commandLine.getOptionValue("input"));
+    log.info("output=" + commandLine.getOptionValue("output"));
     log.info("commands properties=" + kCommandProperties);
 
     try {
-      CalcProcess.process(kInput, kOutput, kCommandProperties);
+      CalcProcess.process(
+              commandLine.getOptionValue("input"),
+              commandLine.getOptionValue("output"),
+              kCommandProperties
+      );
     } catch (Exception e) {
       log.error("process finished with exception ", e);
       throw e;

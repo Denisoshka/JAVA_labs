@@ -1,9 +1,8 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.cliParser;
 
-import lombok.Getter;
 import org.apache.commons.cli.*;
 
-public class CalcCliParser implements AutoCloseable {
+public class CalcCliParser {
   private final Options opts;
 
   public CalcCliParser() {
@@ -41,9 +40,5 @@ public class CalcCliParser implements AutoCloseable {
   public void printHelp(){
     HelpFormatter helpFormatter = new HelpFormatter();
     helpFormatter.printHelp("calc", opts, true);
-  }
-
-  @Override
-  public void close() throws Exception {
   }
 }
