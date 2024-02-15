@@ -1,17 +1,16 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commands;
 
 import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.IncorrectStackParametersQuantity;
-import ru.nsu.ccfit.zhdanov.firstAttemp.context.Context;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Math.sqrt;
 
 public class Sqrt implements Command {
   @Override
-  public void perform(ArrayList<String> args, Context context) {
-    if (context.capacity() < 1) {
-      throw new IncorrectStackParametersQuantity(1, context.capacity());
+  public void perform(List<String> args, ContextInterface context) {
+    if (context.occupancy() < 1) {
+      throw new IncorrectStackParametersQuantity(1, context.occupancy());
     }
     context.push(sqrt(context.pop()));
   }

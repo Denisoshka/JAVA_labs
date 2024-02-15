@@ -1,6 +1,8 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.context;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.ContextInterface;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.VariableHasAlreadyDefined;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.EmptyContextStack;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariableName;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.NotContainVariable;
@@ -8,32 +10,32 @@ import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.NotContainVariable;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 
 @Slf4j
-public class Context {
+public class Context implements ContextInterface {
   private final Stack<Double> values;
   private final Map<String, Double> variables;
   private final BufferedWriter out;
 
   public Context(Writer out) {
     this.values = new Stack<>();
-    this.variables = new HashMap<>();
+    this.variables = new TreeMap<>();
     this.out = new BufferedWriter(out);
   }
 
-  public int capacity() {
+  @Override
+  public int occupancy() {
     return values.capacity();
   }
 
-  public void push(final Double x) {
+  @Override
+  public void push(final double x) {
     values.push(x);
   }
 
+  @Override
   public double peek() {
     try {
       return values.peek();
@@ -42,6 +44,12 @@ public class Context {
     }
   }
 
+  /**
+   * desc: delete top of context stack and return this value
+   * arguments: none
+   * throws: EmptyContextStack()
+   */
+  @Override
   public double pop() {
     try {
       return values.pop();
@@ -50,26 +58,33 @@ public class Context {
     }
   }
 
-  public void pushVariable(String name, Double value) {
+  @Override
+  public void define(String name, double value) {
     if (name == null || name.isEmpty()) {
       throw new IncorrectVariableName();
     }
-    variables.put(name, value);
+    variables.compute(name, (key, val) -> {
+      if (val == null) {
+        return value;
+      }
+      throw new VariableHasAlreadyDefined(key);
+    });
   }
 
-  public double peekVariable(String name) {
-    Double val;
+  @Override
+  public double decode(final String name) {
     try {
-      val = variables.get(name);
+      Double val = variables.get(name);
+      if (val == null) {
+        return Double.parseDouble(name);
+      }
+      return val;
     } catch (NullPointerException e) {
       throw new IncorrectVariableName();
     }
-    if (val == null) {
-      throw new NotContainVariable(name);
-    }
-    return val;
   }
 
+  @Override
   public void print(double var) throws IOException {
     out.write(String.valueOf(var));
     out.flush();

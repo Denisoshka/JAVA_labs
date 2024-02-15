@@ -6,6 +6,8 @@ public class CalcCliParser {
   private final Options opts;
 
   public CalcCliParser() {
+    CalcCliParser.class.getClassLoader();
+
     opts = new Options();
     opts.addOption(Option.builder()
                     .option("h")
@@ -29,7 +31,16 @@ public class CalcCliParser {
                     .numberOfArgs(1)
                     .argName("path")
                     .type(String.class)
-                    .build());
+                    .build())
+            .addOption(Option.builder()
+                    .option("c")
+                    .longOpt("config")
+                    .desc("Config file for commands")
+                    .hasArg()
+                    .numberOfArgs(1)
+                    .type(String.class)
+                    .build()
+            );
   }
 
   public CommandLine parse(String[] args) throws ParseException {
@@ -37,7 +48,7 @@ public class CalcCliParser {
     return parser.parse(opts, args);
   }
 
-  public void printHelp(){
+  public void printHelp() {
     HelpFormatter helpFormatter = new HelpFormatter();
     helpFormatter.printHelp("calc", opts, true);
   }
