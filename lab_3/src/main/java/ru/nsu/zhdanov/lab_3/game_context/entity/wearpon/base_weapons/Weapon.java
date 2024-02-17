@@ -1,19 +1,20 @@
 package ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.base_weapons;
 
 import lombok.Getter;
-import ru.nsu.zhdanov.lab_3.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
 
 public class Weapon {
-  private @Getter String sprite;
+  private @Getter ContextID ID;
   private @Getter int damage;
 
-  public Weapon(String sprite, int damage) {
-    this.sprite = sprite;
+  public Weapon(ContextID ID, int damage) {
+    this.ID = ID;
     this.damage = damage;
   }
 
-  public boolean action(final GameContext context) {
+  public boolean action(final GameEngine context, final Entity user) {
     return false;
   }
 

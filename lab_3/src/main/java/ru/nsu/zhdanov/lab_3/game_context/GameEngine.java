@@ -1,35 +1,63 @@
 package ru.nsu.zhdanov.lab_3.game_context;
 
-import java.util.Map;
-import java.util.Properties;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.game_context.entity.player.Player;
+
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class GameEngine extends GameContext {
-  public enum EngineInput {
-    FORWARD("move forward"),
-    LEFT("move left"),
-    RIGHT("move right"),
-    BACK("move back"),
-    RELOAD("reload"),
-    SHOOT("shoot");
-    private final String name;
+@Slf4j
+public class GameEngine {
+  protected @Getter GameMap map;
+  protected @Getter Player player;
+  protected @Getter List<Entity> entities;
+  protected Map<PlayerAction, AtomicBoolean> input;
+  //  todo
+  protected Properties contextProperties;
+  protected @Getter
+  @Setter double cameraSin;
+  protected @Getter
+  @Setter double cameraCos;
+  protected double GameSceneWidth;
+  protected double GameSceneHeight;
 
-    public String getName() {
-      return name;
+  public GameEngine(Properties contextProperties) {
+    this.contextProperties = contextProperties;
+//    todo make prop use
+    this.player = new Player(0, 0, 10, 0);
+    this.entities = new ArrayList<>();
+    this.input = new HashMap<>();
+    initMap();
+  }
+
+  protected void initMap() {
+//    todo
+    map = new GameMap(0, 0, 600, 600);
+  }
+
+
+  public void update() {//
+    player.update(this);
+    for (Entity ent : entities) {
+      ent.update(this);
     }
 
-    EngineInput(String name) {
-      this.name = name;
+    player.checkCollisions(this);
+    for (Entity ent : entities) {
+      ent.checkCollisions(this);
     }
-  }
-  //  todo наверное можно булевые значения одни на стеке иметь на 2 места
-  private Map<EngineInput, AtomicBoolean> input;
 
-  GameEngine(Properties mapProperties) {
-    super(mapProperties);
+    entities.removeIf(Entity::isAlive);
   }
 
-  public Map<EngineInput, AtomicBoolean> getInput() {
-    return input;
+  public Map<PlayerAction, AtomicBoolean> getInput() {
+    return this.input;
+  }
+
+  public List<Entity> getDrawInf() {
+    return entities;
   }
 }

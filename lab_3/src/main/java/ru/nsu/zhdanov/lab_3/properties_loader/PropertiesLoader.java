@@ -1,7 +1,15 @@
 package ru.nsu.zhdanov.lab_3.properties_loader;
+
 import java.io.InputStream;
 import java.util.Properties;
+
+
 public class PropertiesLoader {
+
+  /**
+   * @throws ResourceException
+   * @throws ClassLoaderException
+   */
   public static Properties load(String propertiesPath) {
     ClassLoader classLoader;
     try {

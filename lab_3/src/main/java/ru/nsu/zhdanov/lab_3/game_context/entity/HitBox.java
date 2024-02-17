@@ -21,4 +21,5 @@ public class HitBox {
     return (Double.compare(Math.abs(x - other.x), radius + other.radius) < 0)
             && (Double.compare(Math.abs(y - other.y), radius + other.radius) < 0);
   }
+
 }

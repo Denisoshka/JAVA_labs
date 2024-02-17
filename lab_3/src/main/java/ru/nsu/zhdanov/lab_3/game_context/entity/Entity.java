@@ -1,28 +1,37 @@
 package ru.nsu.zhdanov.lab_3.game_context.entity;
 
 import lombok.Getter;
-import ru.nsu.zhdanov.lab_3.game_context.GameContext;
+import lombok.Setter;
+import ru.nsu.zhdanov.lab_3.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.WeaponImpl;
 
-public class Entity extends HitBox {
-  protected @Getter int angle;
-  protected @Getter int livesQuantity;
-  protected @Getter String sprite;
-  protected Double xShift = (double) 0;
-  protected Double yShift = (double) 0;
+import java.util.List;
 
-  public Entity(double x, double y, double radius, int LivesQuantity, int Angle, String Sprite) {
+public class Entity extends HitBox implements SpriteSupplier {
+  protected @Getter double sinDir = 0;
+  protected @Getter double cosDir = 0;
+  protected int livesQuantity;
+  protected ContextID ID;
+  protected @Getter
+  @Setter double xShift;
+  protected @Getter
+  @Setter double yShift;
+
+  public boolean update(final GameEngine context) {
+    return !context.getMap().ableToMove(this);
+  }
+
+  public Entity(double x, double y, double radius, double xShift,
+                double yShift, int LivesQuantity, ContextID ID) {
     super(x, y, radius);
     this.livesQuantity = LivesQuantity;
-    this.angle = Angle;
-    this.sprite = Sprite;
+    this.xShift = xShift;
+    this.yShift = yShift;
+    this.ID = ID;
   }
 
-  public boolean update(final GameContext context) {
-    return context.getMap().ableToMove(xShift, yShift, this);
-  }
-
-  public boolean checkCollisions(final GameContext context) {
+  public boolean checkCollisions(final GameEngine context) {
     return false;
   }
 
@@ -33,5 +42,10 @@ public class Entity extends HitBox {
 
   public boolean isAlive() {
     return livesQuantity > 0;
+  }
+
+  @Override
+  public ContextID getSprite() {
+    return ID;
   }
 }
