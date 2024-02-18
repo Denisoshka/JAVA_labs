@@ -2,20 +2,20 @@ package ru.nsu.zhdanov.lab_3.lab_3;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ru.nsu.zhdanov.lab_3.fassade.MainController;
+import lombok.NonNull;
 
 import java.io.IOException;
 
 public class GameApplication extends Application {
   @Override
   public void start(Stage stage) throws IOException {
-    FXMLLoader loader = new FXMLLoader(GameApplication.class.getResource("game_window.fxml"));
-    Scene scene = new Scene(loader.load());
+    java.net.URL res = GameApplication.class.getClassLoader().getResource("game_window.fxml");
+    FXMLLoader fxmlLoader = new FXMLLoader(res);
 
-    stage.setTitle("Full Screen Game Example");
+    Scene scene = new Scene(fxmlLoader.load());
+    stage.setTitle("Car factory!");
     stage.setScene(scene);
     stage.show();
   }

@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab_3.fassade;
+package ru.nsu.zhdanov.lab_3.facade;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -12,7 +12,6 @@ import ru.nsu.zhdanov.lab_3.game_context.ContextID;
 import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.PlayerAction;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.game_context.entity.SpriteSupplier;
 import ru.nsu.zhdanov.lab_3.properties_loader.PropertiesLoader;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class MainController {
 
   @FXML
   private void initialize() {
-    initInput("key_input.properties", "mouse_input.properties");
+/*    initInput("key_input.properties", "mouse_input.properties");
     downloadRequiredImages("sprite.properties");
 
     this.graphicsContext = gameCanvas.getGraphicsContext2D();
@@ -48,7 +47,7 @@ public class MainController {
         draw();
       }
     };
-    this.gameLoop.start();
+    this.gameLoop.start();*/
   }
 
   private void getUserInput() {
@@ -74,6 +73,7 @@ public class MainController {
   }
 
   private void initMouse() {
+    mouseCords = new ArrayList<>(2);
     gameCanvas.setOnMouseMoved(mouseEvent -> {
       mouseCords.set(1, mouseEvent.getSceneX());
       mouseCords.set(2, mouseEvent.getSceneY());
