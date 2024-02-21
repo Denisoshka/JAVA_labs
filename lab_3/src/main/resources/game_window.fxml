@@ -7,9 +7,16 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="ru.nsu.zhdanov.lab_3.facade.MainController">
     <children>
-        <Canvas width="1200" height="675" AnchorPane.bottomAnchor="10" AnchorPane.leftAnchor="0"
+        <Canvas width="1200" height="675" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                 AnchorPane.rightAnchor="0"
-                fx:id="gameCanvas">
+                fx:id="gameCanvas"
+                focusTraversable="true"
+                onMouseMoved="#handleMouseTrack"
+                onMousePressed="#trackMousePressed"
+                onMouseReleased="#trackMouseReleased"
+                onKeyPressed="#handlePressedKey"
+                onKeyReleased="#handleReleasedKey"
+        >
         </Canvas>
     </children>
 </AnchorPane>

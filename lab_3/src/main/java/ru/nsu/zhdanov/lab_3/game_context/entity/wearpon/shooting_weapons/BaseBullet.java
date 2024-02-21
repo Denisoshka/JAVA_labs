@@ -3,30 +3,41 @@ package ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.shooting_weapons;
 import ru.nsu.zhdanov.lab_3.game_context.ContextID;
 import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.WeaponImpl;
+import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
+import ru.nsu.zhdanov.lab_3.game_context.interfaces.WeaponImpl;
 
 public class BaseBullet extends Entity implements WeaponImpl {
   final static int updQuantity = 5;
   final static int damage = 10;
-  final static double shift = 0.3;
+  final static double shift = 100;
   protected boolean ableToUse = true;
 
-  public BaseBullet(double x, double y, double cos, double sin) {
-    super(x, y, 0, shift * cos, shift * sin, 1, ContextID.BaseBullet);
+  public BaseBullet(int x, int y, double cos, double sin) {
+    super(x, y, 0, (int) (shift * cos), (int) (shift * sin), 1, ContextID.BaseBullet);
   }
 
   @Override
   public boolean update(GameEngine context) {
-    boolean updRes = true;
-    for (int i = 0; i < updQuantity; ++i) {
-      if (updRes != super.update(context)) {
-        livesQuantity = 0;
-        break;
-      }
-      x += xShift;
-      y += yShift;
-    }
+    handleMove(context);
     return true;
+  }
+
+  @Override
+  protected void handleMove(GameEngine context) {
+    int yShift = context.getMap().getAllowedYShift(this);
+    int xShift = context.getMap().getAllowedXShift(this);
+    if (yShift != this.yShift && xShift != this.xShift) {
+      livesQuantity = 0;
+    }
+    this.yShift = yShift;
+    this.xShift = xShift;
+    handleCollisions(context);
+    if (yShift != this.yShift && xShift != this.xShift) {
+      livesQuantity = 0;
+    }
+
+    this.x += this.xShift;
+    this.y += this.yShift;
   }
 
   @Override
@@ -54,5 +65,11 @@ public class BaseBullet extends Entity implements WeaponImpl {
   @Override
   public boolean isAlive() {
     return livesQuantity != 0 && ableToUse;
+  }
+
+  @Override
+  public void drawSprite(DrawInterface drawContext) {
+//    todo
+    drawContext.draw(ID, x, y, radius, radius, sinDir, cosDir);
   }
 }

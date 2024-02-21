@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.game_context.entity.player.Player;
+import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +28,7 @@ public class GameEngine {
   public GameEngine(Properties contextProperties) {
     this.contextProperties = contextProperties;
 //    todo make prop use
-    this.player = new Player(0, 0, 10, 0);
+    this.player = new Player(0, 0, 10, 10);
     this.entities = new ArrayList<>();
     this.input = new HashMap<>();
     initMap();
@@ -35,7 +36,7 @@ public class GameEngine {
 
   protected void initMap() {
 //    todo
-    map = new GameMap(0, 0, 600, 600);
+    map = new GameMap(0, 0, 600, 600, 1000);
   }
 
 
@@ -51,6 +52,13 @@ public class GameEngine {
     }
 
     entities.removeIf(Entity::isAlive);
+  }
+
+  public void drawScene(DrawInterface drawContext) {
+    player.drawSprite(drawContext);
+    for (Entity ent : entities) {
+      ent.drawSprite(drawContext);
+    }
   }
 
   public Map<PlayerAction, AtomicBoolean> getInput() {

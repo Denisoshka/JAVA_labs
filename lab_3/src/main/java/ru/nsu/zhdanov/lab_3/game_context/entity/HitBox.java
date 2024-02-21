@@ -5,13 +5,13 @@ import lombok.Setter;
 
 public class HitBox {
   protected @Getter
-  @Setter double x;
+  @Setter int x;
   protected @Getter
-  @Setter double y;
+  @Setter int y;
   protected @Getter
-  @Setter double radius;
+  @Setter int radius;
 
-  public HitBox(double x, double y, double radius) {
+  public HitBox(int x, int y, int radius) {
     this.x = x;
     this.y = y;
     this.radius = radius;

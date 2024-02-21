@@ -6,25 +6,27 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.game_context.ContextID;
 import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.PlayerAction;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.properties_loader.PropertiesLoader;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class MainController {
   //todo maybe perenesti into hello Application?
   protected GameEngine context;
   protected @Getter Map<KeyCode, AtomicBoolean> keysInput;//
   protected @Getter Map<MouseButton, AtomicBoolean> mouseInput;//
-  protected ArrayList<Double> mouseCords;//
+  protected double[] mouseCords;//
   @FXML
   protected Canvas gameCanvas;//
   protected GraphicsContext graphicsContext;//
@@ -33,11 +35,11 @@ public class MainController {
 
   @FXML
   private void initialize() {
-/*    initInput("key_input.properties", "mouse_input.properties");
+    this.context = new GameEngine(null);
+    initInput("key_input.properties", "mouse_input.properties");
     downloadRequiredImages("sprite.properties");
 
     this.graphicsContext = gameCanvas.getGraphicsContext2D();
-    this.context = new GameEngine(null);
 //    todo что я хотел здесь сделать
     this.gameLoop = new AnimationTimer() {
       @Override
@@ -47,54 +49,63 @@ public class MainController {
         draw();
       }
     };
-    this.gameLoop.start();*/
+    gameCanvas.requestFocus();
+    this.gameLoop.start();
   }
 
   private void getUserInput() {
-    double x = mouseCords.getFirst() - gameCanvas.getWidth() / 2;
-    double y = mouseCords.getLast() - gameCanvas.getHeight() / 2;
+    double x = mouseCords[0] - gameCanvas.getWidth() / 2;
+    double y = mouseCords[1] - gameCanvas.getHeight() / 2;
     double angle = Math.atan2(x, y);
     context.setCameraCos(Math.cos(angle));
-    context.setCameraCos(Math.sin(angle));
+    context.setCameraSin(Math.sin(angle));
   }
 
-  private void initKeyboard() {
-    gameCanvas.setOnKeyPressed(event -> {
-      if (keysInput.containsKey(event.getCode())) {
-        keysInput.get(event.getCode()).set(true);
-      }
-    });
-
-    gameCanvas.setOnKeyReleased(event -> {
-      if (keysInput.containsKey(event.getCode())) {
-        keysInput.get(event.getCode()).set(false);
-      }
-    });
+  @FXML
+  private void handleReleasedKey(KeyEvent keyEvent) {
+    if (keysInput.containsKey(keyEvent.getCode())) {
+      log.info(keyEvent.getCode().toString() + " released");
+      keysInput.get(keyEvent.getCode()).set(false);
+    }
   }
 
-  private void initMouse() {
-    mouseCords = new ArrayList<>(2);
-    gameCanvas.setOnMouseMoved(mouseEvent -> {
-      mouseCords.set(1, mouseEvent.getSceneX());
-      mouseCords.set(2, mouseEvent.getSceneY());
-    });
+  @FXML
+  private void handlePressedKey(KeyEvent keyEvent) {
+    if (keysInput.containsKey(keyEvent.getCode())) {
+      log.info(keyEvent.getCode().toString() + " pressed");
+      keysInput.get(keyEvent.getCode()).set(true);
+    }
+  }
 
-    gameCanvas.setOnMousePressed(mouseEvent -> {
-      if (mouseInput.containsKey(mouseEvent.getButton())) {
-        mouseInput.get(mouseEvent.getButton()).set(true);
-      }
-    });
+  @FXML
+  private void handleMouseTrack(MouseEvent mouseEvent) {
+    mouseCords[0] = mouseEvent.getSceneX();
+    mouseCords[1] = mouseEvent.getSceneY();
+    log.info("cur mouse cords x=" + mouseCords[0] + " y=" + mouseCords[1]);
+  }
 
-    gameCanvas.setOnMouseReleased(mouseEvent -> {
-      if (mouseInput.containsKey(mouseEvent.getButton())) {
-        mouseInput.get(mouseEvent.getButton()).set(false);
-      }
-    });
+  @FXML
+  private void trackMousePressed(MouseEvent mouseEvent) {
+    if (mouseInput.containsKey(mouseEvent.getButton())) {
+      log.info("pressed " + mouseEvent.getButton().toString());
+      mouseInput.get(mouseEvent.getButton()).set(true);
+    }
+  }
+
+  @FXML
+  private void trackMouseReleased(MouseEvent mouseEvent) {
+    if (mouseInput.containsKey(mouseEvent.getButton())) {
+      log.info("released " + mouseEvent.getButton().toString());
+      mouseInput.get(mouseEvent.getButton()).set(false);
+    }
   }
 
   private void initInput(final String keyProp, final String mouseProp) {
     Properties keyProperties = PropertiesLoader.load(keyProp);
     Properties mouseProperties = PropertiesLoader.load(mouseProp);
+    keysInput = new HashMap<>();
+    mouseInput = new HashMap<>();
+    mouseCords = new double[2];
 
     for (PlayerAction key : PlayerAction.values()) {
       String keyName = keyProperties.getProperty(String.valueOf(key));
@@ -112,15 +123,14 @@ public class MainController {
         context.getInput().put(key, indicator);
       }
     }
-
-    initKeyboard();
-    initMouse();
   }
 
   private void downloadRequiredImages(final String name) {
+    sprites = new HashMap<>();
     Properties properties = PropertiesLoader.load(name);
     for (ContextID image : ContextID.values()) {
-      Image sprite = new Image(properties.getProperty(image.name()));
+      Image sprite = new Image(Objects.requireNonNull(getClass()
+              .getResourceAsStream(properties.getProperty(image.name()))));
       sprites.put(image, sprite);
     }
   }

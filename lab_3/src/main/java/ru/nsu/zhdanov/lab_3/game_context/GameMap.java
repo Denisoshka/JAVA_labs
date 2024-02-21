@@ -6,38 +6,44 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class GameMap {
+    public int cellSize = 1000;
   protected final Map<Integer, Map<Integer, MapCell>> map;
   protected int maxX;
   protected int maxY;
   protected int minX;
   protected int minY;
 
-  public GameMap(int minX, int minY, int maxX, int maxY) {
+  public GameMap(int minX, int minY, int maxX, int maxY, int cellSize) {
 //    todo make prop
     this.maxX = maxX;
     this.maxY = maxY;
     this.minX = minX;
     this.minY = minY;
+    this.cellSize = cellSize;
     this.map = new TreeMap<>();
   }
 
-  public boolean ableToMove(Entity ent) {
-    boolean ret = true;
-    double x = Math.clamp(ent.getX() + ent.getXShift(), minX, maxX);
-    double y = Math.clamp(ent.getY() + ent.getYShift(), minX, maxX);
-    if (Double.compare(x, ent.getX()) != 0 || Double.compare(y, ent.getY()) != 0) {
-      ret = false;
-    }
-    ent.setXShift(x);
-    ent.setYShift(y);
+  public int getAllowedXShift(Entity ent) {
+    return Math.clamp(ent.getX() + ent.getXShift(), minX + ent.getRadius(), maxX - ent.getRadius()) - ent.getX();
+  }
 
-    Map<Integer, MapCell> row = map.get((int) ent.getXShift());
+  public int getAllowedYShift(Entity ent) {
+    return Math.clamp(ent.getY() + ent.getYShift(), minX + ent.getRadius(), maxX - ent.getRadius()) - ent.getY();
+  }
+
+  public int getCellSize() {
+    return cellSize;
+  }
+
+  public MapCell getCell(int x, int y) {
+    x = x / cellSize;
+    y = y / cellSize;
+    Map<Integer, MapCell> row = map.get(x);
     if (row != null) {
-      MapCell cell = row.get((int) ent.getYShift());
-      if (cell != null) {
-        return cell.getCollision(ent);
+      {
+        return row.get(y);
       }
     }
-    return ret;
+    return null;
   }
 }
