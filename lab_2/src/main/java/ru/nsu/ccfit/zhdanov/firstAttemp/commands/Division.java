@@ -1,15 +1,14 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commands;
 
-import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.IncorrectStackParametersQuantity;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.IncorrectParametersQuantity;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.Command;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.ContextInterface;
 
 import java.util.List;
 
-public class Division implements Command{
+public class Division implements Command {
   @Override
   public void perform(List<String> args, ContextInterface context) {
-    if (context.occupancy() < 2) {
-      throw new IncorrectStackParametersQuantity(2, context.occupancy());
-    }
-    context.push(context.pop()/context.pop());
+    context.push(context.pop() / context.pop());
   }
 }

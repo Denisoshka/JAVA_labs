@@ -1,10 +1,10 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.context;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.ccfit.zhdanov.firstAttemp.commands.ContextInterface;
-import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.VariableHasAlreadyDefined;
+import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.ContextInterface;
+import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.VariableRedefinition;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.EmptyContextStack;
-import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariableName;
+import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariable;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class Context implements ContextInterface {
   @Override
   public int occupancy() {
     log.info("occupancy " + values.capacity());
-    return values.capacity();
+    return values.size();
   }
 
   @Override
@@ -36,6 +36,9 @@ public class Context implements ContextInterface {
     values.push(x);
   }
 
+  /**
+   * @throws: EmptyContextStack
+   */
   @Override
   public double peek() {
     try {
@@ -48,9 +51,7 @@ public class Context implements ContextInterface {
   }
 
   /**
-   * desc: delete top of context stack and return this value
-   * arguments: none
-   * throws: EmptyContextStack()
+   * @throws: EmptyContextStack
    */
   @Override
   public double pop() {
@@ -63,20 +64,31 @@ public class Context implements ContextInterface {
     }
   }
 
+  /**
+   * @throws IncorrectVariable
+   * @throws VariableRedefinition
+   */
   @Override
-  public void define(String name, double value) {
+  public void define(final String name, final String value) {
     if (name == null || name.isEmpty()) {
-      throw new IncorrectVariableName();
+      throw new IncorrectVariable("name");
     }
     variables.compute(name, (key, val) -> {
       if (val == null) {
-        return value;
+        try {
+          return Double.parseDouble(value);
+        } catch (Exception ignored) {
+          throw new IncorrectVariable("value");
+        }
       }
-      throw new VariableHasAlreadyDefined(key);
+      throw new VariableRedefinition(key);
     });
     log.info("define " + name + "=" + value);
   }
 
+  /**
+   * @throws IncorrectVariable
+   */
   @Override
   public double decode(final String name) {
     try {
@@ -86,8 +98,8 @@ public class Context implements ContextInterface {
       }
       log.info("decode " + name + " into: " + val);
       return val;
-    } catch (NullPointerException | NumberFormatException e) {
-      throw new IncorrectVariableName();
+    } catch (Exception ignored) {
+      throw new IncorrectVariable(name);
     }
   }
 

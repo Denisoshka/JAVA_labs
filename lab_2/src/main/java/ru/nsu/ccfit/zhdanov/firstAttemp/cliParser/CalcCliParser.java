@@ -50,6 +50,6 @@ public class CalcCliParser {
 
   public void printHelp() {
     HelpFormatter helpFormatter = new HelpFormatter();
-    helpFormatter.printHelp("calc", opts, true);
+    helpFormatter.printHelp("calculator", opts, true);
   }
 }

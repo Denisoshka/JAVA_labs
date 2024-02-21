@@ -1,11 +1,11 @@
-package ru.nsu.ccfit.zhdanov.firstAttemp.commands;
+package ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces;
 
 import java.io.IOException;
 
 public interface ContextInterface {
   abstract public double pop();
 
-  abstract public void define(final String name, double value);
+  abstract public void define(final String name, final String value);
 
   abstract public double peek();
 

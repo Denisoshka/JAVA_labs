@@ -28,8 +28,7 @@ public class Main {
     log.info("commands properties=" + commandsProperties);
 
     try {
-      Properties properties = PropertiesLoader.load(commandsProperties);
-      CalcProcess calc = new CalcProcess(properties);
+      CalcProcess calc = new CalcProcess(PropertiesLoader.load(commandsProperties));
       calc.process(
               commandLine.getOptionValue("input"),
               commandLine.getOptionValue("output")

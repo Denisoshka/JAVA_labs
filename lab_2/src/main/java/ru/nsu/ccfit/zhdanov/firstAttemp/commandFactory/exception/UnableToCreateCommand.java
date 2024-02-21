@@ -1,7 +1,7 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commandFactory.exception;
 
-public class CommandCreateException extends FactoryException{
-  public CommandCreateException(String message) {
+public class UnableToCreateCommand extends FactoryException{
+  public UnableToCreateCommand(String message) {
     super("unable to create command " + message);
   }
 }
