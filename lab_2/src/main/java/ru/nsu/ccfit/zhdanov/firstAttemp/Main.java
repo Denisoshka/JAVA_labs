@@ -1,16 +1,18 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import ru.nsu.ccfit.zhdanov.firstAttemp.cliParser.CalcCliParser;
 import ru.nsu.ccfit.zhdanov.firstAttemp.properties_loader.PropertiesLoader;
 import ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
 
-@Slf4j
 public class Main {
+  static final private Logger log = LoggerFactory.getLogger(Main.class);
+
   public static void main(String[] args) throws Exception {
+
     CalcCliParser parser = new CalcCliParser();
     CommandLine commandLine = parser.parse(args);
     if (commandLine.hasOption("help")) {

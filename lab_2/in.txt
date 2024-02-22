@@ -2,5 +2,10 @@ define a 90
 push 10
 push a
 push b
+define a 100
+push 10
+push 10
+/
+print
 +
 print

@@ -81,6 +81,7 @@ public class Context implements ContextInterface {
           throw new IncorrectVariable("value");
         }
       }
+      log.info("try to redefine var:" + name + "=" + value);
       throw new VariableRedefinition(key);
     });
     log.info("define " + name + "=" + value);
@@ -99,6 +100,7 @@ public class Context implements ContextInterface {
       log.info("decode " + name + " into: " + val);
       return val;
     } catch (Exception ignored) {
+      log.info("unable to decode " + name);
       throw new IncorrectVariable(name);
     }
   }
@@ -107,6 +109,7 @@ public class Context implements ContextInterface {
   public void print(double var) throws IOException {
     log.info("print " + var);
     out.write(String.valueOf(var));
+    out.newLine();
     out.flush();
   }
 }
