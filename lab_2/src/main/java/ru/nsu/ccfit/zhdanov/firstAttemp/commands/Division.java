@@ -1,6 +1,5 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.commands;
 
-import ru.nsu.ccfit.zhdanov.firstAttemp.commands.exceptions.IncorrectParametersQuantity;
 import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.Command;
 import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.ContextInterface;
 

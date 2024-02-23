@@ -1,0 +1,63 @@
+22.02.2024 23:37:39.030 [main] INFO   r.n.c.z.f.Main - start process with:
+22.02.2024 23:37:39.033 [main] INFO   r.n.c.z.f.Main - input=in.txt
+22.02.2024 23:37:39.033 [main] INFO   r.n.c.z.f.Main - output=out.txt
+22.02.2024 23:37:39.034 [main] INFO   r.n.c.z.f.Main - commands properties=commands.properties
+22.02.2024 23:37:39.044 [main] INFO   r.n.c.z.f.c.CashedFactory - get new command DEFINE
+22.02.2024 23:37:39.045 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "DEFINE" with args [a, 90]
+22.02.2024 23:37:39.049 [main] INFO   r.n.c.z.f.c.Context - define a=90
+22.02.2024 23:37:39.050 [main] INFO   r.n.c.z.f.c.CashedFactory - get new command PUSH
+22.02.2024 23:37:39.051 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PUSH" with args [10]
+22.02.2024 23:37:39.052 [main] INFO   r.n.c.z.f.c.Context - decode 10 into: 10.0
+22.02.2024 23:37:39.054 [main] INFO   r.n.c.z.f.c.Context - push 10.0
+22.02.2024 23:37:39.054 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: PUSH
+22.02.2024 23:37:39.054 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PUSH" with args [a]
+22.02.2024 23:37:39.054 [main] INFO   r.n.c.z.f.c.Context - decode a into: 90.0
+22.02.2024 23:37:39.054 [main] INFO   r.n.c.z.f.c.Context - push 90.0
+22.02.2024 23:37:39.055 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: PUSH
+22.02.2024 23:37:39.055 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PUSH" with args [b]
+22.02.2024 23:37:39.055 [main] INFO   r.n.c.z.f.c.Context - unable to decode b
+22.02.2024 23:37:39.056 [main] ERROR  r.n.c.z.f.p.CalcProcess - Unable to run command: PUSH
+ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariable: Command exception: ContextExceptionVariable: b incorrect
+	at ru.nsu.ccfit.zhdanov.firstAttemp.context.Context.decode(Context.java:104)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.commands.Push.perform(Push.java:15)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess.process(CalcProcess.java:48)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.Main.main(Main.java:34)
+22.02.2024 23:37:39.060 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: DEFINE
+22.02.2024 23:37:39.060 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "DEFINE" with args [a, 100]
+22.02.2024 23:37:39.060 [main] INFO   r.n.c.z.f.c.Context - try to redefine var:a=100
+22.02.2024 23:37:39.061 [main] ERROR  r.n.c.z.f.p.CalcProcess - Unable to run command: DEFINE
+ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.VariableRedefinition: Command exception: ContextExceptionRedefinition of variablea
+	at ru.nsu.ccfit.zhdanov.firstAttemp.context.Context.lambda$define$0(Context.java:85)
+	at java.base/java.util.TreeMap.callRemappingFunctionWithCheck(TreeMap.java:792)
+	at java.base/java.util.TreeMap.remapValue(TreeMap.java:868)
+	at java.base/java.util.TreeMap.compute(TreeMap.java:719)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.context.Context.define(Context.java:76)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.commands.Define.perform(Define.java:15)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.process.CalcProcess.process(CalcProcess.java:48)
+	at ru.nsu.ccfit.zhdanov.firstAttemp.Main.main(Main.java:34)
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: PUSH
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PUSH" with args [10]
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.Context - decode 10 into: 10.0
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.Context - push 10.0
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: PUSH
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PUSH" with args [10]
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.Context - decode 10 into: 10.0
+22.02.2024 23:37:39.062 [main] INFO   r.n.c.z.f.c.Context - push 10.0
+22.02.2024 23:37:39.063 [main] INFO   r.n.c.z.f.c.CashedFactory - get new command /
+22.02.2024 23:37:39.063 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "/" with args []
+22.02.2024 23:37:39.064 [main] INFO   r.n.c.z.f.c.Context - pop 10.0
+22.02.2024 23:37:39.064 [main] INFO   r.n.c.z.f.c.Context - pop 10.0
+22.02.2024 23:37:39.064 [main] INFO   r.n.c.z.f.c.Context - push 1.0
+22.02.2024 23:37:39.065 [main] INFO   r.n.c.z.f.c.CashedFactory - get new command PRINT
+22.02.2024 23:37:39.065 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PRINT" with args []
+22.02.2024 23:37:39.065 [main] INFO   r.n.c.z.f.c.Context - peek 1.0
+22.02.2024 23:37:39.066 [main] INFO   r.n.c.z.f.c.Context - print 1.0
+22.02.2024 23:37:39.067 [main] INFO   r.n.c.z.f.c.CashedFactory - get new command +
+22.02.2024 23:37:39.067 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "+" with args []
+22.02.2024 23:37:39.067 [main] INFO   r.n.c.z.f.c.Context - pop 1.0
+22.02.2024 23:37:39.067 [main] INFO   r.n.c.z.f.c.Context - pop 90.0
+22.02.2024 23:37:39.068 [main] INFO   r.n.c.z.f.c.Context - push 91.0
+22.02.2024 23:37:39.068 [main] INFO   r.n.c.z.f.c.CashedFactory - get from cashe command: PRINT
+22.02.2024 23:37:39.068 [main] INFO   r.n.c.z.f.p.CalcProcess - Run command: "PRINT" with args []
+22.02.2024 23:37:39.068 [main] INFO   r.n.c.z.f.c.Context - peek 91.0
+22.02.2024 23:37:39.068 [main] INFO   r.n.c.z.f.c.Context - print 91.0

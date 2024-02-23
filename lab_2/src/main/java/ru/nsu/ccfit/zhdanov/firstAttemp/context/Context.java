@@ -1,10 +1,11 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.context;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.ccfit.zhdanov.firstAttemp.commands.interfaces.ContextInterface;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.VariableRedefinition;
-import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.EmptyContextStack;
+import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.EmptyStack;
 import ru.nsu.ccfit.zhdanov.firstAttemp.context.exception.IncorrectVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,8 +13,8 @@ import java.io.Writer;
 import java.util.*;
 
 
-@Slf4j
 public class Context implements ContextInterface {
+  static private final Logger log = LoggerFactory.getLogger(Context.class);
   private final Stack<Double> values;
   private final Map<String, Double> variables;
   private final BufferedWriter out;
@@ -46,7 +47,7 @@ public class Context implements ContextInterface {
       log.info("peek " + x);
       return x;
     } catch (EmptyStackException e) {
-      throw new EmptyContextStack();
+      throw new EmptyStack();
     }
   }
 
@@ -60,7 +61,7 @@ public class Context implements ContextInterface {
       log.info("pop " + x);
       return x;
     } catch (EmptyStackException e) {
-      throw new EmptyContextStack();
+      throw new EmptyStack();
     }
   }
 

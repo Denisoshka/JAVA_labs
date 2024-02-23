@@ -1,7 +1,7 @@
 package ru.nsu.ccfit.zhdanov.firstAttemp.context.exception;
 
-public class EmptyContextStack extends ContextException {
-  public EmptyContextStack() {
+public class EmptyStack extends ContextException {
+  public EmptyStack() {
     super("Empty stack");
   }
 }
