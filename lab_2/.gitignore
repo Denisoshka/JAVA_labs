@@ -37,7 +37,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### My own ###
+### my own files ###
+slf4jlogback.log
 .idea/
-*.log
-logs/
