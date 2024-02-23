@@ -39,3 +39,5 @@ build/
 
 ### My own ###
 .idea/
+*.log
+logs/
