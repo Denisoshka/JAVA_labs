@@ -63,9 +63,6 @@ public class Player extends Entity {
     }
     this.yShift = context.getMap().getAllowedYShift(this);
     this.xShift = context.getMap().getAllowedXShift(this);
-//    int yShift = context.getMap().getAllowedYShift(this);
-//    int xShift = context.getMap().getAllowedXShift(this);
-
     handleCollisions(context);
   }
 
@@ -74,7 +71,8 @@ public class Player extends Entity {
     if (containsInInput(PlayerAction.SHOOT, context) && curWeapon != null) {
       curWeapon.getValue().action(context, this);
     }
-//    todo
+    handleMove(context);
+//    todo maybe add some other func
   }
 
   private boolean containsInInput(final PlayerAction action, final GameEngine context) {

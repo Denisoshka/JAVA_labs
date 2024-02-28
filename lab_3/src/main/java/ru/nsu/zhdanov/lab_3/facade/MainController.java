@@ -30,28 +30,30 @@ public class MainController {
   @FXML
   protected Canvas gameCanvas;//
   protected GraphicsContext graphicsContext;//
-  protected AnimationTimer gameLoop;//
+  protected AnimationTimer gameLoop = new AnimationTimer() {
+    @Override
+    public void handle(long now) {
+      getUserInput();
+      context.update();
+      draw();
+    }
+  };
   protected Map<ContextID, Image> sprites;//
 
   @FXML
   private void initialize() {
-    this.context = new GameEngine(null);
+//    todo чя хотел здесь сделать
+
+    context = new GameEngine(null);
     initInput("key_input.properties", "mouse_input.properties");
     downloadRequiredImages("sprite.properties");
+    graphicsContext = gameCanvas.getGraphicsContext2D();
 
-    this.graphicsContext = gameCanvas.getGraphicsContext2D();
-//    todo что я хотел здесь сделать
-    this.gameLoop = new AnimationTimer() {
-      @Override
-      public void handle(long now) {
-        getUserInput();
-        context.update();
-        draw();
-      }
-    };
     gameCanvas.requestFocus();
-    this.gameLoop.start();
+    gameLoop.start();
   }
+
+
 
   private void getUserInput() {
     double x = mouseCords[0] - gameCanvas.getWidth() / 2;

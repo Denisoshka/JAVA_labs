@@ -42,9 +42,10 @@ public class Entity extends HitBox implements SpriteSupplier {
     return livesQuantity < 0;
   }
 
+/*
   public int getXCollision(final GameEngine context) {
     int floorX = Math.floorDiv(x, context.getMap().getCellSize());
-    int edge = floorX * context.getMap().getCellSize() - 1;
+    int edge = floorX * context.getMap().getCellSize() - 1; // minus for handle right collision
     if ((x + xShift) - edge < radius) {
       return edge;
     }
@@ -54,7 +55,9 @@ public class Entity extends HitBox implements SpriteSupplier {
     }
     return -1;
   }
+*/
 
+/*
   public int getYCollision(final GameEngine context) {
     int floorY = Math.floorDiv(y, context.getMap().getCellSize());
     int edge = floorY * context.getMap().getCellSize() - 1;
@@ -67,14 +70,31 @@ public class Entity extends HitBox implements SpriteSupplier {
     }
     return -1;
   }
+*/
 
 
   protected void handleMove(final GameEngine context) {
     return;
   }
 
-  protected void handleCollisions(final GameEngine context) {
-    int xCell = -1;
+  protected boolean handleCollisions(final GameEngine context) {
+    boolean ret = false;
+    int maxX = context.getMap().getMaxX() - radius,
+            minX = context.getMap().getMinX() + radius;
+    int maxY = context.getMap().getMaxY() - radius,
+            minY = context.getMap().getMinY() + radius;
+
+    int fixedXShift = Math.clamp(xShift, minX - x, maxX - x);
+    int fixedYShift = Math.clamp(yShift, minY - y, maxY - y);
+
+    ret = (fixedYShift == yShift || fixedXShift == xShift);
+
+    xShift = fixedXShift;
+    yShift = fixedYShift;
+
+    return ret;
+  }
+/*int xCell = -1;
     MapCell cellx = null;
     if (xShift != 0 && (xCell = getXCollision(context)) != -1
             && (cellx = context.getMap().getCell(xCell, y)) != null) {
@@ -99,8 +119,8 @@ public class Entity extends HitBox implements SpriteSupplier {
     if (celly == null && celly == null && context.getMap().getCell(x + xShift, y + yShift) != null) {
       xShift = 0;
       yShift = 0;
-    }
-  }
+    }*/
+
 
   protected void handleAction(final GameEngine context) {
     return;

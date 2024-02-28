@@ -31,14 +31,14 @@ public class GameEngine {
     this.player = new Player(0, 0, 10, 10);
     this.entities = new ArrayList<>();
     this.input = new HashMap<>();
-    initMap();
+    this.initMap();
+    this.initGameEnvironment();
   }
 
-  protected void initMap() {
-//    todo
+  void initGameEnvironment() {
     map = new GameMap(0, 0, 600, 600, 1000);
-  }
 
+  }
 
   public void update() {//
     player.update(this);

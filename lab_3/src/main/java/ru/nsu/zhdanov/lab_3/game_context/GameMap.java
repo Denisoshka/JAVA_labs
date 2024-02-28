@@ -1,17 +1,18 @@
 package ru.nsu.zhdanov.lab_3.game_context;
 
+import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 public class GameMap {
-    public int cellSize = 1000;
+  public int cellSize = 1000;
   protected final Map<Integer, Map<Integer, MapCell>> map;
-  protected int maxX;
-  protected int maxY;
-  protected int minX;
-  protected int minY;
+  protected @Getter int maxX;
+  protected @Getter int maxY;
+  protected @Getter int minX;
+  protected @Getter int minY;
 
   public GameMap(int minX, int minY, int maxX, int maxY, int cellSize) {
 //    todo make prop
