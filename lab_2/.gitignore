@@ -38,5 +38,5 @@ build/
 .DS_Store
 
 ### my own files ###
-slf4jlogback.log
+*.log
 .idea/
