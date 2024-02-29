@@ -34,7 +34,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
   @Override
   public void checkCollisions(GameEngine context) {
     for (Entity ent : context.getEntities()) {
-      if (ent.isCollision(this) && ableToUse) {
+      if (this != ent && ent.isCollision(this) && ableToUse) {
         ent.acceptDamage(this);
         return;
       }
@@ -55,6 +55,6 @@ public class BaseBullet extends Entity implements WeaponImpl {
   @Override
   public void drawEntitySprite(DrawInterface drawContext) {
 //    todo
-    drawContext.draw(ID, x, y, 6, 6, sinDir, cosDir, false);
+    drawContext.draw(ID, x, y, spriteRadius, spriteRadius, sinDir, cosDir, false);
   }
 }

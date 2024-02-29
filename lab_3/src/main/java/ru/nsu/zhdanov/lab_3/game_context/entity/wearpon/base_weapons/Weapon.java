@@ -16,5 +16,5 @@ public abstract class Weapon implements WeaponSpriteSupplier, WeaponImpl {
     this.damage = damage;
   }
 
-  abstract public boolean action(GameEngine context, Entity ent);
+  abstract public void action(GameEngine context, Entity ent);
 }

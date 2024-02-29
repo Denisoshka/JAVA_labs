@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.game_context.entity.opposition.CycloDick;
 import ru.nsu.zhdanov.lab_3.game_context.entity.player.Player;
 import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
 
@@ -40,10 +41,12 @@ public class GameEngine {
   void initGameEnvironment() {
     map = new GameMap(0, 0, testMapWidth, testMapHeight, 1000);
     player = new Player(300, 300, 10, 0);
+    entities.add(new CycloDick(400, 400));
   }
 
   public void update() {//
     player.update(this);
+//    todo не терпит чтобы еще кто то другой изменял его лол
     for (Entity ent : entities) {
       ent.update(this);
     }
@@ -53,12 +56,13 @@ public class GameEngine {
       ent.checkCollisions(this);
     }
 
-    entities.removeIf(Entity::isAlive);
+//    entities.removeIf(Entity::isAlive);
   }
 
   public void drawScene(DrawInterface drawContext) {
     drawContext.draw(map.getID(), 0, 0, testMapWidth, testMapHeight, 0, 0, false);
     for (Entity ent : entities) {
+//      log.info(ent.getClass().getName());
       ent.drawEntitySprite(drawContext);
     }
     drawPlayer(drawContext);

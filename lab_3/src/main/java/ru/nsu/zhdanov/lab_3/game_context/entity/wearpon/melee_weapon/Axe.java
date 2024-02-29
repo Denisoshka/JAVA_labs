@@ -18,7 +18,7 @@ public class Axe extends MeleeWeapon {
   }
 
   @Override
-  public boolean action(GameEngine context, Entity user) {
+  public void action(GameEngine context, Entity user) {
     log.info("am going ot init hurt");
     int udx = context.getCursorXPos() - user.getX();
     int udy = context.getCursorYPos() - user.getY();
@@ -44,7 +44,6 @@ public class Axe extends MeleeWeapon {
         }
       }
     }
-    return false;
   }
 
   @Override

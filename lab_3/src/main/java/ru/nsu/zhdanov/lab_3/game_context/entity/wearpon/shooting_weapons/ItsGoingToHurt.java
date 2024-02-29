@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.game_context.ContextID;
 import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.base_weapons.BaseBullet;
 import ru.nsu.zhdanov.lab_3.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
 
@@ -19,10 +18,8 @@ public class ItsGoingToHurt extends ShootingWeapon {
   }
 
   @Override
-  public boolean action(GameEngine context, Entity user) {
-    log.info("ratatatatatat");
-    context.getEntities().add(new BaseBullet(user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
-    return false;
+  public void action(GameEngine context, Entity user) {
+    context.getEntities().add(new ItIsGoingToHurtBullet(user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
   }
 
   @Override

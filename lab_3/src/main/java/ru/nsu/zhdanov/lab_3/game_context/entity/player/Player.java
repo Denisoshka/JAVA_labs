@@ -43,7 +43,6 @@ public class Player extends Entity {
     handleMove(context);
     handleAction(context);
 //    todo finish implementation
-    return false;
   }
 
   protected void handleMove(final GameEngine context) {
