@@ -12,32 +12,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class GameEngine {
-  protected @Getter GameMap map;
-  protected @Getter Player player;
-  protected @Getter List<Entity> entities;
-  protected Map<PlayerAction, AtomicBoolean> input;
+  private @Getter GameMap map;
+  private @Getter Player player;
+  private final @Getter  List<Entity> entities;
+  private final Map<PlayerAction, AtomicBoolean> input;
   //  todo
-  protected Properties contextProperties;
-  protected @Getter
-  @Setter double cameraSin;
-  protected @Getter
-  @Setter double cameraCos;
-  protected double GameSceneWidth;
-  protected double GameSceneHeight;
+  private Properties contextProperties;
+  //  private double cameraSin;
+//  private double cameraCos;
+  private @Setter
+  @Getter int cursorXPos;
+  private @Setter
+  @Getter int cursorYPos;
+  final private int testMapWidth = 1200;
+  final private int testMapHeight = 675;
+  private int GameSceneWidth;
+  private int GameSceneHeight;
 
   public GameEngine(Properties contextProperties) {
     this.contextProperties = contextProperties;
 //    todo make prop use
-    this.player = new Player(0, 0, 10, 10);
     this.entities = new ArrayList<>();
     this.input = new HashMap<>();
-    this.initMap();
     this.initGameEnvironment();
   }
 
   void initGameEnvironment() {
-    map = new GameMap(0, 0, 600, 600, 1000);
-
+    map = new GameMap(0, 0, testMapWidth, testMapHeight, 1000);
+    player = new Player(300, 300, 10, 0);
   }
 
   public void update() {//
@@ -55,11 +57,18 @@ public class GameEngine {
   }
 
   public void drawScene(DrawInterface drawContext) {
-    player.drawSprite(drawContext);
+    drawContext.draw(map.getID(), 0, 0, testMapWidth, testMapHeight, 0, 0, false);
     for (Entity ent : entities) {
-      ent.drawSprite(drawContext);
+      ent.drawEntitySprite(drawContext);
     }
+    drawPlayer(drawContext);
   }
+
+
+  private void drawPlayer(DrawInterface drawContext){
+    player.drawEntitySprite(drawContext);
+  }
+
 
   public Map<PlayerAction, AtomicBoolean> getInput() {
     return this.input;

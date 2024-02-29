@@ -4,14 +4,18 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.nsu.zhdanov.lab_3.game_context.ContextID;
 import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
-import ru.nsu.zhdanov.lab_3.game_context.GameMap;
-import ru.nsu.zhdanov.lab_3.game_context.MapCell;
-import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
-import ru.nsu.zhdanov.lab_3.game_context.interfaces.SpriteSupplier;
+import ru.nsu.zhdanov.lab_3.game_context.interfaces.EntitySpriteSupplier;
 import ru.nsu.zhdanov.lab_3.game_context.interfaces.WeaponImpl;
 
-public class Entity extends HitBox implements SpriteSupplier {
-  protected @Getter double sinDir = 0;
+public abstract class Entity implements EntitySpriteSupplier {
+  protected @Getter
+  @Setter int x;
+  protected @Getter
+  @Setter int y;
+  protected @Getter
+  @Setter int radius;
+  protected @Getter
+  @Setter double sinDir = 0;
   protected @Getter double cosDir = 0;
   protected int livesQuantity;
   protected ContextID ID;
@@ -20,21 +24,23 @@ public class Entity extends HitBox implements SpriteSupplier {
   protected @Getter
   @Setter int yShift;
 
-  public boolean update(final GameEngine context) {
-    return false;
-  }
+  public abstract void update(final GameEngine context);
 
   public Entity(int x, int y, int radius, int xShift,
                 int yShift, int LivesQuantity, ContextID ID) {
-    super(x, y, radius);
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
     this.livesQuantity = LivesQuantity;
     this.xShift = xShift;
     this.yShift = yShift;
     this.ID = ID;
   }
 
-  public boolean checkCollisions(final GameEngine context) {
-    return false;
+  public abstract void checkCollisions(final GameEngine context);
+
+  public boolean isCollision(Entity other) {
+    return Math.hypot(x - other.x, y - other.y) < radius + other.radius;
   }
 
   public boolean acceptDamage(WeaponImpl ent) {
@@ -42,6 +48,9 @@ public class Entity extends HitBox implements SpriteSupplier {
     return livesQuantity < 0;
   }
 
+  public boolean isAlive() {
+    return livesQuantity > 0;
+  }
 /*
   public int getXCollision(final GameEngine context) {
     int floorX = Math.floorDiv(x, context.getMap().getCellSize());
@@ -73,10 +82,10 @@ public class Entity extends HitBox implements SpriteSupplier {
 */
 
 
-  protected void handleMove(final GameEngine context) {
-    return;
-  }
-
+//  protected void handleMove(final GameEngine context) {
+//    return;
+//  }
+/*
   protected boolean handleCollisions(final GameEngine context) {
     boolean ret = false;
     int maxX = context.getMap().getMaxX() - radius,
@@ -93,7 +102,7 @@ public class Entity extends HitBox implements SpriteSupplier {
     yShift = fixedYShift;
 
     return ret;
-  }
+  }*/
 /*int xCell = -1;
     MapCell cellx = null;
     if (xShift != 0 && (xCell = getXCollision(context)) != -1
@@ -122,22 +131,13 @@ public class Entity extends HitBox implements SpriteSupplier {
     }*/
 
 
-  protected void handleAction(final GameEngine context) {
-    return;
-  }
+//   void handleAction(final GameEngine context) {
+//    return;
+//  }
 
 
-  public boolean isAlive() {
-    return livesQuantity > 0;
-  }
-
-  @Override
-  public ContextID getSprite() {
-    return ID;
-  }
-
-  @Override
-  public void drawSprite(DrawInterface drawContext) {
-    return;
-  }
+//  @Override
+//  public void drawEntitySprite(DrawInterface drawContext) {
+//    return;
+//  }
 }
