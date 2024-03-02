@@ -1,6 +1,7 @@
 package ru.nsu.zhdanov.lab_3.properties_loader;
 
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Properties;
 
 
@@ -13,9 +14,7 @@ public class PropertiesLoader {
   public static Properties load(String propertiesPath) {
     ClassLoader classLoader;
     try {
-      if ((classLoader = PropertiesLoader.class.getClassLoader()) == null) {
-        throw new ClassLoaderException(null);
-      }
+      Objects.requireNonNull((classLoader = PropertiesLoader.class.getClassLoader()));
     } catch (Exception e) {
       throw new ClassLoaderException(e.getMessage());
     }

@@ -48,8 +48,8 @@ public abstract class Entity implements EntitySpriteSupplier {
     return livesQuantity < 0;
   }
 
-  public boolean isAlive() {
-    return livesQuantity > 0;
+  public boolean isDead() {
+    return livesQuantity <= 0;
   }
 /*
   public int getXCollision(final GameEngine context) {

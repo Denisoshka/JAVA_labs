@@ -19,7 +19,7 @@ public class ItsGoingToHurt extends ShootingWeapon {
 
   @Override
   public void action(GameEngine context, Entity user) {
-    context.getEntities().add(new ItIsGoingToHurtBullet(user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
+    context.getActionTraceBuffer().add(new ItIsGoingToHurtBullet(user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
   }
 
   @Override

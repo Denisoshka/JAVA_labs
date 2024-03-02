@@ -15,7 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameEngine {
   private @Getter GameMap map;
   private @Getter Player player;
-  private final @Getter  List<Entity> entities;
+  private final @Getter List<Entity> entities;
+  private final @Getter List<Entity> actionTraceBuffer;
   private final Map<PlayerAction, AtomicBoolean> input;
   //  todo
   private Properties contextProperties;
@@ -31,6 +32,7 @@ public class GameEngine {
   private int GameSceneHeight;
 
   public GameEngine(Properties contextProperties) {
+    this.actionTraceBuffer = new ArrayList<>();
     this.contextProperties = contextProperties;
 //    todo make prop use
     this.entities = new ArrayList<>();
@@ -46,7 +48,7 @@ public class GameEngine {
 
   public void update() {//
     player.update(this);
-//    todo не терпит чтобы еще кто то другой изменял его лол
+
     for (Entity ent : entities) {
       ent.update(this);
     }
@@ -56,20 +58,22 @@ public class GameEngine {
       ent.checkCollisions(this);
     }
 
-//    entities.removeIf(Entity::isAlive);
+    entities.removeIf(Entity::isDead);
   }
 
   public void drawScene(DrawInterface drawContext) {
+    entities.addAll(actionTraceBuffer);
+    actionTraceBuffer.clear();
+
     drawContext.draw(map.getID(), 0, 0, testMapWidth, testMapHeight, 0, 0, false);
     for (Entity ent : entities) {
-//      log.info(ent.getClass().getName());
       ent.drawEntitySprite(drawContext);
     }
     drawPlayer(drawContext);
   }
 
 
-  private void drawPlayer(DrawInterface drawContext){
+  private void drawPlayer(DrawInterface drawContext) {
     player.drawEntitySprite(drawContext);
   }
 

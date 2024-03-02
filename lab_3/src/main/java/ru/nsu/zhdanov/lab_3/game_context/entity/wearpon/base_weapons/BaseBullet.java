@@ -48,13 +48,13 @@ public class BaseBullet extends Entity implements WeaponImpl {
   }
 
   @Override
-  public boolean isAlive() {
+  public boolean isDead() {
     return livesQuantity == 0 || !ableToUse;
   }
 
   @Override
   public void drawEntitySprite(DrawInterface drawContext) {
 //    todo
-    drawContext.draw(ID, x, y, spriteRadius, spriteRadius, sinDir, cosDir, false);
+    drawContext.draw(ID, x-spriteRadius, y-spriteRadius, spriteRadius, spriteRadius, sinDir, cosDir, false);
   }
 }

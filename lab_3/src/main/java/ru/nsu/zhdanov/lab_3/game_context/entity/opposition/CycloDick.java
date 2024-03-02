@@ -66,7 +66,7 @@ public class CycloDick extends Entity {
     y += yfShift;
 
     if (hyp <= ATTACKDIST && wantToShotSolver.nextBoolean()) {
-      context.getEntities().add(new ItIsGoingToHurtBullet(x, y, cosDir, sinDir));
+      context.getActionTraceBuffer().add(new CycloDickFireBall(x, y, cosDir, sinDir));
     }
   }
 
@@ -76,6 +76,6 @@ public class CycloDick extends Entity {
 
   @Override
   public void drawEntitySprite(DrawInterface drawContext) {
-    drawContext.draw(ID, x + radius, y + radius, radius * 2, radius * 2, cosDir, sinDir, false);
+    drawContext.draw(ID, x - radius, y - radius, radius * 2, radius * 2, cosDir, sinDir, false);
   }
 }
