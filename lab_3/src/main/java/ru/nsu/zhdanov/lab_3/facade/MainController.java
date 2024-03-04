@@ -4,12 +4,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.facade.exceptions.FacadeException;
-import ru.nsu.zhdanov.lab_3.facade.exceptions.LoaderNotAvailable;
 import ru.nsu.zhdanov.lab_3.facade.exceptions.ResourceNotAvailable;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,28 +29,45 @@ public class MainController implements MenuRequests {
     setMenuScreen();
   }
 
-  public void changeScene(Object controller, String path) {
+  public SubControllerRequests changeScene(Properties properties, String FXMLPath) {
     try {
-      FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(path)));
+      FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(FXMLPath)));
 //      loader.setController(controller);
-      primaryStage.setScene(new Scene(Objects.requireNonNull(loader.load())));
-      gameController = loader.getController();
-      gameController.setContext(null);
+      Scene scene = new Scene(Objects.requireNonNull(loader.load()));
+      primaryStage.setScene(scene);
+      SubControllerRequests controller = loader.getController();
+      controller.setContext(properties, this);
       primaryStage.show();
+      return controller;
     } catch (NullPointerException | IOException e) {
       throw new ResourceNotAvailable(e);
     }
   }
 
   public void setGameScreen() {
-    gameController.setContext(null);
-    changeScene(gameController, "/facade/game_window.fxml");
+    Properties properties;
+    try {
+      properties = new Properties();
+      properties.load(getClass().getResourceAsStream("/facade/properties/game_controller.properties"));
+    } catch (IOException e) {
+//      todo
+      throw new RuntimeException(e);
+    }
+//    gameController.setContext(null);
+//    todo maybe in make it in other thread
+    gameController = (GameController) changeScene(properties, "/facade/screens/game_window.fxml");
     gameController.perform();
-//    todo maybe in othre thread make
   }
 
-  public void setMenuScreen() throws IOException {
-    changeScene(menuController, "/facade/menu_window.fxml");
+  public void setMenuScreen() {
+    Properties properties;
+    try (var res = getClass().getResourceAsStream("/facade/properties/menu_controller.properties")) {
+      properties = new Properties();
+      properties.load(res);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    changeScene(properties, "/facade/screens/menu_window.fxml");
   }
 
   @Override

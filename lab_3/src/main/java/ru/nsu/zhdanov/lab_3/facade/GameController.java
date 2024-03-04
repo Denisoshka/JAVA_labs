@@ -1,6 +1,9 @@
 package ru.nsu.zhdanov.lab_3.facade;
 
-import javafx.animation.AnimationTimer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -9,13 +12,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Circle;
 import lombok.Getter;
-import ru.nsu.zhdanov.lab_3.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.game_context.GameEngine;
-import ru.nsu.zhdanov.lab_3.game_context.PlayerAction;
-import ru.nsu.zhdanov.lab_3.game_context.interfaces.DrawInterface;
+import lombok.extern.slf4j.Slf4j;
+import ru.nsu.zhdanov.lab_3.model.ContextID;
+import ru.nsu.zhdanov.lab_3.model.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.PlayerAction;
+import ru.nsu.zhdanov.lab_3.model.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.entity.player.Player;
 import ru.nsu.zhdanov.lab_3.properties_loader.PropertiesLoader;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +30,10 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-public class GameController implements SubControllerRequests{
+@Slf4j
+public class GameController implements SubControllerRequests {
+  private final static long timeToUpdate = 17;
+
   private @Getter Map<KeyCode, AtomicBoolean> keysInput;//
   private @Getter Map<MouseButton, AtomicBoolean> mouseInput;//
   private AtomicIntegerArray mouseCords;//
@@ -32,9 +42,8 @@ public class GameController implements SubControllerRequests{
   @FXML
   private Canvas canvas;//
   private GraphicsContext graphicsContext;
-  private DrawInterface view;
-  private Map<ContextID, Image> sprites;//
 
+  private Map<ContextID, SpriteInf> toDrawSprites;
 
   private int gcXShift = 0;
   private int gcYShift = 0;
@@ -42,57 +51,78 @@ public class GameController implements SubControllerRequests{
   private long lastUpdateTime = 0;
   private int targetFPS = 60;
 
-  private AnimationTimer gameLoop = new AnimationTimer() {
-    @Override
-    public void handle(long now) {
-      long elapsedTime = now - lastUpdateTime;
-      double secondsElapsed = (double) elapsedTime / 1_000_000_000.0;
-      // Выполнение логики обновления с определенным FPS
-      if (secondsElapsed > 1.0 / targetFPS) {
-        getUserInput();
-        context.update();
+  final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
-        context.drawScene(view);
-        lastUpdateTime = now;
+  private final Thread gameThread = new Thread(() -> {
+    long start, end, diff;
+    while (true) {
+      start = System.currentTimeMillis();
+      getUserInput();
+      context.update();
+      Platform.runLater(this::draw);
+      Platform.runLater(this::drawHitBox);
+      try {
+        synchronized (sceneDrawn) {
+          while (!sceneDrawn.get()) {
+            sceneDrawn.wait();
+          }
+        }
+      } catch (InterruptedException e) {
+//        log.info("thread pizda");
+        return;
+      }
+//      log.info("draw set false");
+      sceneDrawn.set(false);
+      end = System.currentTimeMillis();
+//      if (end - start < timeToUpdate ){
+//      }
+      if ((diff = end - start) < timeToUpdate) {
+        try {
+          Thread.sleep(timeToUpdate - (diff));
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+
+
       }
     }
-  };//
+  });
 
-  public void setContext(Properties properties) {
-    view = new View();
+  @Override
+  public void setContext(Properties properties, MainController controller) {
+    log.info("set game context");
     context = new GameEngine(null);
-    initInput("facade/key_input.properties", "facade/mouse_input.properties");
-    downloadRequiredImages("model/sprite.properties");
-//    graphicsContext = canvas.getGraphicsContext2D();
-//    canvas.requestFocus();
+    Properties keyProperties = new Properties();
+    Properties mouseProperties = new Properties();
+    Properties spriteProperties = new Properties();
+
+    try {
+      keyProperties.load(getClass().getResourceAsStream(properties.getProperty("keyInput")));
+      mouseProperties.load(getClass().getResourceAsStream(properties.getProperty("mouseInput")));
+      spriteProperties.load(getClass().getResourceAsStream(properties.getProperty("spriteInf")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    initInput(keyProperties, mouseProperties);
+    initSprites(spriteProperties);
   }
-
-  public void shutDown(){
-    keysInput.clear();
-
-  }
-
 
   @FXML
   private void initialize() {
-//    view = new View();
-//    context = new GameEngine(null);
-//    initInput("key_input.properties", "mouse_input.properties");
-//    downloadRequiredImages("sprite.properties");
     graphicsContext = canvas.getGraphicsContext2D();
     canvas.requestFocus();
   }
 
+  @Override
   public void perform() {
-
-
-
-
-    gameLoop.start();
-//    todo save scores in other thread
+    context.perform();
+    gameThread.start();
   }
 
-  public void saveContext() {
+  @Override
+  public void shutdown() {
+    gameThread.interrupt();
   }
 
   private void getUserInput() {
@@ -100,6 +130,54 @@ public class GameController implements SubControllerRequests{
     int yPos = mouseCords.get(1) - gcYShift;
     context.setCursorXPos(xPos);
     context.setCursorYPos(yPos);
+  }
+
+  private void drawHitBox() {
+    for (Entity ent : context.getEntities()) {
+      graphicsContext.fillOval(ent.getX(), ent.getY(), ent.getRadius() * 2, ent.getRadius() * 2);
+    }
+
+    Player player = context.getPlayer();
+    graphicsContext.fillOval(player.getX(), player.getY(), player.getRadius() * 2, player.getRadius() * 2);
+    synchronized (sceneDrawn) {
+      sceneDrawn.set(true);
+      sceneDrawn.notifyAll();
+    }
+  }
+
+  private void draw() {
+    log.info("draw context");
+    SpriteInf entInf = toDrawSprites.get(ContextID.Map);
+    graphicsContext.drawImage(
+            entInf.image,
+            entInf.shiftX,
+            entInf.shiftY,
+            entInf.width,
+            entInf.height
+    );
+
+    for (Entity ent : context.getEntities()) {
+      entInf = toDrawSprites.get(ent.getID());
+      graphicsContext.drawImage(
+              entInf.image,
+              ent.getX() + entInf.shiftX,
+              ent.getY() + entInf.shiftY,
+              entInf.width,
+              entInf.height
+      );
+    }
+
+    Player player = context.getPlayer();
+    entInf = toDrawSprites.get(player.getID());
+    graphicsContext.drawImage(
+            entInf.image,
+            player.getX() + entInf.shiftX,
+            player.getY() + entInf.shiftY,
+            entInf.width,
+            entInf.height
+    );
+
+
   }
 
   @FXML
@@ -141,42 +219,50 @@ public class GameController implements SubControllerRequests{
     }
   }
 
-
   //  todo make exception
-  private void downloadRequiredImages(final String name) {
-    sprites = new HashMap<>();
-    Properties properties = PropertiesLoader.load(name);
-    for (ContextID image : ContextID.values()) {
-      Image sprite = new Image(Objects.requireNonNull(getClass()
-              .getResourceAsStream(properties.getProperty(image.name()))));
-      sprites.put(image, sprite);
+  private void initSprites(final Properties prop) {
+    toDrawSprites = new HashMap<>();
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode tree;
+
+    try {
+      tree = mapper.readTree(getClass().getResourceAsStream(prop.getProperty("SpriteInf")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    try {
+//      todo make load of def texture
+      for (ContextID id : ContextID.values()) {
+        Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(id.name()))));
+        JsonNode curNode = tree.get(id.name());
+        toDrawSprites.put(id, new SpriteInf(
+                sprite,
+                curNode.get("shiftX").asInt(),
+                curNode.get("shiftY").asInt(),
+                curNode.get("width").asInt(),
+                curNode.get("height").asInt()
+        ));
+      }
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e);
     }
   }
 
-
-  private class View implements DrawInterface {
-    @Override
-    public void draw(ContextID id, int x0, int y0, int width, int height, double sin, double cos, boolean reflect) {
-      graphicsContext.drawImage(sprites.get(id), x0, y0, width, height);
-    }
-  }
-
-  private void initInput(final String keyProp, final String mouseProp) {
-    Properties keyProperties = PropertiesLoader.load(keyProp);
-    Properties mouseProperties = PropertiesLoader.load(mouseProp);
+  private void initInput(final Properties keyProp, final Properties mouseProp) {
     keysInput = new HashMap<>();
     mouseInput = new HashMap<>();
     mouseCords = new AtomicIntegerArray(2);
 
     for (PlayerAction key : PlayerAction.values()) {
-      String keyName = keyProperties.getProperty(String.valueOf(key));
+      String keyName = keyProp.getProperty(String.valueOf(key));
       if (keyName != null) {
         KeyCode code = KeyCode.valueOf(keyName);
         AtomicBoolean indicator = new AtomicBoolean(false);
         keysInput.put(code, indicator);
         context.getInput().put(key, indicator);
       }
-      String buttonName = mouseProperties.getProperty(String.valueOf(key));
+      String buttonName = mouseProp.getProperty(String.valueOf(key));
       if (buttonName != null) {
         MouseButton code = MouseButton.valueOf(buttonName);
         AtomicBoolean indicator = new AtomicBoolean(false);
@@ -184,5 +270,9 @@ public class GameController implements SubControllerRequests{
         context.getInput().put(key, indicator);
       }
     }
+  }
+
+
+  private record SpriteInf(Image image, int shiftX, int shiftY, int width, int height) {
   }
 }
