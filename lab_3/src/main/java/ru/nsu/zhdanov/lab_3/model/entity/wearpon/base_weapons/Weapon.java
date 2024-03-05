@@ -7,7 +7,7 @@ import ru.nsu.zhdanov.lab_3.model.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.interfaces.WeaponImpl;
 
 public abstract class Weapon implements WeaponImpl {
-  protected ContextID ID;
+  protected @Getter ContextID ID;
   private @Getter int damage;
 
   public Weapon(ContextID ID, int damage) {
@@ -16,4 +16,9 @@ public abstract class Weapon implements WeaponImpl {
   }
 
   abstract public void action(GameEngine context, Entity ent);
+
+  abstract public boolean readyForUse();
+
+  public void updateUse() {
+  }
 }

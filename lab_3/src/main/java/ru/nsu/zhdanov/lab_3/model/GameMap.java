@@ -29,20 +29,4 @@ public class GameMap {
   public int getAllowedYShift(Entity ent) {
     return Math.clamp(ent.getY() + ent.getYShift(), minX + ent.getRadius(), maxX - ent.getRadius()) - ent.getY();
   }
-
-  /*public int getCellSize() {
-    return cellSize;
-  }
-
-  public MapCell getCell(int x, int y) {
-    x = x / cellSize;
-    y = y / cellSize;
-    Map<Integer, MapCell> row = map.get(x);
-    if (row != null) {
-      {
-        return row.get(y);
-      }
-    }
-    return null;
-  }*/
 }

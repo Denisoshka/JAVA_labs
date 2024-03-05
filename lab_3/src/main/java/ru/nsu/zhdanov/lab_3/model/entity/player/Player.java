@@ -1,27 +1,28 @@
 package ru.nsu.zhdanov.lab_3.model.entity.player;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.*;
 import ru.nsu.zhdanov.lab_3.model.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.entity.wearpon.Fraction;
 import ru.nsu.zhdanov.lab_3.model.entity.wearpon.base_weapons.Weapon;
 import ru.nsu.zhdanov.lab_3.model.entity.wearpon.melee_weapon.Axe;
 import ru.nsu.zhdanov.lab_3.model.entity.wearpon.shooting_weapons.ItsGoingToHurt;
+import ru.nsu.zhdanov.lab_3.model.entity.Constants.PlayerC;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 @Slf4j
 public class Player extends Entity {
-  static private final int HITBOXRADIUS = 25;
-  static private final int NONFORWARDMOVECOEF = 4;
-  static private final int FORVARDVMOVECOEF = 5;
-  static private final int MOVECOEF = 2;
   final private Map<PlayerAction, Weapon> guns;
-  //  private Map.Entry<String, Weapon> curWeapon;
+  @Getter
   Weapon weapon;
 
-  public Player(int x, int y, int livesQuantity, int angle) {
-    super(x, y, HITBOXRADIUS, 0, 0, livesQuantity, ContextID.Player);
+  public Player(int x, int y, int angle) {
+    super(x, y, PlayerC.RADIUS, 0, 0, 0, PlayerC.LIVES_QUANTITY, ContextID.Player, Fraction.PLAYER);
     this.guns = new HashMap();
     this.guns.put(PlayerAction.FIRSTWEAPON, new Axe());
     this.guns.put(PlayerAction.SECONDWEAPON, new ItsGoingToHurt());
@@ -47,17 +48,17 @@ public class Player extends Entity {
   protected void handleMove(final GameEngine context) {
     this.xShift = 0;
     this.yShift = 0;
-    if (containsInInput(PlayerAction.FORWARD, context)) {
-      this.yShift -= MOVECOEF;// NONFORWARDMOVECOEF;
+    if (getFromInput(PlayerAction.FORWARD, context).get()) {
+      this.yShift -= PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
     }
-    if (containsInInput(PlayerAction.LEFT, context)) {
-      this.xShift -= MOVECOEF;// NONFORWARDMOVECOEF;
+    if (getFromInput(PlayerAction.LEFT, context).get()) {
+      this.xShift -= PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
     }
-    if (containsInInput(PlayerAction.RIGHT, context)) {
-      this.xShift += MOVECOEF;//NONFORWARDMOVECOEF;
+    if (getFromInput(PlayerAction.RIGHT, context).get()) {
+      this.xShift += PlayerC.MOVE_COEF;//NONFORWARDMOVECOEF;
     }
-    if (containsInInput(PlayerAction.BACK, context)) {
-      this.yShift += MOVECOEF;// NONFORWARDMOVECOEF;
+    if (getFromInput(PlayerAction.BACK, context).get()) {
+      this.yShift += PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
     }
     this.yShift = context.getMap().getAllowedYShift(this);
     this.xShift = context.getMap().getAllowedXShift(this);
@@ -68,22 +69,27 @@ public class Player extends Entity {
   }
 
   private void handleAction(GameEngine context) {
-    if (containsInInput(PlayerAction.FIRSTWEAPON, context)) {
+    AtomicBoolean act;
+    if (getFromInput(PlayerAction.FIRSTWEAPON, context).get()) {
       weapon = guns.get(PlayerAction.FIRSTWEAPON);
     }
-    if (containsInInput(PlayerAction.SECONDWEAPON, context)) {
+    if (getFromInput(PlayerAction.SECONDWEAPON, context).get()) {
       weapon = guns.get(PlayerAction.SECONDWEAPON);
     }
 
-    if (containsInInput(PlayerAction.SHOOT, context) && weapon != null) {
+    if ((act = getFromInput(PlayerAction.SHOOT, context)).get() && weapon != null) {
       weapon.action(context, this);
-      context.getInput().get(PlayerAction.SHOOT).set(false);
+      act.set(false);
+    }
+    if ((act = getFromInput(PlayerAction.RELOAD, context)).get() && weapon != null) {
+      weapon.updateUse();
+      act.set(false);
     }
     //    todo maybe add some other func
   }
 
-  private boolean containsInInput(final PlayerAction action, final GameEngine context) {
-    return context.getInput().get(action).get();
+  private AtomicBoolean getFromInput(final PlayerAction action, final GameEngine context) {
+    return context.getInput().get(action);
   }
 
   @Override

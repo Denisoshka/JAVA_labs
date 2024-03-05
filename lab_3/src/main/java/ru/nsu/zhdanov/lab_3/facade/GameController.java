@@ -1,26 +1,29 @@
 package ru.nsu.zhdanov.lab_3.facade;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Circle;
+import javafx.stage.StageStyle;
+
+import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.ContextID;
 import ru.nsu.zhdanov.lab_3.model.GameEngine;
 import ru.nsu.zhdanov.lab_3.model.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.entity.player.Player;
-import ru.nsu.zhdanov.lab_3.properties_loader.PropertiesLoader;
+import ru.nsu.zhdanov.lab_3.model.entity.wearpon.base_weapons.Weapon;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,6 +37,15 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 public class GameController implements SubControllerRequests {
   private final static long timeToUpdate = 17;
 
+  @FXML
+  public TextField weaponCondition;
+  @FXML
+  public TextField livesQuantity;
+  @FXML
+  public TextField curScore;
+  @FXML
+  private TextField weaponName;
+
   private @Getter Map<KeyCode, AtomicBoolean> keysInput;//
   private @Getter Map<MouseButton, AtomicBoolean> mouseInput;//
   private AtomicIntegerArray mouseCords;//
@@ -45,22 +57,28 @@ public class GameController implements SubControllerRequests {
 
   private Map<ContextID, SpriteInf> toDrawSprites;
 
-  private int gcXShift = 0;
-  private int gcYShift = 0;
+  private @Setter int gcXShift = 0;
+  private @Setter int gcYShift = 0;
 
   private long lastUpdateTime = 0;
   private int targetFPS = 60;
 
   final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
+//  private ContextController
+
   private final Thread gameThread = new Thread(() -> {
     long start, end, diff;
+    context.perform();
+
+//    canvas.getBoundsInParent()
     while (true) {
       start = System.currentTimeMillis();
       getUserInput();
       context.update();
       Platform.runLater(this::draw);
-      Platform.runLater(this::drawHitBox);
+//      Platform.runLater(this::drawHitBox);
+
       try {
         synchronized (sceneDrawn) {
           while (!sceneDrawn.get()) {
@@ -68,22 +86,18 @@ public class GameController implements SubControllerRequests {
           }
         }
       } catch (InterruptedException e) {
-//        log.info("thread pizda");
         return;
       }
-//      log.info("draw set false");
+
       sceneDrawn.set(false);
       end = System.currentTimeMillis();
-//      if (end - start < timeToUpdate ){
-//      }
+
       if ((diff = end - start) < timeToUpdate) {
         try {
           Thread.sleep(timeToUpdate - (diff));
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
-
-
       }
     }
   });
@@ -95,11 +109,12 @@ public class GameController implements SubControllerRequests {
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
     Properties spriteProperties = new Properties();
-
+    Properties UISprites = new Properties();
     try {
       keyProperties.load(getClass().getResourceAsStream(properties.getProperty("keyInput")));
       mouseProperties.load(getClass().getResourceAsStream(properties.getProperty("mouseInput")));
       spriteProperties.load(getClass().getResourceAsStream(properties.getProperty("spriteInf")));
+//      UISprites.load(getClass().getResourceAsStream(properties.getProperty("UISprites")));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -116,7 +131,6 @@ public class GameController implements SubControllerRequests {
 
   @Override
   public void perform() {
-    context.perform();
     gameThread.start();
   }
 
@@ -126,27 +140,71 @@ public class GameController implements SubControllerRequests {
   }
 
   private void getUserInput() {
-    int xPos = mouseCords.get(0) - gcXShift;
-    int yPos = mouseCords.get(1) - gcYShift;
+    int xPos = mouseCords.get(0);
+    int yPos = mouseCords.get(1);
     context.setCursorXPos(xPos);
     context.setCursorYPos(yPos);
   }
 
-  private void drawHitBox() {
-    for (Entity ent : context.getEntities()) {
-      graphicsContext.fillOval(ent.getX(), ent.getY(), ent.getRadius() * 2, ent.getRadius() * 2);
-    }
-
-    Player player = context.getPlayer();
-    graphicsContext.fillOval(player.getX(), player.getY(), player.getRadius() * 2, player.getRadius() * 2);
+  private void allowGoToNextStep() {
     synchronized (sceneDrawn) {
       sceneDrawn.set(true);
       sceneDrawn.notifyAll();
     }
   }
 
+  private void drawHitBox() {
+    for (Entity ent : context.getEntities()) {
+      graphicsContext.fillOval(ent.getX() - ent.getRadius(), ent.getY() - ent.getRadius(), ent.getRadius() * 2, ent.getRadius() * 2);
+    }
+
+    Player player = context.getPlayer();
+    graphicsContext.fillOval(player.getX() - player.getRadius(), player.getY() - player.getRadius(), player.getRadius() * 2, player.getRadius() * 2);
+  }
+
   private void draw() {
-    log.info("draw context");
+    drawContext();
+    drawStats();
+    allowGoToNextStep();
+  }
+
+  private void drawStats() {
+    Player pl = context.getPlayer();
+    curScore.setText("Score: " + context.getScore());
+    livesQuantity.setText("Lives: " + pl.getLivesQuantity());
+    if (pl.getWeapon() != null) {
+      weaponName.setText(pl.getWeapon().getID().name());
+      weaponCondition.setText("Active: " + pl.getWeapon().readyForUse());
+    } else {
+      weaponName.setText("No weapon");
+      weaponCondition.setText("_______");
+    }
+  }
+
+  private void drawPlayer() {
+    Player player = context.getPlayer();
+    SpriteInf entInf = toDrawSprites.get(player.getID());
+    graphicsContext.drawImage(
+            entInf.image,
+            player.getX() + entInf.shiftX,
+            player.getY() + entInf.shiftY,
+            entInf.width,
+            entInf.height
+    );
+    Weapon w = player.getWeapon();
+    if (w != null) {
+      entInf = toDrawSprites.get(w.getID());
+      graphicsContext.drawImage(
+              entInf.image,
+              player.getX() + entInf.shiftX,
+              player.getY() + entInf.shiftY,
+              entInf.width,
+              entInf.height
+      );
+    }
+  }
+
+  private void drawMap() {
     SpriteInf entInf = toDrawSprites.get(ContextID.Map);
     graphicsContext.drawImage(
             entInf.image,
@@ -155,7 +213,10 @@ public class GameController implements SubControllerRequests {
             entInf.width,
             entInf.height
     );
+  }
 
+  private void drawEntities() {
+    SpriteInf entInf;
     for (Entity ent : context.getEntities()) {
       entInf = toDrawSprites.get(ent.getID());
       graphicsContext.drawImage(
@@ -166,56 +227,49 @@ public class GameController implements SubControllerRequests {
               entInf.height
       );
     }
+  }
 
-    Player player = context.getPlayer();
-    entInf = toDrawSprites.get(player.getID());
-    graphicsContext.drawImage(
-            entInf.image,
-            player.getX() + entInf.shiftX,
-            player.getY() + entInf.shiftY,
-            entInf.width,
-            entInf.height
-    );
-
-
+  private void drawContext() {
+    drawMap();
+    drawEntities();
+    drawPlayer();
   }
 
   @FXML
   private void handleReleasedKey(KeyEvent keyEvent) {
-    if (keysInput.containsKey(keyEvent.getCode())) {
-//      log.info(keyEvent.getCode().toString() + " released");
-      keysInput.get(keyEvent.getCode()).set(false);
+    AtomicBoolean rez = keysInput.get(keyEvent.getCode());
+    if (rez != null) {
+      rez.set(false);
     }
   }
 
   @FXML
   private void handlePressedKey(KeyEvent keyEvent) {
-    if (keysInput.containsKey(keyEvent.getCode())) {
-//      log.info(keyEvent.getCode().toString() + " pressed");
-      keysInput.get(keyEvent.getCode()).set(true);
+    AtomicBoolean rez = keysInput.get(keyEvent.getCode());
+    if (rez != null) {
+      rez.set(true);
     }
   }
 
   @FXML
   private void handleMouseTrack(MouseEvent mouseEvent) {
-    mouseCords.set(0, (int) mouseEvent.getSceneX());
-    mouseCords.set(1, (int) mouseEvent.getSceneY());
-//    log.info("cur mouse cords x=" + mouseCords.get(0) + " y=" +  mouseCords.get(1));
+    mouseCords.set(0, (int) mouseEvent.getX());
+    mouseCords.set(1, (int) mouseEvent.getY());
   }
 
   @FXML
   private void handleMousePressed(MouseEvent mouseEvent) {
-    if (mouseInput.containsKey(mouseEvent.getButton())) {
-//      log.info("pressed " + mouseEvent.getButton().toString());
-      mouseInput.get(mouseEvent.getButton()).set(true);
+    AtomicBoolean rez = mouseInput.get(mouseEvent.getButton());
+    if (rez != null) {
+      rez.set(true);
     }
   }
 
   @FXML
   private void trackMouseReleased(MouseEvent mouseEvent) {
-    if (mouseInput.containsKey(mouseEvent.getButton())) {
-//      log.info("released " + mouseEvent.getButton().toString());
-      mouseInput.get(mouseEvent.getButton()).set(false);
+    AtomicBoolean rez = mouseInput.get(mouseEvent.getButton());
+    if (rez != null) {
+      rez.set(false);
     }
   }
 
@@ -232,7 +286,6 @@ public class GameController implements SubControllerRequests {
     }
 
     try {
-//      todo make load of def texture
       for (ContextID id : ContextID.values()) {
         Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(id.name()))));
         JsonNode curNode = tree.get(id.name());
@@ -271,7 +324,6 @@ public class GameController implements SubControllerRequests {
       }
     }
   }
-
 
   private record SpriteInf(Image image, int shiftX, int shiftY, int width, int height) {
   }

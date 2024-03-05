@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="ru.nsu.zhdanov.lab_3.facade.GameController">
-    <Canvas fx:id="canvas" width="1200" height="675" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"
-            AnchorPane.topAnchor="0"
+<?import javafx.scene.control.TextField?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ru.nsu.zhdanov.lab_3.facade.GameController" alignment="TOP_CENTER">
+    <Canvas fx:id="canvas" width="1200" height="675"
             onMouseMoved="#handleMouseTrack" onMousePressed="#handleMousePressed"
             onKeyPressed="#handlePressedKey" onKeyReleased="#handleReleasedKey"
             onMouseReleased="#trackMouseReleased" focusTraversable="true">
     </Canvas>
-</AnchorPane>
+    <HBox alignment="CENTER" >
+        <VBox>
+            <TextField fx:id="weaponName" editable="false"/>
+            <TextField fx:id="weaponCondition" editable="false"/>
+        </VBox>
+        <HBox alignment="TOP_CENTER">
+            <TextField fx:id="livesQuantity" editable="false"/>
+            <TextField fx:id="curScore" editable="false"/>
+        </HBox>
+    </HBox>
+</VBox>

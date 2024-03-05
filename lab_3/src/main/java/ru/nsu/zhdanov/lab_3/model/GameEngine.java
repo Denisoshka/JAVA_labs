@@ -31,6 +31,8 @@ public class GameEngine {
   final private AtomicInteger obrservingQuantity;
   private AtomicLong curGameTime;
   private long gameStartTime;
+  @Getter private int score = 0;
+
 
   public GameEngine(Properties contextProperties) {
     this.actionTraceBuffer = new ArrayList<>();
@@ -44,13 +46,13 @@ public class GameEngine {
 
   void initGameEnvironment() {
     map = new GameMap(0, 0, testMapWidth, testMapHeight, 1000);
-    player = new Player(300, 300, 10, 0);
+    player = new Player(300, 300, 0);
     curGameTime = new AtomicLong();
 
-    {
-      entities.add(new CycloDick(400, 400));
-      obrservingQuantity.incrementAndGet();
-    }
+
+    Entity ent = new CycloDick(400, 400);
+    ent.setContextTracker(obrservingQuantity);
+    entities.add(ent);
   }
 
   public void perform() {
@@ -71,7 +73,15 @@ public class GameEngine {
       ent.checkCollisions(this);
     }
 
-    entities.removeIf(Entity::isDead);
+    entities.removeIf((entity) -> {
+      if (!entity.isDead()) {
+        return false;
+      }
+      entity.shutdown();
+      return true;
+    });
+    entities.addAll(actionTraceBuffer);
+    actionTraceBuffer.clear();
   }
 
   private boolean gameIsEnd() {

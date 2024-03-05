@@ -1,9 +1,9 @@
 {
   "Player": {
-    "shiftX": 0,
-    "shiftY": 0,
-    "height": 20,
-    "width": 20
+    "shiftX": -25,
+    "shiftY": -25,
+    "height": 50,
+    "width": 50
   },
   "ItIsGoingToHurt": {
     "shiftX": 0,
@@ -24,16 +24,16 @@
     "width": 20
   },
   "CycloDick": {
-    "shiftX": 0,
-    "shiftY": 0,
-    "height": 20,
-    "width": 20
+    "shiftX": -30,
+    "shiftY": -30,
+    "height": 60,
+    "width": 60
   },
   "CycloDickFireBall": {
-    "shiftX": 0,
-    "shiftY": 0,
-    "height": 20,
-    "width": 20
+    "shiftX": -15,
+    "shiftY": -15,
+    "height": 30,
+    "width": 30
   },
   "Map":{
     "shiftX": 0,

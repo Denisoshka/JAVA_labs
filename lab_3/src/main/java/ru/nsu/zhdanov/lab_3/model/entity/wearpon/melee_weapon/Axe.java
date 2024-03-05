@@ -6,14 +6,15 @@ import ru.nsu.zhdanov.lab_3.model.GameEngine;
 import ru.nsu.zhdanov.lab_3.model.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.entity.wearpon.base_weapons.MeleeWeapon;
 
+import static ru.nsu.zhdanov.lab_3.model.entity.Constants.AxeC.ACTION_DISTANCE;
+import static ru.nsu.zhdanov.lab_3.model.entity.Constants.AxeC.AXE_DAMAGE;
+
 @Slf4j
 public class Axe extends MeleeWeapon {
-  private static int ACTIONDISTANCE = 40;
-  private static int AXEDAMAGE = 20;
   AreaOfDefeat area;
 
   public Axe() {
-    super(ContextID.Axe, AXEDAMAGE, ACTIONDISTANCE);
+    super(ContextID.Axe, AXE_DAMAGE, ACTION_DISTANCE);
   }
 
   @Override
@@ -38,11 +39,16 @@ public class Axe extends MeleeWeapon {
       if (area.hits(edx, edy)) {
         int dx = user.getX() - ent.getX();
         int dy = user.getY() - ent.getY();
-        if (Math.sqrt(dx * dx + dy * dy) < ACTIONDISTANCE) {
+        if (Math.sqrt(dx * dx + dy * dy) < ACTION_DISTANCE) {
           ent.acceptDamage(this);
         }
       }
     }
+  }
+
+  @Override
+  public boolean readyForUse() {
+    return true;
   }
 
   @Override

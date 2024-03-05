@@ -4,36 +4,44 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.nsu.zhdanov.lab_3.model.ContextID;
 import ru.nsu.zhdanov.lab_3.model.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.entity.wearpon.Fraction;
 import ru.nsu.zhdanov.lab_3.model.interfaces.WeaponImpl;
 
-public abstract class Entity  {
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public abstract class Entity {
   protected @Getter
   @Setter int x;
   protected @Getter
   @Setter int y;
   protected @Getter
   @Setter int radius;
-  protected @Getter
-  @Setter double sinDir = 0;
+  protected @Getter double sinDir = 0;
   protected @Getter double cosDir = 0;
-  protected int livesQuantity;
-  protected @Getter ContextID ID;
+  protected @Getter int livesQuantity;
   protected @Getter
   @Setter int xShift;
   protected @Getter
   @Setter int yShift;
+  protected AtomicInteger contextTracker;
+  protected @Getter ContextID ID;
+  protected @Getter int reward;
+  protected @Getter Fraction fraction;
 
   public abstract void update(final GameEngine context);
 
   public Entity(int x, int y, int radius, int xShift,
-                int yShift, int LivesQuantity, ContextID ID) {
+                int yShift, int reward, int livesQuantity, ContextID ID, Fraction fraction) {
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.livesQuantity = LivesQuantity;
+    this.livesQuantity = livesQuantity;
     this.xShift = xShift;
     this.yShift = yShift;
     this.ID = ID;
+    this.reward = reward;
+    this.fraction = fraction;
   }
 
   public abstract void checkCollisions(final GameEngine context);
@@ -50,6 +58,27 @@ public abstract class Entity  {
   public boolean isDead() {
     return livesQuantity <= 0;
   }
+
+
+  /**
+   * decrement context tracker and make them null
+   */
+  public void shutdown() {
+    if (Objects.isNull(contextTracker)) {
+      return;
+    }
+    contextTracker.decrementAndGet();
+    contextTracker = null;
+  }
+
+  /**
+   * set context tracker for track live entities and increment them
+   */
+  public void setContextTracker(final AtomicInteger tracker) {
+    contextTracker = tracker;
+    contextTracker.incrementAndGet();
+  }
+
 /*
   public int getXCollision(final GameEngine context) {
     int floorX = Math.floorDiv(x, context.getMap().getCellSize());

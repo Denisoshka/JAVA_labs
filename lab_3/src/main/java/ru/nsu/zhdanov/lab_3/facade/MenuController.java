@@ -53,7 +53,7 @@ public class MenuController implements SubControllerRequests {
       var resource = getClass().getResource(properties.getProperty("score"));
       var mapper = new ObjectMapper();
       Score[] tmp = mapper.readValue(resource, Score[].class);
-      Arrays.sort(tmp); //, Collections.reverseOrder()
+      Arrays.sort(tmp);
       scoreStorage.addAll(tmp);
     } catch (IOException | RuntimeException e) {
       throw new RuntimeException(e);
