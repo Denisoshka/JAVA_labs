@@ -3,7 +3,7 @@ package ru.nsu.zhdanov.lab_3.facade;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.facade.exceptions.ResourceNotAvailable;
 
@@ -13,12 +13,12 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class MainController implements MenuRequests {
+public class MainController implements MainControllerRequests.GameContext, MainControllerRequests.MenuContext {
   final AtomicBoolean scoreUpdating;
 
   private MenuController menuController = null;
   private GameController gameController = null;
-  final private Stage primaryStage;
+  final private @Getter Stage primaryStage;
 
   public MainController(Properties menuProperties, Properties gameProperties, Stage primaryStage) {
     this.scoreUpdating = new AtomicBoolean(false);
@@ -36,7 +36,7 @@ public class MainController implements MenuRequests {
       Scene scene = new Scene(Objects.requireNonNull(loader.load()));
       primaryStage.setScene(scene);
       SubControllerRequests controller = loader.getController();
-      controller.setContext(properties, this);
+      controller.setContext(properties, this, primaryStage);
 //      primaryStage.initStyle(StageStyle.UNDECORATED);
       primaryStage.show();
       return controller;
@@ -55,7 +55,6 @@ public class MainController implements MenuRequests {
       throw new RuntimeException(e);
     }
     gameController = (GameController) changeScene(properties, "/facade/screens/game_window.fxml");
-    primaryStage.setFullScreen(true);
     gameController.perform();
   }
 
@@ -71,8 +70,13 @@ public class MainController implements MenuRequests {
   }
 
   @Override
-  public void menuStartGame() {
+  public void startGame() {
     setGameScreen();
+  }
+
+  @Override
+  public void gameEnd() {
+    setMenuScreen();
   }
 }
 

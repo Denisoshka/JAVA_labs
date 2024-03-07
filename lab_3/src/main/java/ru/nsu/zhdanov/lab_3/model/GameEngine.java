@@ -1,5 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +9,8 @@ import ru.nsu.zhdanov.lab_3.model.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.entity.opposition.CycloDick;
 import ru.nsu.zhdanov.lab_3.model.entity.player.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,28 +35,29 @@ public class GameEngine {
   final private AtomicInteger obrservingQuantity;
   private AtomicLong curGameTime;
   private long gameStartTime;
-  @Getter private int score = 0;
+  @Getter
+  private int score = 0;
 
+  final SessionInf sessionInf = new SessionInf();
+  final Properties properties;
+  final Random random = new Random();
 
-  public GameEngine(Properties contextProperties) {
+  public GameEngine(Properties properties) {
     this.actionTraceBuffer = new ArrayList<>();
-    this.contextProperties = contextProperties;
     this.obrservingQuantity = new AtomicInteger(0);
-    //    todo make prop use
     this.entities = new ArrayList<>();
     this.input = new HashMap<>();
+    this.properties = properties;
+
     this.initGameEnvironment();
   }
 
   void initGameEnvironment() {
-    map = new GameMap(0, 0, testMapWidth, testMapHeight, 1000);
+    map = new GameMap(0, 0, testMapWidth, testMapHeight);
     player = new Player(300, 300, 0);
     curGameTime = new AtomicLong();
 
-
-    Entity ent = new CycloDick(400, 400);
-    ent.setContextTracker(obrservingQuantity);
-    entities.add(ent);
+    spawnEnt();
   }
 
   public void perform() {
@@ -63,7 +68,12 @@ public class GameEngine {
   public void update() {//
     curGameTime.set(System.currentTimeMillis() - gameStartTime);
     player.update(this);
+    updateEnt();
 
+    updateGameCondition();
+  }
+
+  private void updateEnt() {
     for (Entity ent : entities) {
       ent.update(this);
     }
@@ -84,23 +94,64 @@ public class GameEngine {
     actionTraceBuffer.clear();
   }
 
-  private boolean gameIsEnd() {
-    boolean condition;
-    condition = player.isDead();
-    if (obrservingQuantity.get() == 0) {
+  private void spawnEnt() {
+    int x = map.getAllowedXPlacement(random.nextInt(testMapWidth), CycloDick.RADIUS);
+    int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
 
+    Entity ent = new CycloDick(x, y);
+    ent.setContextTracker(obrservingQuantity);
+
+    entities.add(ent);
+  }
+
+  public void shutDown() {
+    if (gameIsEnd()) {
+      saveScore();
     }
-    return condition;
   }
 
   private void saveScore() {
+//    todo make save
+   /* try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      File scoreFile = new File(properties.getProperty("score"));
+
+      ArrayNode scores;
+      if (scoreFile.exists()) {
+        scores = (ArrayNode) objectMapper.readTree(scoreFile);
+      } else {
+        scores = objectMapper.createArrayNode();
+      }
+
+      scores.add(objectMapper.writeValueAsString(new Score(sessionInf.name, sessionInf.score)));
+
+      objectMapper.writeValue(scoreFile, scores);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }*/
+  }
+
+  private void updateGameCondition() {
+    sessionInf.gameIsEnd = player.isDead() || obrservingQuantity.get() == 0;
+  }
+
+  public boolean gameIsEnd() {
+    return sessionInf.gameIsEnd;
   }
 
   public Map<PlayerAction, AtomicBoolean> getInput() {
     return this.input;
   }
 
-  public List<Entity> getDrawInf() {
-    return entities;
+  private class SessionInf {
+    String name;
+    int score;
+    boolean allEnemyDead = false;
+    boolean playerDead = false;
+    boolean playerQuit = false;
+    boolean gameIsEnd = false;
+  }
+
+  private record Score(String name, int score) {
   }
 }

@@ -7,6 +7,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -23,13 +24,13 @@ public class MenuController implements SubControllerRequests {
   private TableColumn<Score, Integer> score;
 
   final private ObservableList<Score> scoreStorage;
-  private MenuRequests menuReq;
+  private MainControllerRequests.MenuContext menuReq;
 
 
   @FXML
   public void startGame() {
     log.info("try to start game");
-    menuReq.menuStartGame();
+    menuReq.startGame();
   }
 
   public MenuController() {
@@ -47,7 +48,7 @@ public class MenuController implements SubControllerRequests {
 
 
   @Override
-  public void setContext(Properties properties, MainController controller) {
+  public void setContext(Properties properties, MainController controller, Stage primaryStage) {
     menuReq = controller;
     try {
       var resource = getClass().getResource(properties.getProperty("score"));

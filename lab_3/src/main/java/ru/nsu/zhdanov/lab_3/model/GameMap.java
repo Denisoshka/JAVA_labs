@@ -4,29 +4,37 @@ import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.model.entity.Entity;
 
 public class GameMap {
-  public int cellSize = 1000;
-//  protected final Map<Integer, Map<Integer, MapCell>> map;
   final private @Getter ContextID ID;
   private @Getter int maxX;
   private @Getter int maxY;
   private @Getter int minX;
   private @Getter int minY;
 
-  public GameMap(int minX, int minY, int maxX, int maxY, int cellSize) {
-//    todo make prop
+  public GameMap(int minX, int minY, int maxX, int maxY) {
     this.maxX = maxX;
     this.maxY = maxY;
     this.minX = minX;
     this.minY = minY;
     this.ID = ContextID.Map;
-//    this.map = new TreeMap<>();
   }
 
   public int getAllowedXShift(Entity ent) {
-    return Math.clamp(ent.getX() + ent.getXShift(), minX + ent.getRadius(), maxX - ent.getRadius()) - ent.getX();
+    return getAllowedShift(ent.getX(), ent.getXShift(), minX, maxX, ent.getRadius());
   }
 
   public int getAllowedYShift(Entity ent) {
-    return Math.clamp(ent.getY() + ent.getYShift(), minX + ent.getRadius(), maxX - ent.getRadius()) - ent.getY();
+    return getAllowedShift(ent.getY(), ent.getYShift(), minY, maxY, ent.getRadius());
+  }
+
+  public int getAllowedXPlacement(int point, int radius) {
+    return getAllowedShift(point, maxX, minX, maxX, radius);
+  }
+
+  public int getAllowedYPlacement(int point, int radius) {
+    return getAllowedShift(point, maxY, minY, maxY, radius);
+  }
+
+  private int getAllowedShift(int point, int shift, int minEdge, int maxEdge, int radius) {
+    return Math.clamp(point + shift, minEdge + radius, maxEdge - radius) - point;
   }
 }

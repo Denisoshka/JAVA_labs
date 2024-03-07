@@ -2,6 +2,9 @@ package ru.nsu.zhdanov.lab_3.model.entity;
 
 
 public interface Constants {
+  interface gameEngineConstants{
+  }
+
   interface PlayerC {
     int LIVES_QUANTITY = 200;
     int RADIUS = 25;
