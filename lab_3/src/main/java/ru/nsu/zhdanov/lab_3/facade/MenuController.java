@@ -1,65 +1,67 @@
 package ru.nsu.zhdanov.lab_3.facade;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 @Slf4j
 public class MenuController implements SubControllerRequests {
   @FXML
-  private TableView<Score> scoreTable;
+  private TableView<Line> scoreTable;
   @FXML
-  private TableColumn<Score, String> name;
+  private TableColumn<Line, String> nameColumn;
   @FXML
-  private TableColumn<Score, Integer> score;
+  private TableColumn<Line, Integer> scoreColumn;
+  @FXML
+  private TextField playerName;
 
-  final private ObservableList<Score> scoreStorage;
+  final private ObservableList<Line> scoreData;
   private MainControllerRequests.MenuContext menuReq;
 
 
   @FXML
   public void startGame() {
     log.info("try to start game");
-    menuReq.startGame();
+    menuReq.startGame(playerName.getText());
   }
 
   public MenuController() {
     this.scoreTable = new TableView<>();
-    this.scoreStorage = FXCollections.observableArrayList();
+    this.scoreData = FXCollections.observableArrayList();
   }
 
   @FXML
   public void exitGame() {
+    Platform.exit();
   }
-
-  @FXML
-  private void initialize() {
-  }
-
 
   @Override
   public void setContext(Properties properties, MainController controller, Stage primaryStage) {
     menuReq = controller;
+    ObjectMapper mapper = new ObjectMapper();
+    List<String> rez = menuReq.acquireScore();
     try {
-      var resource = getClass().getResource(properties.getProperty("score"));
-      var mapper = new ObjectMapper();
-      Score[] tmp = mapper.readValue(resource, Score[].class);
-      Arrays.sort(tmp);
-      scoreStorage.addAll(tmp);
-    } catch (IOException | RuntimeException e) {
+      for (var tmp : rez) {
+        scoreData.add(mapper.readValue(tmp, Line.class));
+      }
+    } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
-    scoreTable.setItems(scoreStorage);
+    scoreData.addAll();
+    scoreTable.setItems(scoreData);
   }
 
   @Override
@@ -70,10 +72,6 @@ public class MenuController implements SubControllerRequests {
   public void shutdown() {
   }
 
-  public record Score(String name, int score) implements Comparable<Score> {
-    @Override
-    public int compareTo(Score o) {
-      return Integer.compare(this.score, o.score);
-    }
+  private record Line(SimpleStringProperty name, SimpleIntegerProperty score) {
   }
 }

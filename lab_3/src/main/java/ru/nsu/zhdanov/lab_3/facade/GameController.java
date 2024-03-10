@@ -13,15 +13,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.ContextID;
-import ru.nsu.zhdanov.lab_3.model.GameEngine;
-import ru.nsu.zhdanov.lab_3.model.PlayerAction;
-import ru.nsu.zhdanov.lab_3.model.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.entity.player.Player;
-import ru.nsu.zhdanov.lab_3.model.entity.wearpon.base_weapons.Weapon;
+import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.game_context.PlayerAction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,16 +45,16 @@ public class GameController implements SubControllerRequests {
   @FXML
   private TextField weaponName;
 
-  final private @Getter Map<KeyCode, AtomicBoolean> keysInput;//
-  final private @Getter Map<MouseButton, AtomicBoolean> mouseInput;//
-  final private AtomicIntegerArray mouseCords;//
+  final private @Getter Map<KeyCode, AtomicBoolean> keysInput = new HashMap<>();//
+  final private @Getter Map<MouseButton, AtomicBoolean> mouseInput = new HashMap<>();//
+  final private AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
   private GameEngine context;
 
   @FXML
   private Canvas canvas;
   private GraphicsContext graphicsContext;
 
-  final private Map<ContextID, SpriteInf> toDrawSprites;
+  final private Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
   final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
   final AtomicBoolean continueGame = new AtomicBoolean(true);
 
@@ -93,32 +94,37 @@ public class GameController implements SubControllerRequests {
       }
     }
 
-    log.info("ya ebal");
-    context.shutDown();
+    exit();
+  });
+
+  private void exit() {
+    Font font = new Font("Arial", 20);
+    Platform.runLater(() -> {
+      graphicsContext.setFont(font);
+      graphicsContext.fillText(
+              "Press space to exit",
+              (double) context.getMap().getMaxX() / 2,
+              (double) context.getMap().getMaxY() / 2
+      );
+    });
+    while (!keysInput.get(KeyCode.SPACE).get()) {
+    }
+    mainController.dumpScore(context.getPlayerName(), context.getPlayerScore());
     Platform.runLater(() -> {
       primaryStage.setFullScreen(false);
       mainController.gameEnd();
     });
-  });
 
-  public GameController() {
-    this.toDrawSprites = new HashMap<>();
-    this.keysInput = new HashMap<>();
-    this.mouseInput = new HashMap<>();
-    this.mouseCords = new AtomicIntegerArray(2);
-    this.context = new GameEngine(null);
   }
-
 
   @Override
   public void setContext(Properties properties, MainController controller, Stage primaryStage) {
-
-    log.info("set game context");
     this.primaryStage = primaryStage;
     this.mainController = controller;
     Platform.runLater(() -> {
       this.primaryStage.setFullScreen(true);
     });
+    this.context = new GameEngine(properties, mainController.getPlayerName());
 
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
@@ -169,15 +175,6 @@ public class GameController implements SubControllerRequests {
     }
   }
 
-  private void drawHitBox() {
-    for (Entity ent : context.getEntities()) {
-      graphicsContext.fillOval(ent.getX() - ent.getRadius(), ent.getY() - ent.getRadius(), ent.getRadius() * 2, ent.getRadius() * 2);
-    }
-
-    Player player = context.getPlayer();
-    graphicsContext.fillOval(player.getX() - player.getRadius(), player.getY() - player.getRadius(), player.getRadius() * 2, player.getRadius() * 2);
-  }
-
   private void draw() {
     drawContext();
     drawStats();
@@ -186,7 +183,7 @@ public class GameController implements SubControllerRequests {
 
   private void drawStats() {
     Player pl = context.getPlayer();
-    curScore.setText("Score: " + context.getScore());
+    curScore.setText("Score: " + context.getPlayerScore());
     livesQuantity.setText("Lives: " + pl.getLivesQuantity());
     if (pl.getWeapon() != null) {
       weaponName.setText(pl.getWeapon().getID().name());
@@ -282,6 +279,7 @@ public class GameController implements SubControllerRequests {
     }
 
     try {
+//      todo сделать парс жсона в модели
       for (ContextID id : ContextID.values()) {
         Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(id.name()))));
         JsonNode curNode = tree.get(id.name());
@@ -312,6 +310,7 @@ public class GameController implements SubControllerRequests {
     }
 
     keysInput.put(KeyCode.CLOSE_BRACKET, new AtomicBoolean(false));
+    keysInput.put(KeyCode.SPACE, new AtomicBoolean(false));
   }
 
   private <KeyT> void bindInput(Map<KeyT, AtomicBoolean> from,
