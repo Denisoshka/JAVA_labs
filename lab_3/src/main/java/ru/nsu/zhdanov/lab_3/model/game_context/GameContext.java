@@ -1,12 +1,11 @@
 package ru.nsu.zhdanov.lab_3.model.game_context;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition.CycloDick;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition.TwoBarrels;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,54 +13,39 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-public class GameEngine {
-  private @Getter GameMap map;
-  private @Getter Player player;
-  private final @Getter List<Entity> entities;
-  private final @Getter List<Entity> actionTraceBuffer;
-  private final Map<PlayerAction, AtomicBoolean> input;
-  //  todo
-  private Properties contextProperties;
-  private @Setter
-  @Getter int cursorXPos;
-  private @Setter
-  @Getter int cursorYPos;
+public class GameContext {
+  private GameMap map;
+  private PlayerController player;
+  private final List<Entity> entities = new ArrayList<>();
+  private final List<Entity> actionTraceBuffer = new ArrayList<>();
+  private final Map<PlayerAction, AtomicBoolean> input = new HashMap<>();
+
+  private int cursorXPos;
+  private int cursorYPos;
   final private int testMapWidth = 1200;
   final private int testMapHeight = 675;
+  final private AtomicInteger observingQuantity = new AtomicInteger(0);
 
-  final private AtomicInteger obrservingQuantity;
-  private AtomicLong curGameTime;
+  private final Random random = new Random();
+
+  private String playerName;
+  private long curGameTime;
   private long gameStartTime;
-  @Getter
 
-  final SessionInf sessionInf;
-  final Properties properties;
-  final Random random = new Random();
 
-  public GameEngine(Properties properties, String player) {
-    this.actionTraceBuffer = new ArrayList<>();
-    this.obrservingQuantity = new AtomicInteger(0);
-    this.entities = new ArrayList<>();
-    this.input = new HashMap<>();
-    this.properties = properties;
-    this.sessionInf = new SessionInf(player);
+  private int score;
 
+  public GameContext(Properties properties, String playerName) {
+    this.playerName = playerName;
     this.initGameEnvironment();
   }
 
   void initGameEnvironment() {
     map = new GameMap(0, 0, testMapWidth, testMapHeight);
-    player = new Player(300, 300, 0);
-    curGameTime = new AtomicLong();
+    player = new PlayerController(300, 300);
 
     spawnCycloDick();
     spawnCycloDick();
-    spawnCycloDick();
-    spawnTwoBarrels();
-    spawnTwoBarrels();
-    spawnTwoBarrels();
-    spawnTwoBarrels();
-    spawnTwoBarrels();
     spawnTwoBarrels();
   }
 
@@ -70,16 +54,13 @@ public class GameEngine {
   }
 
   public void update() {//
-    curGameTime.set(System.currentTimeMillis() - gameStartTime);
+    curGameTime = System.currentTimeMillis() - gameStartTime;
 
     updateEnt();
-
-    updateGameCondition();
   }
 
   private void updateEnt() {
     player.update(this);
-
     for (Entity ent : entities) {
       ent.update(this);
     }
@@ -94,7 +75,7 @@ public class GameEngine {
         return false;
       }
       entity.shutdown();
-      sessionInf.score += entity.getReward();
+      this.score += entity.getReward();
       return true;
     });
 
@@ -102,12 +83,13 @@ public class GameEngine {
     actionTraceBuffer.clear();
   }
 
+
   private void spawnCycloDick() {
     int x = map.getAllowedXPlacement(random.nextInt(testMapWidth), CycloDick.RADIUS);
     int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
 
     Entity ent = new CycloDick(x, y);
-    ent.setContextTracker(obrservingQuantity);
+    ent.setContextTracker(observingQuantity);
 
     entities.add(ent);
   }
@@ -117,41 +99,67 @@ public class GameEngine {
     int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
 
     Entity ent = new TwoBarrels(x, y);
-    ent.setContextTracker(obrservingQuantity);
+    ent.setContextTracker(observingQuantity);
 
     entities.add(ent);
   }
 
-  private void updateGameCondition() {
-    sessionInf.gameIsEnd = player.isDead() || obrservingQuantity.get() == 0;
+  public void submitAction(Entity entity) {
+    actionTraceBuffer.add(entity);
   }
 
-  public boolean gameIsEnd() {
-    return sessionInf.gameIsEnd;
+  public boolean isGameEnd() {
+    return observingQuantity.get() == 0 || player.isDead();
+  }
+
+  public ShootingWeapon getWeapon() {
+    return player.getWeapon();
+  }
+
+  public int getWeaponOccupancy() {
+    return player.getWeapon().getOccupancy();
   }
 
   public Map<PlayerAction, AtomicBoolean> getInput() {
-    return this.input;
+    return input;
+  }
+
+  public int getWeaponCapacity() {
+    return player.getWeapon().getCapacity();
+  }
+  public int getScore() {
+    return score;
   }
 
   public String getPlayerName() {
-    return sessionInf.name;
+    return playerName;
   }
 
-  public int getPlayerScore() {
-    return sessionInf.score;
+  public GameMap getMap() {
+    return this.map;
   }
 
-  private class SessionInf {
-    final String name;
-    boolean allEnemyDead = false;
-    boolean playerDead = false;
-    boolean playerQuit = false;
-    boolean gameIsEnd = false;
-    int score;
+  public PlayerController getPlayer() {
+    return this.player;
+  }
 
-    public SessionInf(String name) {
-      this.name = name;
-    }
+  public List<Entity> getEntities() {
+    return this.entities;
+  }
+
+  public int getCursorXPos() {
+    return this.cursorXPos;
+  }
+
+  public int getCursorYPos() {
+    return this.cursorYPos;
+  }
+
+  public void setCursorXPos(int cursorXPos) {
+    this.cursorXPos = cursorXPos;
+  }
+
+  public void setCursorYPos(int cursorYPos) {
+    this.cursorYPos = cursorYPos;
   }
 }

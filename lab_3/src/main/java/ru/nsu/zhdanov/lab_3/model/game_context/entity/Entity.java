@@ -1,37 +1,29 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity;
 
-import lombok.Getter;
-import lombok.Setter;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.interfaces.WeaponImpl;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Entity {
-  protected @Getter
-  @Setter int x;
-  protected @Getter
-  @Setter int y;
-  protected @Getter
-  @Setter int radius;
-  protected @Getter double sinDir = 0;
-  protected @Getter double cosDir = 0;
-  protected @Getter int livesQuantity;
-  protected @Getter
-  @Setter int xShift;
-  protected @Getter
-  @Setter int yShift;
+  protected int x;
+  protected int y;
+  protected int radius;
+  protected double sinDir = 0;
+  protected double cosDir = 0;
+  protected int livesQuantity;
+  protected int xShift;
+  protected int yShift;
   protected AtomicInteger contextTracker;
-  protected @Getter ContextID ID;
-  protected @Getter int reward;
-  protected @Getter Fraction fraction;
-  protected @Getter ContextType type;
+  protected ContextID ID;
+  protected int reward;
+  protected Fraction fraction;
+  protected ContextType type;
 
-  public abstract void update(final GameEngine context);
+  public abstract void update(final GameContext context);
 
   public Entity(int x, int y, int radius, int xShift,
                 int yShift, int reward, int livesQuantity, ContextType type, ContextID ID, Fraction fraction) {
@@ -46,15 +38,14 @@ public abstract class Entity {
     this.fraction = fraction;
   }
 
-  public abstract void checkCollisions(final GameEngine context);
+  public abstract void checkCollisions(final GameContext context);
 
   public boolean isCollision(Entity other) {
     return Math.hypot(x - other.x, y - other.y) < radius + other.radius;
   }
 
-  public boolean acceptDamage(WeaponImpl ent) {
+  public void acceptDamage(WeaponImpl ent) {
     livesQuantity -= ent.getDamage();
-    return livesQuantity < 0;
   }
 
   public boolean isDead() {
@@ -66,7 +57,7 @@ public abstract class Entity {
    * decrement context tracker and make them null
    */
   public void shutdown() {
-    if (Objects.isNull(contextTracker)) {
+    if (contextTracker == null) {
       return;
     }
     contextTracker.decrementAndGet();
@@ -79,6 +70,74 @@ public abstract class Entity {
   public void setContextTracker(final AtomicInteger tracker) {
     contextTracker = tracker;
     contextTracker.incrementAndGet();
+  }
+
+  public int getX() {
+    return this.x;
+  }
+
+  public int getY() {
+    return this.y;
+  }
+
+  public int getRadius() {
+    return this.radius;
+  }
+
+  public double getSinDir() {
+    return this.sinDir;
+  }
+
+  public double getCosDir() {
+    return this.cosDir;
+  }
+
+  public int getLivesQuantity() {
+    return this.livesQuantity;
+  }
+
+  public int getXShift() {
+    return this.xShift;
+  }
+
+  public int getYShift() {
+    return this.yShift;
+  }
+
+  public ContextID getID() {
+    return this.ID;
+  }
+
+  public int getReward() {
+    return this.reward;
+  }
+
+  public Fraction getFraction() {
+    return this.fraction;
+  }
+
+  public ContextType getType() {
+    return this.type;
+  }
+
+  public void setX(int x) {
+    this.x = x;
+  }
+
+  public void setY(int y) {
+    this.y = y;
+  }
+
+  public void setRadius(int radius) {
+    this.radius = radius;
+  }
+
+  public void setXShift(int xShift) {
+    this.xShift = xShift;
+  }
+
+  public void setYShift(int yShift) {
+    this.yShift = yShift;
   }
 
 /*

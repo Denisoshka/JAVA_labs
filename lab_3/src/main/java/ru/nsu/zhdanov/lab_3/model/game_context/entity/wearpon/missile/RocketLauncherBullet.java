@@ -1,11 +1,12 @@
-package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons;
+package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.BaseBullet;
 
 public class RocketLauncherBullet extends BaseBullet implements Constants.RocketLauncherBulletC {
@@ -17,15 +18,18 @@ public class RocketLauncherBullet extends BaseBullet implements Constants.Rocket
   }
 
   @Override
-  public void checkCollisions(GameEngine context) {
+  public void checkCollisions(GameContext context) {
     Entity target = null;
     double newDest;
     double dest = TRACKING_RADIUS;
 //todo refactor on context type
-    Player pl = context.getPlayer();
+
+    PlayerController pl = context.getPlayer();
     {
       for (Entity ent : context.getEntities()) {
-        if (this != ent && (fraction != ent.getFraction() || fraction == Fraction.NON_FRACTION) && ((newDest = Math.hypot(x - ent.getX(), y - ent.getY())) < dest)) {
+        if (ent.getType() == ContextType.EntityT && this != ent
+                && type != ent.getType() && fraction != ent.getFraction()
+                && ((newDest = Math.hypot(x - ent.getX(), y - ent.getY())) < dest)) {
           dest = newDest;
           target = ent;
           if (ent.isCollision(this)) {
@@ -33,8 +37,7 @@ public class RocketLauncherBullet extends BaseBullet implements Constants.Rocket
           }
         }
       }
-      pl = context.getPlayer();
-      if ((fraction != pl.getFraction() || fraction == Fraction.NON_FRACTION) && ((newDest = Math.hypot(x - pl.getX(), y - pl.getY())) < dest)) {
+      if (fraction != pl.getFraction() && ((newDest = Math.hypot(x - pl.getX(), y - pl.getY())) < dest)) {
         dest = newDest;
         target = pl;
         pl.acceptDamage(this);

@@ -2,23 +2,24 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.melee_weapon;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.MeleeWeapon;
 
-import static ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants.AxeC.ACTION_DISTANCE;
-import static ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants.AxeC.AXE_DAMAGE;
+import static ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.AxeC;
 
 @Slf4j
-public class Axe extends MeleeWeapon {
+public class Axe extends MeleeWeapon implements AxeC {
   AreaOfDefeat area;
 
   public Axe() {
     super(ContextID.Axe, AXE_DAMAGE, ACTION_DISTANCE);
   }
 
+
   @Override
-  public void action(GameEngine context, Entity user) {
+  public void action(GameContext context, PlayerController user) {
     log.info("am going ot init hurt");
     int udx = context.getCursorXPos() - user.getX();
     int udy = context.getCursorYPos() - user.getY();
@@ -47,13 +48,12 @@ public class Axe extends MeleeWeapon {
   }
 
   @Override
-  public boolean readyForUse() {
-    return true;
-  }
-
-  @Override
   public int getDamage() {
     return super.getDamage();
   }
 
+
+  @Override
+  public void update(GameContext context, PlayerController user) {
+  }
 }

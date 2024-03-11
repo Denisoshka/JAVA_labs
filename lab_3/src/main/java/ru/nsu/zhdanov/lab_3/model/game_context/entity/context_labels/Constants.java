@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab_3.model.game_context.entity;
+package ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels;
 
 
 public interface Constants {
@@ -18,7 +18,6 @@ public interface Constants {
     int RADIUS = 30;
     int DEF_SHIFT = 1;
     int TRACK_SHIFT = 3;
-    int WANT_TO_MOVE_QUANTITY = 10;
     double ATTACK_DIST = 250;
     double TRACK_DEGREE_DEVIATION = 50;
     double TRACK_DEGREE_DEVIATION_COEF = TRACK_DEGREE_DEVIATION * 2;
@@ -34,8 +33,8 @@ public interface Constants {
   }
 
   interface AxeC {
-    int ACTION_DISTANCE = 40;
-    int AXE_DAMAGE = 20;
+    int ACTION_DISTANCE = 60;
+    int AXE_DAMAGE = 120;
   }
 
   interface ItIsGoingToHurtBulletC {
@@ -46,7 +45,8 @@ public interface Constants {
 
   interface ItsGoingToHurtC {
     int DAMAGE = 10;
-    int CAPACITY = 10;
+    int CAPACITY = 20;
+    int DELAY = 1250;
   }
 
   interface RocketLauncherC {

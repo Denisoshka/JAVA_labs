@@ -20,4 +20,6 @@ module ru.nsu.zhdanov.lab_3.lab_3 {
 //  opens javafx.beans.property to com.fasterxml.jackson.databind;
 
   exports ru.nsu.zhdanov.lab_3.model.main_model;
+  opens ru.nsu.zhdanov.lab_3.model.game_context.entity to com.fasterxml.jackson.databind;
+  opens ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels to com.fasterxml.jackson.databind;
 }

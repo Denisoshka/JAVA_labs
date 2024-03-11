@@ -2,12 +2,12 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.ItIsGoingToHurtBullet;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.ItIsGoingToHurtBullet;
 
 import java.util.Random;
 
@@ -24,7 +24,7 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
   }
 
   @Override
-  public void update(GameEngine context) {
+  public void update(GameContext context) {
     int dx = targetX - x;
     int dy = targetY - y;
     double dest = Math.hypot(dx, dy);
@@ -33,8 +33,7 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
     if (dest < ATTACK_DIST && System.currentTimeMillis() - lastShot >= DELAY) {
       for (int i = 0; i < SHOOTS_QUANTITY; ++i) {
         double dir = Math.toRadians(baseDir + dirDevGen.nextDouble() * BULLET_DEGREE_DEVIATION_COEF - BULLET_DEGREE_DEVIATION);
-        context.getActionTraceBuffer().add(new ItIsGoingToHurtBullet(fraction, x, y, Math.cos(dir), Math.sin(dir)));
-        log.info("ratatata " + i);
+        context.submitAction(new ItIsGoingToHurtBullet(fraction, x, y, Math.cos(dir), Math.sin(dir)));
       }
       lastShot = System.currentTimeMillis();
     }
@@ -53,7 +52,7 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
   }
 
   @Override
-  public void checkCollisions(GameEngine context) {
+  public void checkCollisions(GameContext context) {
     double dest = Double.POSITIVE_INFINITY;
     double newDest;
     for (var ent : context.getEntities()) {
@@ -70,7 +69,6 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
             && (Math.hypot(x - ent.getX(), y - ent.getY()) < dest)) {
       targetX = ent.getX();
       targetY = ent.getY();
-      log.info("targetX=" + targetX + " targetY=" + targetY);
     }
   }
 }

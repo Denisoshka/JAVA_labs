@@ -1,18 +1,17 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
-import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.interfaces.WeaponImpl;
 
 public class BaseBullet extends Entity implements WeaponImpl {
   protected final int damage;
   protected boolean ableToUse = true;
-  protected @Getter Fraction fraction;
+  protected Fraction fraction;
 
   public BaseBullet(ContextID ID, Fraction fraction, int x, int y, double cos, double sin, double shift,
                     int damage, int livesQuantity, int radius) {
@@ -23,7 +22,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
   }
 
   @Override
-  public void update(GameEngine context) {
+  public void update(GameContext context) {
     int yShift = context.getMap().getAllowedYShift(this);
     int xShift = context.getMap().getAllowedXShift(this);
     if (yShift != this.yShift || xShift != this.xShift) {
@@ -34,7 +33,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
   }
 
   @Override
-  public void checkCollisions(GameEngine context) {
+  public void checkCollisions(GameContext context) {
     for (Entity ent : context.getEntities()) {
       if (this != ent && ent.isCollision(this)
               && ableToUse
@@ -43,7 +42,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
         return;
       }
     }
-    Player pl = context.getPlayer();
+    PlayerController pl = context.getPlayer();
     if (pl.isCollision(this) && ableToUse && (fraction != pl.getFraction() || fraction == Fraction.NON_FRACTION)) {
       pl.acceptDamage(this);
     }
@@ -58,5 +57,9 @@ public class BaseBullet extends Entity implements WeaponImpl {
   @Override
   public boolean isDead() {
     return livesQuantity == 0 || !ableToUse;
+  }
+
+  public Fraction getFraction() {
+    return this.fraction;
   }
 }

@@ -1,15 +1,11 @@
 package ru.nsu.zhdanov.lab_3.model.main_model;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MainModel {
   private final Properties properties;

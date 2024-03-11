@@ -1,14 +1,14 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 
 import java.util.Random;
 
-import static ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants.CycloDickC;
+import static ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.CycloDickC;
 
 public class CycloDick extends Entity implements CycloDickC {
   private static final Random dirDevGen = new Random();
@@ -22,7 +22,7 @@ public class CycloDick extends Entity implements CycloDickC {
   }
 
   @Override
-  public void update(GameEngine context) {
+  public void update(GameContext context) {
     int dx = context.getPlayer().getX() - x;
     int dy = y - context.getPlayer().getY();
     double hyp = Math.hypot(dx, dy);
@@ -63,11 +63,11 @@ public class CycloDick extends Entity implements CycloDickC {
     y += yfShift;
 
     if (hyp <= ATTACK_DIST && wantToShotSolver.nextInt() % 11 == 0) {
-      context.getActionTraceBuffer().add(new CycloDickFireBall(x, y, cosDir, sinDir));
+      context.submitAction(new CycloDickFireBall(x, y, cosDir, sinDir));
     }
   }
 
   @Override
-  public void checkCollisions(GameEngine context) {
+  public void checkCollisions(GameContext context) {
   }
 }

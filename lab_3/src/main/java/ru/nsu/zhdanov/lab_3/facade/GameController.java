@@ -18,10 +18,10 @@ import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
 import ru.nsu.zhdanov.lab_3.model.game_context.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class GameController implements SubControllerRequests {
   final private @Getter Map<KeyCode, AtomicBoolean> keysInput = new HashMap<>();//
   final private @Getter Map<MouseButton, AtomicBoolean> mouseInput = new HashMap<>();//
   final private AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
-  private GameEngine context;
+  private GameContext context;
 
   @FXML
   private Canvas canvas;
@@ -65,7 +65,7 @@ public class GameController implements SubControllerRequests {
     long start, end, diff;
     context.perform();
 
-    while (!context.gameIsEnd() && continueGame.get()) {
+    while (!context.isGameEnd()) {
       start = System.currentTimeMillis();
 
       processInput();
@@ -109,7 +109,7 @@ public class GameController implements SubControllerRequests {
     });
     while (!keysInput.get(KeyCode.SPACE).get()) {
     }
-    mainController.dumpScore(context.getPlayerName(), context.getPlayerScore());
+    mainController.dumpScore(context.getPlayerName(), context.getScore());
     Platform.runLater(() -> {
       primaryStage.setFullScreen(false);
       mainController.gameEnd();
@@ -124,7 +124,7 @@ public class GameController implements SubControllerRequests {
     Platform.runLater(() -> {
       this.primaryStage.setFullScreen(true);
     });
-    this.context = new GameEngine(properties, mainController.getPlayerName());
+    this.context = new GameContext(properties, mainController.getPlayerName());
 
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
@@ -176,27 +176,27 @@ public class GameController implements SubControllerRequests {
   }
 
   private void draw() {
-    drawContext();
-    drawCondition();
+    drawMap();
+    drawEntities();
+    drawPlayer();
+    drawBar();
     allowGoToNextStep();
   }
 
-//todo need to refactor
-  private void drawCondition() {
-    Player pl = context.getPlayer();
-    curScore.setText("Score: " + context.getPlayerScore());
+  //todo need to refactor
+  private void drawBar() {
+    PlayerController pl = context.getPlayer();
+    curScore.setText("Score: " + context.getScore());
     livesQuantity.setText("Lives: " + pl.getLivesQuantity());
+
     if (pl.getWeapon() != null) {
       weaponName.setText(pl.getWeapon().getID().name());
-      weaponCondition.setText("Active: " + pl.getWeapon().readyForUse());
-    } else {
-      weaponName.setText("No weapon");
-      weaponCondition.setText("");
+      weaponCondition.setText("Condition" + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
     }
   }
 
   private void drawPlayer() {
-    Player player = context.getPlayer();
+    PlayerController player = context.getPlayer();
     draw(toDrawSprites.get(player.getID()), player.getX(), player.getY());
 
     Weapon w = player.getWeapon();
@@ -217,12 +217,6 @@ public class GameController implements SubControllerRequests {
 
   private void draw(SpriteInf inf, int x, int y) {
     graphicsContext.drawImage(inf.image(), x + inf.shiftX, y + inf.shiftY(), inf.width(), inf.height());
-  }
-
-  private void drawContext() {
-    drawMap();
-    drawEntities();
-    drawPlayer();
   }
 
   @FXML

@@ -1,11 +1,10 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
-import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
 
 public abstract class ShootingWeapon extends Weapon {
-  @Getter final private  int capacity;
-  @Getter protected int occupancy;
+  final private int capacity;
+  protected int occupancy;
 
   public ShootingWeapon(ContextID ID, int damage, int capacity) {
     super(ID, damage);
@@ -13,8 +12,11 @@ public abstract class ShootingWeapon extends Weapon {
     this.capacity = capacity;
   }
 
-  @Override
-  public void updateUse() {
-    occupancy = capacity;
+  public int getCapacity() {
+    return this.capacity;
+  }
+
+  public int getOccupancy() {
+    return this.occupancy;
   }
 }
