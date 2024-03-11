@@ -36,6 +36,7 @@ public abstract class Entity {
     this.ID = ID;
     this.reward = reward;
     this.fraction = fraction;
+    this.type = type;
   }
 
   public abstract void checkCollisions(final GameContext context);

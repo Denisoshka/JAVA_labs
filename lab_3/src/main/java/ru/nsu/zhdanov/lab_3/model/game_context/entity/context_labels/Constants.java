@@ -19,7 +19,7 @@ public interface Constants {
     int DEF_SHIFT = 1;
     int TRACK_SHIFT = 3;
     double ATTACK_DIST = 250;
-    double TRACK_DEGREE_DEVIATION = 50;
+    double TRACK_DEGREE_DEVIATION = 10;
     double TRACK_DEGREE_DEVIATION_COEF = TRACK_DEGREE_DEVIATION * 2;
     double DEF_DEGREE_DEVIATION = 30;
     double DEF_DEGREE_DEVIATION_COEF = TRACK_DEGREE_DEVIATION * 2;
@@ -51,7 +51,7 @@ public interface Constants {
 
   interface RocketLauncherC {
     int CAPACITY = 3;
-    int DELAY = 4000;
+    int DELAY = 3000;
   }
 
   interface RocketLauncherBulletC {

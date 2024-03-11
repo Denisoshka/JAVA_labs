@@ -191,7 +191,7 @@ public class GameController implements SubControllerRequests {
 
     if (pl.getWeapon() != null) {
       weaponName.setText(pl.getWeapon().getID().name());
-      weaponCondition.setText("Condition" + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
+      weaponCondition.setText("Ammunition: " + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
     }
   }
 

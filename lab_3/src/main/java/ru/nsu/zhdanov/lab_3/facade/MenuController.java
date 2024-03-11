@@ -34,7 +34,6 @@ public class MenuController implements SubControllerRequests {
 
   @FXML
   public void startGame() {
-    log.info("try to start game");
     menuReq.startGame(playerName.getText());
   }
 
@@ -61,7 +60,6 @@ public class MenuController implements SubControllerRequests {
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
-    log.info(Thread.currentThread().getName());
   }
 
   @Override

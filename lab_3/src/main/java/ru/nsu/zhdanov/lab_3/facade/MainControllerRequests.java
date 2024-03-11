@@ -6,16 +6,16 @@ import java.util.List;
 
 public interface MainControllerRequests {
   interface MenuContext {
-    public abstract void startGame(String name);
+    void startGame(String name);
 
-    public abstract List<String> acquireScore();
+    List<String> acquireScore();
   }
 
   interface GameContext {
-    public abstract String getPlayerName();
+    String getPlayerName();
 
-    public abstract void gameEnd();
+    void gameEnd();
 
-    public abstract void dumpScore(String name, int score);
+    void dumpScore(String name, int score);
   }
 }

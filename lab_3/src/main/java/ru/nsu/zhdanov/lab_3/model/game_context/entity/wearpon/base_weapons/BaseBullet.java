@@ -35,15 +35,16 @@ public class BaseBullet extends Entity implements WeaponImpl {
   @Override
   public void checkCollisions(GameContext context) {
     for (Entity ent : context.getEntities()) {
-      if (this != ent && ent.isCollision(this)
-              && ableToUse
-              && (fraction != ent.getFraction() || fraction == Fraction.NON_FRACTION)) {
+      if (ent.getType() == ContextType.EntityT && ableToUse
+              && (fraction != ent.getFraction() || fraction == Fraction.NON_FRACTION)
+              && ent.isCollision(this) && this != ent) {
         ent.acceptDamage(this);
         return;
       }
     }
     PlayerController pl = context.getPlayer();
-    if (pl.isCollision(this) && ableToUse && (fraction != pl.getFraction() || fraction == Fraction.NON_FRACTION)) {
+    if (ableToUse && (fraction != pl.getFraction() || fraction == Fraction.NON_FRACTION)
+            && pl.isCollision(this)) {
       pl.acceptDamage(this);
     }
   }

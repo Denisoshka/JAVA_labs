@@ -10,7 +10,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.BaseBullet;
 
 public class RocketLauncherBullet extends BaseBullet implements Constants.RocketLauncherBulletC {
-  //  todo uset may be deleted
   private boolean wantToDetonate;
 
   public RocketLauncherBullet(Fraction fraction, int x, int y, double cos, double sin) {
@@ -22,13 +21,12 @@ public class RocketLauncherBullet extends BaseBullet implements Constants.Rocket
     Entity target = null;
     double newDest;
     double dest = TRACKING_RADIUS;
-//todo refactor on context type
 
     PlayerController pl = context.getPlayer();
     {
       for (Entity ent : context.getEntities()) {
-        if (ent.getType() == ContextType.EntityT && this != ent
-                && type != ent.getType() && fraction != ent.getFraction()
+        if (ent.getType() == ContextType.EntityT
+                && fraction != ent.getFraction() && this != ent
                 && ((newDest = Math.hypot(x - ent.getX(), y - ent.getY())) < dest)) {
           dest = newDest;
           target = ent;

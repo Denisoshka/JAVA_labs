@@ -24,45 +24,37 @@ public class CycloDick extends Entity implements CycloDickC {
   @Override
   public void update(GameContext context) {
     int dx = context.getPlayer().getX() - x;
-    int dy = y - context.getPlayer().getY();
+    int dy = context.getPlayer().getY() - y;
     double hyp = Math.hypot(dx, dy);
 
     if (hyp <= ATTACK_DIST) {
       wantToMove += wantToShotSolver.nextInt(3);
+    } else {
+      wantToMove += wantToShotSolver.nextInt(2);
+      wantToMove -= wantToMove / 2;
     }
 
-    int xfShift = 0;
-    int yfShift = 0;
-    if (wantToMove > 0) {
-      dir = Math.toDegrees(Math.atan2(dy, dx));
-      /* make deviation in range */
-      dir += dirDevGen.nextDouble() * TRACK_DEGREE_DEVIATION_COEF - TRACK_DEGREE_DEVIATION;
-      double radians = Math.toRadians(dir);
-      xShift = (int) (TRACK_SHIFT * (cosDir = Math.sin(radians)));
-      yShift = (int) (TRACK_SHIFT * (sinDir = Math.cos(radians)));
-      --wantToMove;
-      xfShift = context.getMap().getAllowedXShift(this);
-      yfShift = context.getMap().getAllowedYShift(this);
-      if (yShift != yfShift || xShift != xfShift) {
-        yfShift /= 2;
-        xfShift /= 2;
-      }
-    } else if (wantToShotSolver.nextBoolean()) {
-      dir += dirDevGen.nextDouble() * DEF_DEGREE_DEVIATION_COEF - DEF_DEGREE_DEVIATION;
-      double radians = Math.toRadians(dir);
-      xShift = (int) (DEF_SHIFT * (cosDir = Math.sin(radians)));
-      yShift = (int) (DEF_SHIFT * (sinDir = Math.cos(radians)));
-      xfShift = context.getMap().getAllowedXShift(this);
-      yfShift = context.getMap().getAllowedYShift(this);
-      if (yShift != yfShift || xShift != xfShift) {
-        yfShift /= 3;
-        xfShift /= 3;
-      }
+    dir = Math.toDegrees(Math.atan2(dy, dx));
+    int shift = wantToMove > 0 ? TRACK_SHIFT : DEF_SHIFT;
+    double devDeviation = wantToMove > 0 ? TRACK_DEGREE_DEVIATION : DEF_DEGREE_DEVIATION;
+    dir += dirDevGen.nextDouble() * devDeviation * 2 - devDeviation;
+    double radians = Math.toRadians(dir);
+    xShift = (int) (shift * (cosDir = Math.cos(radians)));
+    yShift = (int) (shift * (sinDir = Math.sin(radians)));
+
+    int xfShift = context.getMap().getAllowedXShift(this);
+    int yfShift = context.getMap().getAllowedYShift(this);
+    int div = wantToMove > 0 ? 2 : 3;
+
+    if (yShift != yfShift || xShift != xfShift) {
+      yfShift /= div;
+      xfShift /= div;
     }
+
     x += xfShift;
     y += yfShift;
 
-    if (hyp <= ATTACK_DIST && wantToShotSolver.nextInt() % 11 == 0) {
+    if (wantToShotSolver.nextInt() % 11 == 0) {
       context.submitAction(new CycloDickFireBall(x, y, cosDir, sinDir));
     }
   }
