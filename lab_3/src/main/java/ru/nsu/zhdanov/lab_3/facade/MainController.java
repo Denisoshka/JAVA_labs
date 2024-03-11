@@ -18,8 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class MainController implements MainControllerRequests.GameContext, MainControllerRequests.MenuContext {
-  final AtomicBoolean scoreUpdating;
-
   private MenuController menuController = null;
   private GameController gameController = null;
   final private @Getter Stage primaryStage;
@@ -27,8 +25,6 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   private final MainModel model;
 
   public MainController(Properties menuProperties, Properties gameProperties, Stage primaryStage) {
-    this.scoreUpdating = new AtomicBoolean(false);
-//    this.gameController = new GameController(
     this.primaryStage = primaryStage;
     Properties properties = new Properties();
     try{

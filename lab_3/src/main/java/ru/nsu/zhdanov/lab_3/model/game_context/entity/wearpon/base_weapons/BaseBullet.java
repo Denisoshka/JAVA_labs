@@ -2,6 +2,7 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
 import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
@@ -15,7 +16,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
 
   public BaseBullet(ContextID ID, Fraction fraction, int x, int y, double cos, double sin, double shift,
                     int damage, int livesQuantity, int radius) {
-    super(x, y, radius, (int) (shift * cos), (int) (shift * sin), 0, 1, ID, fraction);
+    super(x, y, radius, (int) (shift * cos), (int) (shift * sin), 0, 1, ContextType.BulletT, ID, fraction);
     this.damage = damage;
     this.livesQuantity = livesQuantity;
     this.fraction = fraction;
@@ -42,7 +43,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
         return;
       }
     }
-    Player pl =context.getPlayer();
+    Player pl = context.getPlayer();
     if (pl.isCollision(this) && ableToUse && (fraction != pl.getFraction() || fraction == Fraction.NON_FRACTION)) {
       pl.acceptDamage(this);
     }

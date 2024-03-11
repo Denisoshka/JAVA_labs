@@ -15,10 +15,7 @@ public class ItsGoingToHurt extends ShootingWeapon implements Constants.ItsGoing
 
   @Override
   public void action(GameEngine context, Entity user) {
-    if (occupancy > 0) {
-      context.getActionTraceBuffer().add(new ItIsGoingToHurtBullet(user.getFraction(), user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
-      --occupancy;
-    }
+    context.getActionTraceBuffer().add(new ItIsGoingToHurtBullet(user.getFraction(), user.getX(), user.getY(), user.getCosDir(), user.getSinDir()));
   }
 
   @Override

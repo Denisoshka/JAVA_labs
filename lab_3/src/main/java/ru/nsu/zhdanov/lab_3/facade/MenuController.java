@@ -1,10 +1,10 @@
 package ru.nsu.zhdanov.lab_3.facade;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,7 +20,9 @@ import java.util.Properties;
 @Slf4j
 public class MenuController implements SubControllerRequests {
   @FXML
-  private TableView<Line> scoreTable;
+  private TableView<Line> scoreTable = new TableView<>();
+  final private ObservableList<Line> scoreData = FXCollections.observableArrayList();
+
   @FXML
   private TableColumn<Line, String> nameColumn;
   @FXML
@@ -28,9 +30,7 @@ public class MenuController implements SubControllerRequests {
   @FXML
   private TextField playerName;
 
-  final private ObservableList<Line> scoreData;
   private MainControllerRequests.MenuContext menuReq;
-
 
   @FXML
   public void startGame() {
@@ -38,9 +38,9 @@ public class MenuController implements SubControllerRequests {
     menuReq.startGame(playerName.getText());
   }
 
-  public MenuController() {
-    this.scoreTable = new TableView<>();
-    this.scoreData = FXCollections.observableArrayList();
+  @FXML
+  public void initialize() {
+    scoreTable.setItems(scoreData);
   }
 
   @FXML
@@ -55,13 +55,13 @@ public class MenuController implements SubControllerRequests {
     List<String> rez = menuReq.acquireScore();
     try {
       for (var tmp : rez) {
-        scoreData.add(mapper.readValue(tmp, Line.class));
+        var a = mapper.readValue(tmp, Line.class);
+        scoreData.add(a);
       }
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
-    scoreData.addAll();
-    scoreTable.setItems(scoreData);
+    log.info(Thread.currentThread().getName());
   }
 
   @Override
@@ -72,6 +72,22 @@ public class MenuController implements SubControllerRequests {
   public void shutdown() {
   }
 
-  private record Line(SimpleStringProperty name, SimpleIntegerProperty score) {
+  public static class Line {
+    private String name;
+    private int score;
+
+    @JsonCreator
+    public Line(@JsonProperty("name") String name, @JsonProperty("score") int score) {
+      this.name = name;
+      this.score = score;
+    }
+
+    public int getScore() {
+      return score;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 }

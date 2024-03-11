@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition.CycloDick;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition.TwoBarrels;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.Player;
 
 import java.util.*;
@@ -53,7 +54,12 @@ public class GameEngine {
     player = new Player(300, 300, 0);
     curGameTime = new AtomicLong();
 
-    spawnEnt();
+    spawnCycloDick();
+    spawnCycloDick();
+    spawnCycloDick();
+    spawnTwoBarrels();
+    spawnTwoBarrels();
+    spawnTwoBarrels();
   }
 
   public void perform() {
@@ -93,11 +99,21 @@ public class GameEngine {
     actionTraceBuffer.clear();
   }
 
-  private void spawnEnt() {
+  private void spawnCycloDick() {
     int x = map.getAllowedXPlacement(random.nextInt(testMapWidth), CycloDick.RADIUS);
     int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
 
     Entity ent = new CycloDick(x, y);
+    ent.setContextTracker(obrservingQuantity);
+
+    entities.add(ent);
+  }
+
+  private void spawnTwoBarrels() {
+    int x = map.getAllowedXPlacement(random.nextInt(testMapWidth), CycloDick.RADIUS);
+    int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
+
+    Entity ent = new TwoBarrels(x, y);
     ent.setContextTracker(obrservingQuantity);
 
     entities.add(ent);
@@ -131,7 +147,7 @@ public class GameEngine {
     boolean gameIsEnd = false;
     int score;
 
-    public SessionInf(String name){
+    public SessionInf(String name) {
       this.name = name;
     }
   }

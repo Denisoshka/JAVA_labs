@@ -6,9 +6,9 @@ import ru.nsu.zhdanov.lab_3.model.game_context.*;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.melee_weapon.Axe;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.ItsGoingToHurt;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Constants.PlayerC;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.RocketLauncher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,16 +16,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j
-public class Player extends Entity {
+public class Player extends Entity implements PlayerC {
   final private Map<PlayerAction, Weapon> guns;
   @Getter
   Weapon weapon;
 
   public Player(int x, int y, int angle) {
-    super(x, y, PlayerC.RADIUS, 0, 0, 0, PlayerC.LIVES_QUANTITY, ContextID.Player, Fraction.PLAYER);
+    super(x, y, PlayerC.RADIUS, 0, 0, 0, LIVES_QUANTITY, ContextType.EntityT, ContextID.Player, Fraction.PLAYER);
     this.guns = new HashMap();
-    this.guns.put(PlayerAction.FIRSTWEAPON, new Axe());
-    this.guns.put(PlayerAction.SECONDWEAPON, new ItsGoingToHurt());
+//    this.guns.put(PlayerAction., new Axe());
+    this.guns.put(PlayerAction.FIRSTWEAPON, new ItsGoingToHurt());
+    this.guns.put(PlayerAction.SECONDWEAPON, new RocketLauncher());
     this.weapon = guns.get(PlayerAction.FIRSTWEAPON);
   }
 
@@ -46,16 +47,19 @@ public class Player extends Entity {
     this.xShift = 0;
     this.yShift = 0;
     if (getFromInput(PlayerAction.FORWARD, context).get()) {
-      this.yShift -= PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
+      this.yShift -= MOVE_COEF;// NONFORWARDMOVECOEF;
     }
     if (getFromInput(PlayerAction.LEFT, context).get()) {
-      this.xShift -= PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
+      this.xShift -= MOVE_COEF;// NONFORWARDMOVECOEF;
     }
     if (getFromInput(PlayerAction.RIGHT, context).get()) {
-      this.xShift += PlayerC.MOVE_COEF;//NONFORWARDMOVECOEF;
+      this.xShift += MOVE_COEF;//NONFORWARDMOVECOEF;
     }
     if (getFromInput(PlayerAction.BACK, context).get()) {
-      this.yShift += PlayerC.MOVE_COEF;// NONFORWARDMOVECOEF;
+      this.yShift += MOVE_COEF;// NONFORWARDMOVECOEF;
+    }
+    if (getFromInput(PlayerAction.SPEEDUP, context).get()) {
+      this.xShift *= SPEEDUP_COEF;
     }
     this.yShift = context.getMap().getAllowedYShift(this);
     this.xShift = context.getMap().getAllowedXShift(this);

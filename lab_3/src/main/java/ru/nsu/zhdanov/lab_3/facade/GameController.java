@@ -177,11 +177,11 @@ public class GameController implements SubControllerRequests {
 
   private void draw() {
     drawContext();
-    drawStats();
+    drawCondition();
     allowGoToNextStep();
   }
 
-  private void drawStats() {
+  private void drawCondition() {
     Player pl = context.getPlayer();
     curScore.setText("Score: " + context.getPlayerScore());
     livesQuantity.setText("Lives: " + pl.getLivesQuantity());
@@ -196,26 +196,21 @@ public class GameController implements SubControllerRequests {
 
   private void drawPlayer() {
     Player player = context.getPlayer();
-    SpriteInf entInf = toDrawSprites.get(player.getID());
-    draw(entInf, player.getX(), player.getY());
+    draw(toDrawSprites.get(player.getID()), player.getX(), player.getY());
 
     Weapon w = player.getWeapon();
     if (w != null) {
-      entInf = toDrawSprites.get(w.getID());
-      draw(entInf, player.getX(), player.getY());
+      draw(toDrawSprites.get(w.getID()), player.getX(), player.getY());
     }
   }
 
   private void drawMap() {
-    SpriteInf entInf = toDrawSprites.get(ContextID.Map);
-    draw(entInf, 0, 0);
+    draw(toDrawSprites.get(ContextID.Map), 0, 0);
   }
 
   private void drawEntities() {
-    SpriteInf entInf;
     for (Entity ent : context.getEntities()) {
-      entInf = toDrawSprites.get(ent.getID());
-      draw(entInf, ent.getX(), ent.getY());
+      draw(toDrawSprites.get(ent.getID()), ent.getX(), ent.getY());
     }
   }
 
@@ -279,7 +274,7 @@ public class GameController implements SubControllerRequests {
     }
 
     try {
-//      todo сделать парс жсона в модели
+//      todo сделать парс жсона в модели?
       for (ContextID id : ContextID.values()) {
         Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(id.name()))));
         JsonNode curNode = tree.get(id.name());

@@ -3,6 +3,7 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity;
 import lombok.Getter;
 import lombok.Setter;
 import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameEngine;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.interfaces.WeaponImpl;
@@ -28,11 +29,12 @@ public abstract class Entity {
   protected @Getter ContextID ID;
   protected @Getter int reward;
   protected @Getter Fraction fraction;
+  protected @Getter ContextType type;
 
   public abstract void update(final GameEngine context);
 
   public Entity(int x, int y, int radius, int xShift,
-                int yShift, int reward, int livesQuantity, ContextID ID, Fraction fraction) {
+                int yShift, int reward, int livesQuantity, ContextType type, ContextID ID, Fraction fraction) {
     this.x = x;
     this.y = y;
     this.radius = radius;

@@ -24,7 +24,7 @@ public class MainModel {
       File resource = new File(properties.getProperty("score"));
       var mapper = new ObjectMapper();
       Score[] tmp = mapper.readValue(resource, Score[].class);
-      Arrays.sort(tmp);
+      Arrays.sort(tmp, Collections.reverseOrder());
       ArrayList<String> res = new ArrayList<>(tmp.length);
       for (var node : tmp){
         res.add(mapper.writeValueAsString(node));
@@ -47,7 +47,7 @@ public class MainModel {
         scores = objectMapper.createArrayNode();
       }
 
-      scores.add(objectMapper.writeValueAsString(score));
+      scores.addPOJO(score);
 
       objectMapper.writeValue(scoreFile, scores);
     } catch (IOException e) {

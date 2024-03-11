@@ -12,10 +12,10 @@
     "width": 20
   },
   "ItIsGoingToHurtBullet": {
-    "shiftX": 0,
-    "shiftY": 0,
-    "height": 20,
-    "width": 20
+    "shiftX": -7,
+    "shiftY": -7,
+    "height": 14,
+    "width": 14
   },
   "Axe": {
     "shiftX": 0,
@@ -35,7 +35,25 @@
     "height": 30,
     "width": 30
   },
-  "Map":{
+  "RocketLauncher": {
+    "shiftX": 0,
+    "shiftY": 0,
+    "height": 15,
+    "width": 40
+  },
+  "RocketLauncherBullet": {
+    "shiftX": -8,
+    "shiftY": -8,
+    "height": 16,
+    "width": 16
+  },
+  "TwoBarrels": {
+    "shiftX": -30,
+    "shiftY": -20,
+    "height": 50,
+    "width": 40
+  },
+  "Map": {
     "shiftX": 0,
     "shiftY": 0,
     "height": 675,

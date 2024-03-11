@@ -8,4 +8,7 @@ public enum ContextID {
   Axe,
   CycloDick,
   CycloDickFireBall,
+  RocketLauncher,
+  RocketLauncherBullet,
+  TwoBarrels,
 }

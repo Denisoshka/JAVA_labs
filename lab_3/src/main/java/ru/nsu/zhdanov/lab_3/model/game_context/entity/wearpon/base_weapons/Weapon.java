@@ -15,7 +15,7 @@ public abstract class Weapon implements WeaponImpl {
     this.damage = damage;
   }
 
-  abstract public void action(GameEngine context, Entity ent);
+  abstract public void action(GameEngine context, Entity user);
 
   abstract public boolean readyForUse();
 

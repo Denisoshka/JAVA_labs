@@ -5,6 +5,7 @@ public enum PlayerAction {
   LEFT,
   RIGHT,
   BACK,
+  SPEEDUP,
   RELOAD,
   SHOOT,
   FIRSTWEAPON,
