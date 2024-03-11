@@ -60,6 +60,9 @@ public class GameEngine {
     spawnTwoBarrels();
     spawnTwoBarrels();
     spawnTwoBarrels();
+    spawnTwoBarrels();
+    spawnTwoBarrels();
+    spawnTwoBarrels();
   }
 
   public void perform() {

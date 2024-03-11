@@ -181,6 +181,7 @@ public class GameController implements SubControllerRequests {
     allowGoToNextStep();
   }
 
+//todo need to refactor
   private void drawCondition() {
     Player pl = context.getPlayer();
     curScore.setText("Score: " + context.getPlayerScore());
