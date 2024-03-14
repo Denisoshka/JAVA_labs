@@ -10,7 +10,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Shoot
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class GameContext {
@@ -28,12 +27,13 @@ public class GameContext {
 
   private final Random random = new Random();
 
-  private String playerName;
-  private long curGameTime;
+  private final String playerName;
   private long gameStartTime;
 
-
+  private long lastSpawnTime;
   private int score;
+  private long spawnDelay = 4000;
+  private double delayReduceCoef = 0.9;
 
   public GameContext(Properties properties, String playerName) {
     this.playerName = playerName;
@@ -44,19 +44,32 @@ public class GameContext {
     map = new GameMap(0, 0, testMapWidth, testMapHeight);
     player = new PlayerController(300, 300);
 
-    spawnCycloDick();
-    spawnCycloDick();
-    spawnTwoBarrels();
   }
 
   public void perform() {
     gameStartTime = System.currentTimeMillis();
+    lastSpawnTime = gameStartTime;
   }
 
   public void update() {//
-    curGameTime = System.currentTimeMillis() - gameStartTime;
-
     updateEnt();
+    updateContext();
+  }
+
+  private void updateContext() {
+    long time = System.currentTimeMillis();
+    if (time - lastSpawnTime < spawnDelay) {
+      return;
+    }
+    if (random.nextInt(4) % 3 == 0) {
+      spawnCycloDick();
+    } else {
+      spawnTwoBarrels();
+    }
+    lastSpawnTime = time;
+    if (spawnDelay >= 2000){
+      spawnDelay = (long) (spawnDelay * delayReduceCoef);
+    }
   }
 
   private void updateEnt() {
@@ -83,7 +96,6 @@ public class GameContext {
     actionTraceBuffer.clear();
   }
 
-
   private void spawnCycloDick() {
     int x = map.getAllowedXPlacement(random.nextInt(testMapWidth), CycloDick.RADIUS);
     int y = map.getAllowedYPlacement(random.nextInt(testMapHeight), CycloDick.RADIUS);
@@ -109,7 +121,7 @@ public class GameContext {
   }
 
   public boolean isGameEnd() {
-    return observingQuantity.get() == 0 || player.isDead();
+    return player.isDead();
   }
 
   public ShootingWeapon getWeapon() {
@@ -127,6 +139,7 @@ public class GameContext {
   public int getWeaponCapacity() {
     return player.getWeapon().getCapacity();
   }
+
   public int getScore() {
     return score;
   }

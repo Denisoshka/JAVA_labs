@@ -6,7 +6,7 @@ public interface Constants {
   }
 
   interface PlayerC {
-    int LIVES_QUANTITY = 200;
+    int LIVES_QUANTITY = 300;
     int RADIUS = 25;
     int MOVE_COEF = 4;
     double SPEEDUP_COEF = 1.5;
@@ -14,15 +14,13 @@ public interface Constants {
 
   interface CycloDickC {
     int REWARD = 10;
-    int LIVES = 500;
+    int LIVES = 300;
     int RADIUS = 30;
     int DEF_SHIFT = 1;
     int TRACK_SHIFT = 3;
     double ATTACK_DIST = 250;
     double TRACK_DEGREE_DEVIATION = 10;
-    double TRACK_DEGREE_DEVIATION_COEF = TRACK_DEGREE_DEVIATION * 2;
-    double DEF_DEGREE_DEVIATION = 30;
-    double DEF_DEGREE_DEVIATION_COEF = TRACK_DEGREE_DEVIATION * 2;
+    double DEF_DEGREE_DEVIATION = 40;
   }
 
   interface CycloDickFireBallC {
@@ -44,19 +42,19 @@ public interface Constants {
   }
 
   interface ItsGoingToHurtC {
-    int DAMAGE = 10;
-    int CAPACITY = 20;
+    int DAMAGE = 25;
+    int CAPACITY = 35;
     int DELAY = 1250;
   }
 
   interface RocketLauncherC {
-    int CAPACITY = 3;
-    int DELAY = 3000;
+    int CAPACITY = 7;
+    int DELAY = 2500;
   }
 
   interface RocketLauncherBulletC {
     int SHIFT = 6;
-    int DAMAGE = 100;
+    int DAMAGE = 170;
     int RADIUS = 5;
     int LIVES_QUANTITY = 1;
     int DAMAGE_RADIUS = 50;
@@ -74,5 +72,4 @@ public interface Constants {
     double BULLET_DEGREE_DEVIATION = 5;
     double BULLET_DEGREE_DEVIATION_COEF = BULLET_DEGREE_DEVIATION * 2;
   }
-
 }

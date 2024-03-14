@@ -52,7 +52,6 @@ public class Axe extends MeleeWeapon implements AxeC {
     return super.getDamage();
   }
 
-
   @Override
   public void update(GameContext context, PlayerController user) {
   }

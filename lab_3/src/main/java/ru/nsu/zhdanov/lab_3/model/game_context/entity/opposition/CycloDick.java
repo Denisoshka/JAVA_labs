@@ -36,11 +36,14 @@ public class CycloDick extends Entity implements CycloDickC {
 
     dir = Math.toDegrees(Math.atan2(dy, dx));
     int shift = wantToMove > 0 ? TRACK_SHIFT : DEF_SHIFT;
-    double devDeviation = wantToMove > 0 ? TRACK_DEGREE_DEVIATION : DEF_DEGREE_DEVIATION;
-    dir += dirDevGen.nextDouble() * devDeviation * 2 - devDeviation;
+    double deviation = wantToMove > 0 ? TRACK_DEGREE_DEVIATION : DEF_DEGREE_DEVIATION;
+    dir += dirDevGen.nextDouble() * deviation * 2 - deviation;
     double radians = Math.toRadians(dir);
-    xShift = (int) (shift * (cosDir = Math.cos(radians)));
-    yShift = (int) (shift * (sinDir = Math.sin(radians)));
+    cosDir = Math.cos(radians);
+    sinDir = Math.sin(radians);
+
+    xShift = (int) (shift * cosDir);
+    yShift = (int) (shift * sinDir);
 
     int xfShift = context.getMap().getAllowedXShift(this);
     int yfShift = context.getMap().getAllowedYShift(this);
