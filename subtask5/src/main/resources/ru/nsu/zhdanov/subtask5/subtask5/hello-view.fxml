@@ -5,12 +5,27 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="ru.nsu.zhdanov.subtask5.subtask5.HelloController">
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Slider?>
+<HBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ru.nsu.zhdanov.subtask5.subtask5.view.SupplierConsumerController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
     </padding>
+    <SplitPane >
+        <VBox minWidth="200">
+            <TextField fx:id="suppliersQuantity" promptText="suppliers quantity"/>
+            <TextField fx:id="consumersQuantity" promptText="suppliers quantity"/>
+            <TextField fx:id="storageCapacity" promptText="storage capacity"/>
+            <Slider fx:id="slider" min="1000" max="2000" value="1000" blockIncrement="50"/>
+            <Label fx:id="valueLabel" text="Current Value: 1000"/>
+            <Button maxWidth="Infinity" onAction="#start" text="start game"/>
+            <Button maxWidth="Infinity" onAction="#stop" text="exit"/>
+        </VBox>
 
+    </SplitPane>
     <Label fx:id="welcomeText"/>
     <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+</HBox>
