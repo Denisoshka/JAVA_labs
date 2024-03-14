@@ -5,6 +5,7 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType
 import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.CycloDickFireBall;
 
 import java.util.Random;
 

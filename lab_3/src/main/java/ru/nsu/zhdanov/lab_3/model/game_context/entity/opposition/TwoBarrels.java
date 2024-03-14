@@ -8,6 +8,7 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.ItIsGoingToHurtBullet;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.TwoBarrelsBullet;
 
 import java.util.Random;
 
@@ -33,13 +34,13 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
     if (dest < ATTACK_DIST && System.currentTimeMillis() - lastShot >= DELAY) {
       for (int i = 0; i < SHOOTS_QUANTITY; ++i) {
         double dir = Math.toRadians(baseDir + dirDevGen.nextDouble() * BULLET_DEGREE_DEVIATION_COEF - BULLET_DEGREE_DEVIATION);
-        context.submitAction(new ItIsGoingToHurtBullet(fraction, x, y, Math.cos(dir), Math.sin(dir)));
+        context.submitAction(new TwoBarrelsBullet(x, y, Math.cos(dir), Math.sin(dir)));
       }
       lastShot = System.currentTimeMillis();
     }
 
     xShift = (int) (DEF_SHIFT * (cosDir = (dx / dest)));
-    yShift = (int) (DEF_SHIFT *  (sinDir = (dy / dest)));
+    yShift = (int) (DEF_SHIFT * (sinDir = (dy / dest)));
     int xfShift = context.getMap().getAllowedXShift(this);
     int yfShift = context.getMap().getAllowedYShift(this);
 

@@ -10,9 +10,9 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.P
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.ItsGoingToHurt;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.RocketLauncher;
+import ru.nsu.zhdanov.lab_3.model.game_context.interfaces.WeaponImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class PlayerController extends Entity implements PlayerC {
   final private Map<PlayerAction, ShootingWeapon> guns;
+  private long lastDamage;
   private @Getter ShootingWeapon weapon;
 
   public PlayerController(int x, int y) {
@@ -39,10 +40,15 @@ public class PlayerController extends Entity implements PlayerC {
     double diag = Math.hypot(dx, dy);
     sinDir = (double) dy / diag;
     cosDir = (double) dx / diag;
-
+    if (System.currentTimeMillis() - lastDamage >= TO_HILL_DELAY) {
+      if (livesQuantity >= LIVES_QUANTITY) {
+        livesQuantity = LIVES_QUANTITY;
+      } else {
+        livesQuantity += HILL;
+      }
+    }
     handleMove(context);
     handleAction(context);
-//    todo finish implementation
   }
 
   protected void handleMove(final GameContext context) {
@@ -86,16 +92,16 @@ public class PlayerController extends Entity implements PlayerC {
       weapon.action(context, this);
       act.set(false);
     }
-/*
-    if ((act = getFromInput(PlayerAction.RELOAD, context)).get() && weapon != null) {
-      act.set(false);
-    } todo
- */
-    //    todo maybe add some other func
   }
 
   private AtomicBoolean getFromInput(final PlayerAction action, final GameContext context) {
     return context.getInput().get(action);
+  }
+
+  @Override
+  public void acceptDamage(WeaponImpl ent) {
+    lastDamage = System.currentTimeMillis();
+    super.acceptDamage(ent);
   }
 
   @Override

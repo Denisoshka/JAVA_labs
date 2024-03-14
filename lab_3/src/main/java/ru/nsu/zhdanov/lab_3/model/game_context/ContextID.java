@@ -11,4 +11,5 @@ public enum ContextID {
   RocketLauncher,
   RocketLauncherBullet,
   TwoBarrels,
+  TwoBarrelsBullet,
 }

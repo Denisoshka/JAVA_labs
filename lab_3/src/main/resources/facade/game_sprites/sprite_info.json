@@ -53,6 +53,12 @@
     "height": 50,
     "width": 40
   },
+  "TwoBarrelsBullet": {
+    "shiftX": -5,
+    "shiftY": -5,
+    "height": 10,
+    "width": 10
+  },
   "Map": {
     "shiftX": 0,
     "shiftY": 0,

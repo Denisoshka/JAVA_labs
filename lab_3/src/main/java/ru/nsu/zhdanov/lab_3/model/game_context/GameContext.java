@@ -43,7 +43,6 @@ public class GameContext {
   void initGameEnvironment() {
     map = new GameMap(0, 0, testMapWidth, testMapHeight);
     player = new PlayerController(300, 300);
-
   }
 
   public void perform() {

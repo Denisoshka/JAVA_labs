@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab_3.lab_3;
+package ru.nsu.zhdanov.lab_3;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
