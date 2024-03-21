@@ -18,14 +18,8 @@ public class Model {
     return supplierDelay;
   }
 
-  public void perform() {
-    suppliers.perform();
-    consumers.perform();
+  public void stop() {
+    suppliers.stop();
+    consumers.stop();
   }
-
-  public void shutdown() {
-    suppliers.shutdown();
-    consumers.shutdown();
-  }
-
 }

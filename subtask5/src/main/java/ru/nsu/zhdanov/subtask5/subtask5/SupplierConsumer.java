@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import ru.nsu.zhdanov.subtask5.subtask5.view.SupplierConsumerController;
 
 import java.io.IOException;
 
@@ -14,6 +15,7 @@ public class SupplierConsumer extends Application {
     Scene scene = new Scene(fxmlLoader.load(), 320, 240);
     stage.setTitle("Hello!");
     stage.setScene(scene);
+    ((SupplierConsumerController) fxmlLoader.getController()).setDependencies(stage);
     stage.show();
   }
 
