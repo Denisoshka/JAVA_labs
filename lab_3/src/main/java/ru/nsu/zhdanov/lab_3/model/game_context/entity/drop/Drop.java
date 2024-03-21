@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.drop;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 
@@ -16,10 +16,10 @@ public class Drop extends Entity {
   }
 
   @Override
-  public void update(GameContext context) {
+  public void update(GameSession context) {
   }
 
   @Override
-  public void checkCollisions(GameContext context) {
+  public void checkCollisions(GameSession context) {
   }
 }

@@ -1,8 +1,8 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.melee_weapon;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.MeleeWeapon;
@@ -19,7 +19,7 @@ public class Axe extends MeleeWeapon implements AxeC {
 
 
   @Override
-  public void action(GameContext context, PlayerController user) {
+  public void action(GameSession context, PlayerController user) {
     log.info("am going ot init hurt");
     int udx = context.getCursorXPos() - user.getX();
     int udy = context.getCursorYPos() - user.getY();
@@ -53,6 +53,6 @@ public class Axe extends MeleeWeapon implements AxeC {
   }
 
   @Override
-  public void update(GameContext context, PlayerController user) {
+  public void update(GameSession context, PlayerController user) {
   }
 }

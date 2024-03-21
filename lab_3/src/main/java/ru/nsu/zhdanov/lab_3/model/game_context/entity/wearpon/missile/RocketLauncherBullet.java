@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
@@ -17,7 +17,7 @@ public class RocketLauncherBullet extends BaseBullet implements Constants.Rocket
   }
 
   @Override
-  public void checkCollisions(GameContext context) {
+  public void checkCollisions(GameSession context) {
     Entity target = null;
     double newDest;
     double dest = TRACKING_RADIUS;

@@ -2,7 +2,7 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.BaseBullet;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 
 import static ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.CycloDickFireBallC;
 

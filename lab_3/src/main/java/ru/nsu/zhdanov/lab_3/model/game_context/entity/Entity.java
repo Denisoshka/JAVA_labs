@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.interfaces.WeaponImpl;
@@ -23,7 +23,7 @@ public abstract class Entity {
   protected Fraction fraction;
   protected ContextType type;
 
-  public abstract void update(final GameContext context);
+  public abstract void update(final GameSession context);
 
   public Entity(int x, int y, int radius, int xShift,
                 int yShift, int reward, int livesQuantity, ContextType type, ContextID ID, Fraction fraction) {
@@ -39,7 +39,7 @@ public abstract class Entity {
     this.type = type;
   }
 
-  public abstract void checkCollisions(final GameContext context);
+  public abstract void checkCollisions(final GameSession context);
 
   public boolean isCollision(Entity other) {
     return Math.hypot(x - other.x, y - other.y) < radius + other.radius;
@@ -52,7 +52,6 @@ public abstract class Entity {
   public boolean isDead() {
     return livesQuantity <= 0;
   }
-
 
   /**
    * decrement context tracker and make them null

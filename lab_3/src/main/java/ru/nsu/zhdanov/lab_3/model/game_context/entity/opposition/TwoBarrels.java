@@ -1,13 +1,12 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.ItIsGoingToHurtBullet;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.TwoBarrelsBullet;
 
 import java.util.Random;
@@ -25,7 +24,7 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
   }
 
   @Override
-  public void update(GameContext context) {
+  public void update(GameSession context) {
     int dx = targetX - x;
     int dy = targetY - y;
     double dest = Math.hypot(dx, dy);
@@ -53,7 +52,7 @@ public class TwoBarrels extends Entity implements Constants.TwoBarrelsC {
   }
 
   @Override
-  public void checkCollisions(GameContext context) {
+  public void checkCollisions(GameSession context) {
     double dest = Double.POSITIVE_INFINITY;
     double newDest;
     for (var ent : context.getEntities()) {

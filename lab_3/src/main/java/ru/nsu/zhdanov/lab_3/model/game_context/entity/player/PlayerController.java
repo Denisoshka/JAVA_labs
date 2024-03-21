@@ -2,9 +2,9 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.player;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
-import ru.nsu.zhdanov.lab_3.model.game_context.PlayerAction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.PlayerC;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
@@ -34,7 +34,7 @@ public class PlayerController extends Entity implements PlayerC {
   }
 
   @Override
-  public void update(final GameContext context) {
+  public void update(final GameSession context) {
     int dx = context.getCursorXPos() - x;
     int dy = context.getCursorYPos() - y;
     double diag = Math.hypot(dx, dy);
@@ -51,7 +51,7 @@ public class PlayerController extends Entity implements PlayerC {
     handleAction(context);
   }
 
-  protected void handleMove(final GameContext context) {
+  protected void handleMove(final GameSession context) {
     this.xShift = 0;
     this.yShift = 0;
     if (getFromInput(PlayerAction.FORWARD, context).get()) {
@@ -76,7 +76,7 @@ public class PlayerController extends Entity implements PlayerC {
     y += yShift;
   }
 
-  private void handleAction(GameContext context) {
+  private void handleAction(GameSession context) {
     if (getFromInput(PlayerAction.FIRSTWEAPON, context).get()) {
       weapon = guns.get(PlayerAction.FIRSTWEAPON);
     }
@@ -94,8 +94,8 @@ public class PlayerController extends Entity implements PlayerC {
     }
   }
 
-  private AtomicBoolean getFromInput(final PlayerAction action, final GameContext context) {
-    return context.getInput().get(action);
+  private AtomicBoolean getFromInput(final PlayerAction action, final GameSession context) {
+    return context.getInputTrace().get(action);
   }
 
   @Override
@@ -105,6 +105,6 @@ public class PlayerController extends Entity implements PlayerC {
   }
 
   @Override
-  public void checkCollisions(final GameContext context) {
+  public void checkCollisions(final GameSession context) {
   }
 }

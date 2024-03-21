@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
 import lombok.Getter;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.melee_weapon.AreaOfDefeat;
 
 public abstract class MeleeWeapon extends Weapon {

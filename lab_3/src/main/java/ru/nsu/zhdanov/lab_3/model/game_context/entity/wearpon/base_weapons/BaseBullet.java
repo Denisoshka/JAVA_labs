@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
@@ -22,7 +22,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
   }
 
   @Override
-  public void update(GameContext context) {
+  public void update(GameSession context) {
     int yShift = context.getMap().getAllowedYShift(this);
     int xShift = context.getMap().getAllowedXShift(this);
     if (yShift != this.yShift || xShift != this.xShift) {
@@ -33,7 +33,7 @@ public class BaseBullet extends Entity implements WeaponImpl {
   }
 
   @Override
-  public void checkCollisions(GameContext context) {
+  public void checkCollisions(GameSession context) {
     for (Entity ent : context.getEntities()) {
       if (ent.getType() == ContextType.EntityT && ableToUse
               && (fraction != ent.getFraction() || fraction == Fraction.NON_FRACTION)

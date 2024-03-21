@@ -1,7 +1,7 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.RocketLauncherC;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
@@ -15,14 +15,14 @@ public class RocketLauncher extends ShootingWeapon implements RocketLauncherC {
   }
 
   @Override
-  public void update(GameContext context, PlayerController user) {
+  public void update(GameSession context, PlayerController user) {
     if (System.currentTimeMillis() - lastShot > DELAY) {
       occupancy = CAPACITY;
     }
   }
 
   @Override
-  public void action(GameContext context, PlayerController user) {
+  public void action(GameSession context, PlayerController user) {
     if (occupancy <= 0) {
       return;
     }

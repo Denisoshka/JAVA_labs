@@ -1,6 +1,6 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 
 public abstract class ShootingWeapon extends Weapon {
   final private int capacity;

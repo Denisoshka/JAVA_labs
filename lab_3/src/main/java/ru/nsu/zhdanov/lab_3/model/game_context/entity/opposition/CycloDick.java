@@ -1,8 +1,8 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition;
 
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.CycloDickFireBall;
@@ -23,7 +23,7 @@ public class CycloDick extends Entity implements CycloDickC {
   }
 
   @Override
-  public void update(GameContext context) {
+  public void update(GameSession context) {
     int dx = context.getPlayer().getX() - x;
     int dy = context.getPlayer().getY() - y;
     double hyp = Math.hypot(dx, dy);
@@ -64,6 +64,6 @@ public class CycloDick extends Entity implements CycloDickC {
   }
 
   @Override
-  public void checkCollisions(GameContext context) {
+  public void checkCollisions(GameSession context) {
   }
 }

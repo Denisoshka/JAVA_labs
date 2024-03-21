@@ -2,6 +2,7 @@ package ru.nsu.zhdanov.lab_3.model.game_context;
 
 import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 
 public class GameMap {
   final private @Getter ContextID ID;

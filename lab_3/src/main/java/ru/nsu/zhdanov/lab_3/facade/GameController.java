@@ -17,9 +17,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.game_context.ContextID;
-import ru.nsu.zhdanov.lab_3.model.game_context.GameContext;
-import ru.nsu.zhdanov.lab_3.model.game_context.PlayerAction;
+import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
@@ -34,8 +35,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 @Slf4j
 public class GameController implements SubControllerRequests {
-  private final static long timeToUpdate = 17;
-
   @FXML
   public TextField weaponCondition;
   @FXML
@@ -48,83 +47,96 @@ public class GameController implements SubControllerRequests {
   final private @Getter Map<KeyCode, AtomicBoolean> keysInput = new HashMap<>();//
   final private @Getter Map<MouseButton, AtomicBoolean> mouseInput = new HashMap<>();//
   final private AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
-  private GameContext context;
+  private GameSession context;
+
 
   @FXML
   private Canvas canvas;
   private GraphicsContext graphicsContext;
 
-  final private Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
-  final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
-  final AtomicBoolean continueGame = new AtomicBoolean(true);
+  private final Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
+  private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
   private Stage primaryStage;
   private MainControllerRequests.GameContext mainController;
+  private final AtomicBoolean scoreDumped = new AtomicBoolean(false);
 
-  private final Thread gameThread = new Thread(() -> {
-    long start, end, diff;
-    context.perform();
+  private final IOProcessing IOHandler = new IOProcessing() {
+    @Override
+    public void handleInput() {
+      if (keysInput.get(KeyCode.CLOSE_BRACKET).get()) {
+        context.shutdown();
+      }
+      context.setCursorXPos(mouseCords.get(0));
+      context.setCursorYPos(mouseCords.get(1));
+    }
 
-    while (!context.isGameEnd()) {
-      start = System.currentTimeMillis();
+    @Override
+    public void handleOutput() throws InterruptedException {
+      Platform.runLater(GameController.this::draw);
+      synchronized (sceneDrawn) {
+        while (!sceneDrawn.get()) {
+          sceneDrawn.wait();
+        }
+      }
+      sceneDrawn.set(false);
+    }
 
-      processInput();
-      context.update();
-      Platform.runLater(this::draw);
+    @Override
+    public void signalGameEnd() {
+      new Thread(() -> {
+        log.info("dump score");
+        mainController.dumpScore(context.getPlayerName(), context.getScore());
+        scoreDumped.set(true);
+      }).start();
 
-      try {
-        synchronized (sceneDrawn) {
-          while (!sceneDrawn.get()) {
-            sceneDrawn.wait();
+      Platform.runLater(() -> {
+        Font font = new Font("Arial", 20);
+        graphicsContext.setFont(font);
+        graphicsContext.fillText(
+                "Press space to exit",
+                (double) context.getMap().getMaxX() / 2,
+                (double) context.getMap().getMaxY() / 2
+        );
+      });
+
+      new Thread(() -> {
+        while (!keysInput.get(KeyCode.SPACE).get() || !scoreDumped.get()) {
+          synchronized (scoreDumped) {
+            try {
+              Thread.sleep(1000 / 30);
+            } catch (InterruptedException e) {
+//              todo undefined exception
+              throw new RuntimeException(e);
+            }
           }
         }
-      } catch (InterruptedException e) {
-        return;
-      }
 
-      sceneDrawn.set(false);
-      end = System.currentTimeMillis();
-
-      if ((diff = end - start) < timeToUpdate) {
-        try {
-          Thread.sleep(timeToUpdate - (diff));
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-      }
+        Platform.runLater(() -> {
+          primaryStage.setFullScreen(false);
+          mainController.gameEnd();
+        });
+      }).start();
     }
+  };
 
-    exit();
-  });
-
-  private void exit() {
-    Font font = new Font("Arial", 20);
-    Platform.runLater(() -> {
-      graphicsContext.setFont(font);
-      graphicsContext.fillText(
-              "Press space to exit",
-              (double) context.getMap().getMaxX() / 2,
-              (double) context.getMap().getMaxY() / 2
-      );
-    });
-    while (!keysInput.get(KeyCode.SPACE).get()) {
+  private void draw() {
+    drawMap();
+    drawEntities();
+    drawPlayer();
+    drawBar();
+    synchronized (sceneDrawn) {
+      sceneDrawn.set(true);
+      sceneDrawn.notifyAll();
     }
-    mainController.dumpScore(context.getPlayerName(), context.getScore());
-    Platform.runLater(() -> {
-      primaryStage.setFullScreen(false);
-      mainController.gameEnd();
-    });
-
   }
 
   @Override
   public void setContext(Properties properties, MainController controller, Stage primaryStage) {
     this.primaryStage = primaryStage;
     this.mainController = controller;
-    Platform.runLater(() -> {
-      this.primaryStage.setFullScreen(true);
-    });
-    this.context = new GameContext(properties, mainController.getPlayerName());
+    Platform.runLater(() -> this.primaryStage.setFullScreen(true));
+    this.context = new GameSession(properties, IOHandler, mainController.getPlayerName());
 
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
@@ -149,38 +161,12 @@ public class GameController implements SubControllerRequests {
 
   @Override
   public void perform() {
-    gameThread.start();
+    context.perform();
   }
 
   @Override
   public void shutdown() {
-    gameThread.interrupt();
-  }
-
-  private void processInput() {
-    if (keysInput.get(KeyCode.CLOSE_BRACKET).get()) {
-      continueGame.set(false);
-    }
-
-    int xPos = mouseCords.get(0);
-    int yPos = mouseCords.get(1);
-    context.setCursorXPos(xPos);
-    context.setCursorYPos(yPos);
-  }
-
-  private void allowGoToNextStep() {
-    synchronized (sceneDrawn) {
-      sceneDrawn.set(true);
-      sceneDrawn.notifyAll();
-    }
-  }
-
-  private void draw() {
-    drawMap();
-    drawEntities();
-    drawPlayer();
-    drawBar();
-    allowGoToNextStep();
+    context.shutdown();
   }
 
   //todo need to refactor
@@ -290,12 +276,12 @@ public class GameController implements SubControllerRequests {
     for (PlayerAction key : PlayerAction.values()) {
       String keyName = keyProp.getProperty(String.valueOf(key));
       if (keyName != null) {
-        bindInput(keysInput, context.getInput(), KeyCode.valueOf(keyName), key);
+        bindInput(keysInput, context.getInputTrace(), KeyCode.valueOf(keyName), key);
       }
 
       String buttonName = mouseProp.getProperty(String.valueOf(key));
       if (buttonName != null) {
-        bindInput(mouseInput, context.getInput(), MouseButton.valueOf(buttonName), key);
+        bindInput(mouseInput, context.getInputTrace(), MouseButton.valueOf(buttonName), key);
       }
     }
 
