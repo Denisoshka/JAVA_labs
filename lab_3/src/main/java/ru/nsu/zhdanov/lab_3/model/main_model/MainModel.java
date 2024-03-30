@@ -1,7 +1,10 @@
 package ru.nsu.zhdanov.lab_3.model.main_model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,21 +14,22 @@ public class MainModel {
   private final Properties properties;
   private String name = "unknown player";
 
-  public MainModel(Properties properties) {
+  public MainModel() {
+    Properties properties = new Properties();
+    try {
+      properties.load(Objects.requireNonNull(getClass().getResourceAsStream("main_model.properties")));
+    } catch (NullPointerException | IOException e) {
+      throw new RuntimeException("unable to get model resource");
+    }
     this.properties = properties;
   }
 
-  public List<String> acquireScore() {
+  public List<Score> acquireScore() {
     try {
       File resource = new File(properties.getProperty("score"));
       var mapper = new ObjectMapper();
-      Score[] tmp = mapper.readValue(resource, Score[].class);
-      Arrays.sort(tmp, Collections.reverseOrder());
-      ArrayList<String> res = new ArrayList<>(tmp.length);
-      for (var node : tmp){
-        res.add(mapper.writeValueAsString(node));
-      }
-      return res;
+      return mapper.<ArrayList<Score>>readValue(resource, new TypeReference<>() {
+      });
     } catch (IOException | RuntimeException e) {
       throw new RuntimeException(e);
     }
@@ -59,7 +63,24 @@ public class MainModel {
     return this.name;
   }
 
-  public record Score(String name, int score) implements Comparable<Score> {
+  public static class Score implements Comparable<Score> {
+    private final String name;
+    private final int score;
+
+    @JsonCreator
+    public Score(@JsonProperty("name") String name, @JsonProperty("score") int score) {
+      this.name = name;
+      this.score = score;
+    }
+
+    public int getScore() {
+      return score;
+    }
+
+    public String getName() {
+      return name;
+    }
+
     @Override
     public int compareTo(Score o) {
       return Integer.compare(this.score, o.score);

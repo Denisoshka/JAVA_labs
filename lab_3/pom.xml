@@ -136,7 +136,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>ru.nsu.zhdanov.lab_3.lab_3/ru.nsu.zhdanov.lab_3.GameApplication
+                            <mainClass>ru.nsu.zhdanov.lab_3.lab_3/ru.nsu.zhdanov.lab_3.FXGame
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

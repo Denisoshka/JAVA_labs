@@ -2,12 +2,14 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.RocketLauncherC;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.RocketLauncherBullet;
 
 public class RocketLauncher extends ShootingWeapon implements RocketLauncherC {
+  private static final int CAPACITY = 7;
+  private static final int DELAY = 2500;
+
   private long lastShot;
 
   public RocketLauncher() {

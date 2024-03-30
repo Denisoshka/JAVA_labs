@@ -6,7 +6,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.PlayerC;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
@@ -20,13 +19,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j
-public class PlayerController extends Entity implements PlayerC {
+public class PlayerController extends Entity {
+  final static int LIVES_QUANTITY = 3000;
+  final static int RADIUS = 25;
+  final static int MOVE_COEF = 4;
+  final static int HILL = 1;
+  final static int TO_HILL_DELAY = 7500;
+  final static double SPEEDUP_COEF = 1.5;
+
   final private Map<PlayerAction, ShootingWeapon> guns;
   private long lastDamage;
   private @Getter ShootingWeapon weapon;
 
   public PlayerController(int x, int y) {
-    super(x, y, PlayerC.RADIUS, 0, 0, 0, LIVES_QUANTITY, ContextType.EntityT, ContextID.Player, Fraction.PLAYER);
+    super(x, y, RADIUS, 0, 0, 0, LIVES_QUANTITY, ContextType.EntityT, ContextID.Player, Fraction.PLAYER);
     this.guns = new HashMap<>();
     this.guns.put(PlayerAction.FIRSTWEAPON, new ItsGoingToHurt());
     this.guns.put(PlayerAction.SECONDWEAPON, new RocketLauncher());

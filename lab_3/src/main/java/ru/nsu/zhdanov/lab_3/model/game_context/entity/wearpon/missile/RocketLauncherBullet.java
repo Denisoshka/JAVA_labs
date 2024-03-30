@@ -2,14 +2,21 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.BaseBullet;
 
-public class RocketLauncherBullet extends BaseBullet implements Constants.RocketLauncherBulletC {
+public class RocketLauncherBullet extends BaseBullet {
+  private static final int SHIFT = 6;
+  private static final int DAMAGE = 1700;
+  private static final int RADIUS = 5;
+  private static final int LIVES_QUANTITY = 1;
+  private static final int DAMAGE_RADIUS = 50;
+  private static final int TRACKING_RADIUS = 100;
+
+
   private boolean wantToDetonate;
 
   public RocketLauncherBullet(Fraction fraction, int x, int y, double cos, double sin) {

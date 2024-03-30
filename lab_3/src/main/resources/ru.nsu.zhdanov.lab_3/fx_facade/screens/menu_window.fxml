@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<SplitPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="ru.nsu.zhdanov.lab_3.fx_facade.MenuController"
+           dividerPositions="0.3094736842105263" prefHeight="410.0" prefWidth="540.0">
+    <VBox prefHeight="428.0" prefWidth="180.0" spacing="10" AnchorPane.leftAnchor="10" AnchorPane.topAnchor="50">
+        <padding>
+            <Insets bottom="1" left="1" right="1" top="1"/>
+        </padding>
+        <Text text="enter your nickname"/>
+        <TextField fx:id="playerName" promptText="default player"/>
+        <Button maxWidth="Infinity" onAction="#startGame" text="start game"/>
+        <Button maxWidth="Infinity" onAction="#exitGame" text="exit"/>
+    </VBox>
+
+
+    <TableView fx:id="scoreTable" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
+        <columns>
+            <TableColumn fx:id="nameColumn" text="Name">
+                <cellValueFactory>
+                    <PropertyValueFactory property="name"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="scoreColumn" text="Score">
+                <cellValueFactory>
+                    <PropertyValueFactory property="score"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+</SplitPane>

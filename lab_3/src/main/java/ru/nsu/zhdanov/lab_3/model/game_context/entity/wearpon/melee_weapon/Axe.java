@@ -7,10 +7,12 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.MeleeWeapon;
 
-import static ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.AxeC;
 
 @Slf4j
-public class Axe extends MeleeWeapon implements AxeC {
+public class Axe extends MeleeWeapon {
+  private static final int ACTION_DISTANCE = 60;
+  private static final int AXE_DAMAGE = 1200;
+
   AreaOfDefeat area;
 
   public Axe() {

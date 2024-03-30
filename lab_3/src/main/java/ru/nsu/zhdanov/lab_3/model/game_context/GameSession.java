@@ -9,6 +9,7 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,6 +41,9 @@ public class GameSession {
   private final IOProcessing IOHandle;
   private Thread session;
 
+  private Semaphore semaphore;
+
+
   public GameSession(Properties properties, IOProcessing IOHandle, String playerName) {
     this.IOHandle = IOHandle;
     this.playerName = playerName;
@@ -56,10 +60,11 @@ public class GameSession {
 
         IOHandle.handleInput();
         this.update();
+
         try {
           IOHandle.handleOutput();
         } catch (InterruptedException e) {
-          break;
+          throw new RuntimeException(e);
         }
 
         end = System.currentTimeMillis();
@@ -71,8 +76,7 @@ public class GameSession {
             log.info("break");
             break;
           }
-        }
-        else{
+        } else {
           log.info("required time do update: " + diff);
         }
       }

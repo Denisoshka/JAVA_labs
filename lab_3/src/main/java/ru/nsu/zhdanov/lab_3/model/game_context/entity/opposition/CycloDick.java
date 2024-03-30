@@ -9,9 +9,17 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.CycloDickF
 
 import java.util.Random;
 
-import static ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants.CycloDickC;
+public class CycloDick extends Entity  {
+  public static final int REWARD = 10;
+  public static final int LIVES = 3000;
+  public static final int RADIUS = 30;
+  public static final int DEF_SHIFT = 1;
+  public static final int TRACK_SHIFT = 3;
+  public static final double ATTACK_DIST = 250;
+  public static final double TRACK_DEGREE_DEVIATION = 10;
+  public static final double DEF_DEGREE_DEVIATION = 40;
 
-public class CycloDick extends Entity implements CycloDickC {
+
   private static final Random dirDevGen = new Random();
   private static final Random wantToShotSolver = new Random();
 

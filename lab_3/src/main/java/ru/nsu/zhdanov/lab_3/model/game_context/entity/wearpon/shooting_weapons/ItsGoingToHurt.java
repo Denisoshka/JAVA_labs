@@ -2,12 +2,16 @@ package ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons;
 
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Constants;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.ItIsGoingToHurtBullet;
 
-public class ItsGoingToHurt extends ShootingWeapon implements Constants.ItsGoingToHurtC {
+public class ItsGoingToHurt extends ShootingWeapon {
+  private static final int DAMAGE = 250;
+  private static final int CAPACITY = 35;
+  private static final int DELAY = 1250;
+
+
   private long lastShot;
 
   public ItsGoingToHurt() {
