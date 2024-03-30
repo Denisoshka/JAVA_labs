@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
@@ -15,7 +16,7 @@ import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 import java.util.Properties;
 
 @Slf4j
-public class MenuController implements SubControllerRequests {
+public class MenuController implements SubControllerRequests, FXControllerInterface {
   @FXML
   private TableView<MainModel.Score> scoreTable = new TableView<>();
   final private ObservableList<MainModel.Score> scoreData = FXCollections.observableArrayList();
@@ -44,7 +45,7 @@ public class MenuController implements SubControllerRequests {
     Platform.exit();
   }
 
-  public void setContext(Properties properties, MainController controller, Object stage) {
+  public void setContext(Properties properties, MainController controller, Stage stage) {
     menuReq = controller;
     scoreData.addAll(menuReq.acquireScore());
   }

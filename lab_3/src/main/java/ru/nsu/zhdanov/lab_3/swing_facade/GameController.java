@@ -75,24 +75,19 @@ public class GameController implements SubControllerRequests {
       CountDownLatch latch = new CountDownLatch(1);
       try (ExecutorService endHandler = Executors.newFixedThreadPool(workers)) {
         SwingUtilities.invokeLater(() -> {
-          Font font = new Font("Arial", 20);
-          graphicsContext.setFont(font);
-          graphicsContext.fillText(
+          graphicsContext.drawString(
                   "Game end with score {" + context.getScore() + "}",
-                  (double) context.getMap().getMaxX() / 4,
-                  (double) context.getMap().getMaxY() / 2
+                  (float) (context.getMap().getMaxX() / 4),
+                  (float) (context.getMap().getMaxY() / 2)
           );
         });
 
         endHandler.submit(() -> {
           mainController.dumpScore(context.getPlayerName(), context.getScore());
           SwingUtilities.invokeLater(() -> {
-            Font font = new Font("Arial", 20);
-            graphicsContext.setFont(font);
-            graphicsContext.fillText(
-                    "Press space to exit",
-                    (double) context.getMap().getMaxX() / 4,
-                    (double) context.getMap().getMaxY() / 1.5
+            graphicsContext.drawString("Press space to exit",
+                    (float) (context.getMap().getMaxX() / 4),
+                    (float) (context.getMap().getMaxY() / 1.5)
             );
           });
           latch.countDown();
@@ -120,7 +115,7 @@ public class GameController implements SubControllerRequests {
     drawMap();
     drawEntities();
     drawPlayer();
-    drawBar();
+//    drawBar();
     synchronized (sceneDrawn) {
       sceneDrawn.set(true);
       sceneDrawn.notifyAll();
@@ -157,7 +152,7 @@ public class GameController implements SubControllerRequests {
   }
 
   //todo need to refactor
-  private void drawBar() {
+  /*private void drawBar() {
     PlayerController pl = context.getPlayer();
     curScore.setText("Score: " + context.getScore());
     livesQuantity.setText("Lives: " + pl.getLivesQuantity());
@@ -166,7 +161,7 @@ public class GameController implements SubControllerRequests {
       weaponName.setText(pl.getWeapon().getID().name());
       weaponCondition.setText("Ammunition: " + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
     }
-  }
+  }*/
 
   private void drawPlayer() {
     PlayerController player = context.getPlayer();
@@ -208,8 +203,8 @@ public class GameController implements SubControllerRequests {
   }
 
   public void handleMouseTrack(MouseEvent mouseEvent) {
-    mouseCords.set(0, (int) mouseEvent.getX());
-    mouseCords.set(1, (int) mouseEvent.getY());
+    mouseCords.set(0, mouseEvent.getX());
+    mouseCords.set(1, mouseEvent.getY());
   }
 
   public void handleMousePressed(MouseEvent mouseEvent) {

@@ -5,7 +5,6 @@ public enum ContextID {
   Player,
   ItIsGoingToHurt,
   ItIsGoingToHurtBullet,
-  Axe,
   CycloDick,
   CycloDickFireBall,
   RocketLauncher,

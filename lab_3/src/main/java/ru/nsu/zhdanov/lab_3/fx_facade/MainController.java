@@ -37,7 +37,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
       Scene scene = new Scene(Objects.requireNonNull(loader.load()));
       primaryStage.setScene(scene);
       SubControllerRequests controller = loader.getController();
-      controller.setContext(properties, this, primaryStage);
+      ((FXControllerInterface) controller).setContext(properties, this, primaryStage);
       primaryStage.show();
       return controller;
     } catch (NullPointerException | IOException e) {
@@ -64,7 +64,8 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    changeScene(properties, "screens/menu_window.fxml");
+    menuController = (MenuController) changeScene(properties, "screens/menu_window.fxml");
+    menuController.perform();
   }
 
   public List<MainModel.Score> acquireScore() {
@@ -73,6 +74,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
 
   @Override
   public void startGame(String name) {
+    menuController.shutdown();
     model.setPlayerName(name);
     setGameScreen();
   }
@@ -84,6 +86,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
 
   @Override
   public void gameEnd() {
+    gameController.shutdown();
     setMenuScreen();
   }
 

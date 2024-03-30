@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class MainModel {
@@ -19,7 +20,7 @@ public class MainModel {
     try {
       properties.load(Objects.requireNonNull(getClass().getResourceAsStream("main_model.properties")));
     } catch (NullPointerException | IOException e) {
-      throw new RuntimeException("unable to get model resource");
+      throw new RuntimeException("unable to load main_model.properties", e);
     }
     this.properties = properties;
   }

@@ -13,7 +13,7 @@ public class MenuController implements SubControllerRequests {
   private MainControllerRequests.MenuContext menuReq;
 
   public void startGame() {
-    menuReq.startGame(playerName.getText());
+    menuReq.startGame(null);
   }
 
   public void exitGame() {

@@ -6,7 +6,7 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.RocketLauncherBullet;
 
-public class RocketLauncher extends ShootingWeapon implements RocketLauncherC {
+public class RocketLauncher extends ShootingWeapon{
   private static final int CAPACITY = 7;
   private static final int DELAY = 2500;
 

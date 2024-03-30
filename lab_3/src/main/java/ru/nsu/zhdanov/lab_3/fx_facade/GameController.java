@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 @Slf4j
-public class GameController implements SubControllerRequests {
+public class GameController implements SubControllerRequests, FXControllerInterface {
   @FXML
   public TextField weaponCondition;
   @FXML
@@ -146,7 +146,7 @@ public class GameController implements SubControllerRequests {
   }
 
   public void setContext(Properties properties, MainController controller, Stage stage) {
-    this.primaryStage = (Stage) stage;
+    this.primaryStage = stage;
     this.mainController = controller;
     Platform.runLater(() -> this.primaryStage.setFullScreen(true));
     this.context = new GameSession(properties, IOHandler, mainController.getPlayerName());
@@ -159,7 +159,7 @@ public class GameController implements SubControllerRequests {
       mouseProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("mouseInput"))));
       spriteProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("spriteInf"))));
     } catch (IOException | NullPointerException e) {
-      throw new RuntimeException("unable to load facade resource");
+      throw new RuntimeException("unable to load facade resource", e);
     }
 
     initInput(keyProperties, mouseProperties);
