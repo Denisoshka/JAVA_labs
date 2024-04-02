@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
+import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.ResourceNotAvailable;
+import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.UnexpectedError;
 import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
@@ -58,11 +60,11 @@ public class GameController implements SubControllerRequests, FXControllerInterf
   private GraphicsContext graphicsContext;
 
   private final Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
-  private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
   private Stage primaryStage;
   private MainControllerRequests.GameContext mainController;
   private final AtomicBoolean scoreDumped = new AtomicBoolean(false);
+  private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
   private final IOProcessing IOHandler = new IOProcessing() {
     @Override
@@ -75,11 +77,20 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     }
 
     @Override
-    public void handleOutput() throws InterruptedException {
-      Platform.runLater(GameController.this::draw);
+    public void handleOutput() {
+      Platform.runLater(() -> {
+        synchronized (sceneDrawn) {
+          GameController.this.draw();
+          sceneDrawn.notifyAll();
+          sceneDrawn.set(true);
+        }
+      });
       synchronized (sceneDrawn) {
-        while (!sceneDrawn.get()) {
-          sceneDrawn.wait();
+        try {
+          while (!sceneDrawn.get()) {
+            sceneDrawn.wait();
+          }
+        } catch (InterruptedException ignored) {
         }
       }
       sceneDrawn.set(false);
@@ -88,7 +99,6 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     @Override
     public void signalGameEnd() {
       int workers = 2;
-      CountDownLatch latch = new CountDownLatch(1);
       try (ExecutorService endHandler = Executors.newFixedThreadPool(workers)) {
         Platform.runLater(() -> {
           Font font = new Font("Arial", 20);
@@ -99,35 +109,32 @@ public class GameController implements SubControllerRequests, FXControllerInterf
                   (double) context.getMap().getMaxY() / 2
           );
         });
-
         endHandler.submit(() -> {
           log.info("dump score");
           mainController.dumpScore(context.getPlayerName(), context.getScore());
+          scoreDumped.set(true);
           Platform.runLater(() -> {
             Font font = new Font("Arial", 20);
             graphicsContext.setFont(font);
             graphicsContext.fillText(
                     "Press space to exit",
                     (double) context.getMap().getMaxX() / 4,
-                    (double) context.getMap().getMaxY() / 1.5
+                    (double) context.getMap().getMaxY() / 1.8
             );
           });
-          latch.countDown();
         });
-
         endHandler.submit(() -> {
           try {
             while (!keysInput.get(KeyCode.SPACE).get() || !scoreDumped.get()) {
               Thread.sleep(1000 / 30);
             }
-            latch.await();
           } catch (InterruptedException e) {
             return;
           }
 
           Platform.runLater(() -> {
             primaryStage.setFullScreen(false);
-            mainController.gameEnd();
+            mainController.shutdownGame();
           });
         });
       }
@@ -139,10 +146,6 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     drawEntities();
     drawPlayer();
     drawBar();
-    synchronized (sceneDrawn) {
-      sceneDrawn.set(true);
-      sceneDrawn.notifyAll();
-    }
   }
 
   public void setContext(Properties properties, MainController controller, Stage stage) {
@@ -154,14 +157,20 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
     Properties spriteProperties = new Properties();
+    String resName, keyName = null;
     try {
-      keyProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("keyInput"))));
-      mouseProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("mouseInput"))));
-      spriteProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("spriteInf"))));
+      keyName = "keyInput";
+      resName = properties.getProperty(keyName);
+      keyProperties.load(getClass().getResourceAsStream(resName));
+      keyName = "mouseInput";
+      resName = properties.getProperty(keyName);
+      mouseProperties.load(getClass().getResourceAsStream(resName));
+      keyName = "spriteInf";
+      resName = properties.getProperty(keyName);
+      spriteProperties.load(getClass().getResourceAsStream(resName));
     } catch (IOException | NullPointerException e) {
-      throw new RuntimeException("unable to load facade resource", e);
+      throw new ResourceNotAvailable(keyName, e);
     }
-
     initInput(keyProperties, mouseProperties);
     initSprites(spriteProperties);
   }
@@ -260,17 +269,16 @@ public class GameController implements SubControllerRequests, FXControllerInterf
   private void initSprites(final Properties prop) {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode tree;
-
     try {
       tree = mapper.readTree(getClass().getResourceAsStream(prop.getProperty("SpriteInf")));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ResourceNotAvailable("Unable to load sprites info", e);
     }
-
+    String spriteName = null;
     try {
-//      todo сделать парс жсона в модели?
       for (ContextID id : ContextID.values()) {
-        Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(id.name()))));
+        spriteName = id.name();
+        Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(spriteName))));
         JsonNode curNode = tree.get(id.name());
         toDrawSprites.put(id, new SpriteInf(
                 sprite,
@@ -281,7 +289,7 @@ public class GameController implements SubControllerRequests, FXControllerInterf
         ));
       }
     } catch (NullPointerException e) {
-      throw new RuntimeException(e);
+      throw new ResourceNotAvailable("Unable to load sprite of " + spriteName, e);
     }
   }
 

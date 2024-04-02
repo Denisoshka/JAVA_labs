@@ -1,37 +1,42 @@
 package ru.nsu.zhdanov.lab_3.swing_facade;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
-import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
-
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
+import java.awt.*;
 
-public class MenuView extends JFrame {
+public class MenuView extends JFrame implements BaseViewInterface {
   private static final String START_GAME_LABEL = "start game";
   private static final String EXIT_GAME_LABEL = "exit game";
   private static final Object[] COLUMNS_LABELS = {"Name", "Score"};
 
-  private JButton start;
-  private JButton exit;
   private JTextField playerName;
   private MenuController controller;
-  private JFrame view;
   private JTable scoresTable;
+  private JButton startGameButton;
+  private JButton exitButton;
 
-  MenuView(MainController menuContext) {
-    controller = new MenuController(menuContext);
+  public MenuView(MainController menuContext) {
+    this.setLocationRelativeTo(null);
+    this.setSize(600, 400);
+    setLayout(new BorderLayout());
+    this.controller = new MenuController(menuContext);
     this.initButtons();
-    this.setVisible(true);
+    this.initScoreTable();
   }
 
   private void initButtons() {
-    this.start = new JButton(START_GAME_LABEL);
-    this.start.addActionListener(e -> MenuView.this.controller.startGame());
-    this.exit = new JButton(EXIT_GAME_LABEL);
-    this.exit.addActionListener(e -> {
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+    buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    this.startGameButton = new JButton(START_GAME_LABEL);
+    this.exitButton = new JButton(EXIT_GAME_LABEL);
+    this.playerName = new JTextField("default player");
+    buttonPanel.add(playerName);
+    buttonPanel.add(startGameButton);
+    buttonPanel.add(exitButton);
+    add(buttonPanel, BorderLayout.WEST);
+
+    this.startGameButton.addActionListener(e -> MenuView.this.controller.startGame());
+    this.exitButton.addActionListener(e -> {
       MenuView.this.controller.shutdown();
       MenuView.super.dispose();
     });
@@ -39,5 +44,18 @@ public class MenuView extends JFrame {
 
   private void initScoreTable() {
     this.scoresTable = new JTable(controller.acquireScore(), COLUMNS_LABELS);
+    JScrollPane tableScrollPane = new JScrollPane(scoresTable);
+    this.add(tableScrollPane, BorderLayout.CENTER);
+    scoresTable.setFillsViewportHeight(true);
+  }
+
+  @Override
+  public void perform() {
+    this.setVisible(true);
+  }
+
+  @Override
+  public void shutdown() {
+    this.dispose();
   }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-
 public class MainController implements MainControllerRequests.GameContext, MainControllerRequests.MenuContext {
   private MenuController menuController = null;
   private GameController gameController = null;
@@ -32,26 +31,28 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   public SubControllerRequests changeScene(Properties properties, String FXMLPath) {
+    Scene scene;
+    FXMLLoader loader;
     try {
-      FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(FXMLPath)));
-      Scene scene = new Scene(Objects.requireNonNull(loader.load()));
-      primaryStage.setScene(scene);
-      SubControllerRequests controller = loader.getController();
-      ((FXControllerInterface) controller).setContext(properties, this, primaryStage);
-      primaryStage.show();
-      return controller;
-    } catch (NullPointerException | IOException e) {
-      throw new ResourceNotAvailable(e);
+      loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(FXMLPath)));
+      scene = new Scene(Objects.requireNonNull(loader.load()));
+    } catch (IOException e) {
+      throw new ResourceNotAvailable(FXMLPath, e);
     }
+    primaryStage.setScene(scene);
+    SubControllerRequests controller = loader.getController();
+    ((FXControllerInterface) controller).setContext(properties, this, primaryStage);
+    primaryStage.show();
+    return controller;
   }
 
   public void setGameScreen() {
     Properties properties = new Properties();
+    String gameControllerProp = "properties/game_controller.properties";
     try {
-      properties.load(getClass().getResourceAsStream("properties/game_controller.properties"));
-    } catch (IOException e) {
-//      todo
-      throw new RuntimeException(e);
+      properties.load(getClass().getResourceAsStream(gameControllerProp));
+    } catch (IOException | NullPointerException | IllegalArgumentException e) {
+      throw new ResourceNotAvailable(gameControllerProp, e);
     }
     gameController = (GameController) changeScene(properties, "screens/game_window.fxml");
     gameController.perform();
@@ -59,10 +60,11 @@ public class MainController implements MainControllerRequests.GameContext, MainC
 
   public void setMenuScreen() {
     Properties properties = new Properties();
+    String menuControllerProp = "properties/menu_controller.properties";
     try {
-      properties.load(getClass().getResourceAsStream("properties/menu_controller.properties"));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      properties.load(getClass().getResourceAsStream(menuControllerProp));
+    } catch (IOException | NullPointerException | IllegalArgumentException e) {
+      throw new ResourceNotAvailable(menuControllerProp, e);
     }
     menuController = (MenuController) changeScene(properties, "screens/menu_window.fxml");
     menuController.perform();
@@ -73,7 +75,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   @Override
-  public void startGame(String name) {
+  public void performGame(String name) {
     menuController.shutdown();
     model.setPlayerName(name);
     setGameScreen();
@@ -85,7 +87,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   @Override
-  public void gameEnd() {
+  public void shutdownGame() {
     gameController.shutdown();
     setMenuScreen();
   }

@@ -1,10 +1,14 @@
 package ru.nsu.zhdanov.lab_3;
 
-import javax.swing.JFrame;
+import ru.nsu.zhdanov.lab_3.swing_facade.MainController;
+
+import javax.swing.*;
 
 public class SWingGame {
-  private static JFrame jframe;
+  private static MainController controller;
+
   public static void main(String[] args) {
-    jframe = new JFrame();
+    controller = new MainController();
+    SwingUtilities.invokeLater(() -> controller.performMenu());
   }
 }

@@ -32,7 +32,7 @@ public class MenuController implements SubControllerRequests, FXControllerInterf
 
   @FXML
   public void startGame() {
-    menuReq.startGame(playerName.getText());
+    menuReq.performGame(playerName.getText());
   }
 
   @FXML

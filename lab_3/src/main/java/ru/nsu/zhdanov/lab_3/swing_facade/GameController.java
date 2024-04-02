@@ -3,9 +3,9 @@ package ru.nsu.zhdanov.lab_3.swing_facade;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
-import ru.nsu.zhdanov.lab_3.swing_facade.MainController;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
 import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
@@ -16,7 +16,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapo
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -24,23 +23,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
+
+
+@Slf4j
 public class GameController implements SubControllerRequests {
-
-
   final private @Getter Map<Integer, AtomicBoolean> keysInput = new HashMap<>();//
   final private @Getter Map<Integer, AtomicBoolean> mouseInput = new HashMap<>();//
   final private AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
   private GameSession context;
 
-
-  private Graphics2D graphicsContext;
-
+  private Graphics graphicsContext;
+  private GameView view;
   private final Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
   private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
@@ -72,25 +70,23 @@ public class GameController implements SubControllerRequests {
     @Override
     public void signalGameEnd() {
       int workers = 2;
-      CountDownLatch latch = new CountDownLatch(1);
       try (ExecutorService endHandler = Executors.newFixedThreadPool(workers)) {
-        SwingUtilities.invokeLater(() -> {
+        /*SwingUtilities.invokeLater(() -> {
           graphicsContext.drawString(
                   "Game end with score {" + context.getScore() + "}",
                   (float) (context.getMap().getMaxX() / 4),
                   (float) (context.getMap().getMaxY() / 2)
           );
-        });
+        });*/
 
         endHandler.submit(() -> {
           mainController.dumpScore(context.getPlayerName(), context.getScore());
-          SwingUtilities.invokeLater(() -> {
+          /*SwingUtilities.invokeLater(() -> {
             graphicsContext.drawString("Press space to exit",
                     (float) (context.getMap().getMaxX() / 4),
                     (float) (context.getMap().getMaxY() / 1.5)
             );
-          });
-          latch.countDown();
+          });*/
         });
 
         endHandler.submit(() -> {
@@ -98,13 +94,12 @@ public class GameController implements SubControllerRequests {
             while (!keysInput.get(KeyEvent.VK_SPACE).get() || !scoreDumped.get()) {
               Thread.sleep(1000 / 30);
             }
-            latch.await();
           } catch (InterruptedException e) {
             return;
           }
 
           SwingUtilities.invokeLater(() -> {
-            mainController.gameEnd();
+            mainController.shutdownGame();
           });
         });
       }
@@ -115,7 +110,8 @@ public class GameController implements SubControllerRequests {
     drawMap();
     drawEntities();
     drawPlayer();
-//    drawBar();
+    view.revalidate();
+    //    drawBar();
     synchronized (sceneDrawn) {
       sceneDrawn.set(true);
       sceneDrawn.notifyAll();
@@ -125,16 +121,21 @@ public class GameController implements SubControllerRequests {
   public GameController(Properties properties, GameView view, MainController mainController) {
     this.mainController = mainController;
     this.context = new GameSession(properties, IOHandler, mainController.getPlayerName());
+    this.view = view;
 
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
     Properties spriteProperties = new Properties();
+    String resName = null;
     try {
-      keyProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("keyInput"))));
-      mouseProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("mouseInput"))));
-      spriteProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(properties.getProperty("spriteInf"))));
+      resName = properties.getProperty("keyInput");
+      keyProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(resName)));
+      resName = properties.getProperty("mouseInput");
+      mouseProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(resName)));
+      resName = properties.getProperty("spriteInf");
+      spriteProperties.load(Objects.requireNonNull(getClass().getResourceAsStream(resName)));
     } catch (IOException | NullPointerException e) {
-      throw new RuntimeException("unable to load facade resource");
+      throw new RuntimeException("unable to load " + resName, e);
     }
 
     initInput(keyProperties, mouseProperties);
@@ -143,6 +144,7 @@ public class GameController implements SubControllerRequests {
 
   @Override
   public void perform() {
+    graphicsContext = view.getGraphicContext();
     context.perform();
   }
 
@@ -184,8 +186,7 @@ public class GameController implements SubControllerRequests {
   }
 
   private void draw(SpriteInf inf, int x, int y) {
-    graphicsContext.drawImage(inf.image(), x + inf.shiftX, y + inf.shiftY(), inf.width(), inf.height(), null);
-
+    this.graphicsContext.drawImage(inf.image(), x + inf.shiftX, y + inf.shiftY(), inf.width(), inf.height(), null);
   }
 
   public void handleReleasedKey(KeyEvent keyEvent) {
@@ -196,6 +197,7 @@ public class GameController implements SubControllerRequests {
   }
 
   public void handlePressedKey(KeyEvent keyEvent) {
+    log.info("pressed " + keyEvent.getKeyCode());
     AtomicBoolean rez = keysInput.get(keyEvent.getKeyCode());
     if (rez != null) {
       rez.set(true);
@@ -290,7 +292,7 @@ public class GameController implements SubControllerRequests {
 
     final int code;
 
-    private KeyButtons(int code) {
+    KeyButtons(int code) {
       this.code = code;
     }
 
@@ -300,11 +302,11 @@ public class GameController implements SubControllerRequests {
   }
 
   private enum MouseButtons {
-    PRIMATY(MouseEvent.BUTTON1);
+    PRIMARY(MouseEvent.BUTTON1);
 
     final int code;
 
-    private MouseButtons(int code) {
+    MouseButtons(int code) {
       this.code = code;
     }
 

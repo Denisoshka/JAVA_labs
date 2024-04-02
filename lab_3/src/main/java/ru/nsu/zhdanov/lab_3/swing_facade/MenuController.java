@@ -6,14 +6,13 @@ import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 
 import java.util.List;
-import java.util.Properties;
 
 @Slf4j
 public class MenuController implements SubControllerRequests {
-  private MainControllerRequests.MenuContext menuReq;
+  private final MainControllerRequests.MenuContext menuReq;
 
   public void startGame() {
-    menuReq.startGame(null);
+    menuReq.performGame(null);
   }
 
   public void exitGame() {
