@@ -9,7 +9,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 
 import java.util.*;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 

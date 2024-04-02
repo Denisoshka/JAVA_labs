@@ -69,7 +69,6 @@ public class GameView extends JFrame implements BaseViewInterface {
 
       @Override
       public void mousePressed(MouseEvent e) {
-        log.info("pressed key " + e.getButton());
         gameController.handleMousePressed(e);
       }
 
@@ -95,13 +94,11 @@ public class GameView extends JFrame implements BaseViewInterface {
 
       @Override
       public void keyPressed(KeyEvent e) {
-        log.info("keyPressed");
         gameController.handlePressedKey(e);
       }
 
       @Override
       public void keyReleased(KeyEvent e) {
-        log.info("KeyReleased");
         gameController.handleReleasedKey(e);
       }
     });
@@ -125,6 +122,7 @@ public class GameView extends JFrame implements BaseViewInterface {
   @Override
   public void shutdown() {
     this.gameController.shutdown();
+    log.info("call dispose");
     this.dispose();
   }
 }

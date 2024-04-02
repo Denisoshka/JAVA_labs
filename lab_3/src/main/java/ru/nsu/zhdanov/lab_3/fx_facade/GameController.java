@@ -69,27 +69,26 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     @Override
     public void handleInput() {
       if (keysInput.get(KeyCode.CLOSE_BRACKET).get()) {
-        context.shutdown();
+        Platform.runLater(() -> {
+          mainController.shutdownGameScreen();
+        });
       }
       context.setCursorXPos(mouseCords.get(0));
       context.setCursorYPos(mouseCords.get(1));
     }
 
     @Override
-    public void handleOutput() {
+    public void handleOutput() throws InterruptedException {
       Platform.runLater(() -> {
         synchronized (sceneDrawn) {
           GameController.this.draw();
-          sceneDrawn.notifyAll();
           sceneDrawn.set(true);
+          sceneDrawn.notifyAll();
         }
       });
       synchronized (sceneDrawn) {
-        try {
-          while (!sceneDrawn.get()) {
-            sceneDrawn.wait();
-          }
-        } catch (InterruptedException ignored) {
+        while (!sceneDrawn.get()) {
+          sceneDrawn.wait();
         }
       }
       sceneDrawn.set(false);
@@ -132,7 +131,6 @@ public class GameController implements SubControllerRequests, FXControllerInterf
           }
 
           Platform.runLater(() -> {
-            primaryStage.setFullScreen(false);
             mainController.shutdownGameScreen();
           });
         });

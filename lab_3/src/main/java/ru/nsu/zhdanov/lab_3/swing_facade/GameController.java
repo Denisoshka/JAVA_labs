@@ -39,16 +39,19 @@ public class GameController implements SubControllerRequests {
   private Graphics graphicsContext;
   private GameView view;
   private final Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
-  private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
   private MainControllerRequests.GameContext mainController;
+
   private final AtomicBoolean scoreDumped = new AtomicBoolean(false);
+  private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
   private final IOProcessing IOHandler = new IOProcessing() {
     @Override
     public void handleInput() {
       if (keysInput.get(KeyEvent.VK_CLOSE_BRACKET).get()) {
-        context.shutdown();
+        SwingUtilities.invokeLater(() -> {
+          mainController.shutdownGameScreen();
+        });
       }
       context.setCursorXPos(mouseCords.get(0));
       context.setCursorYPos(mouseCords.get(1));
@@ -56,7 +59,15 @@ public class GameController implements SubControllerRequests {
 
     @Override
     public void handleOutput() throws InterruptedException {
-      SwingUtilities.invokeLater(GameController.this::draw);
+      SwingUtilities.invokeLater(() -> {
+        log.info("draw start");
+        GameController.this.draw();
+        synchronized (sceneDrawn) {
+          sceneDrawn.set(true);
+          sceneDrawn.notifyAll();
+        }
+        log.info("draw end");
+      });
       synchronized (sceneDrawn) {
         while (!sceneDrawn.get()) {
           sceneDrawn.wait();
@@ -71,8 +82,8 @@ public class GameController implements SubControllerRequests {
       try (ExecutorService endHandler = Executors.newFixedThreadPool(workers)) {
         endHandler.submit(() -> {
           mainController.dumpScore(context.getPlayerName(), context.getScore());
+          scoreDumped.set(true);
         });
-
         endHandler.submit(() -> {
           try {
             while (!keysInput.get(KeyEvent.VK_SPACE).get() || !scoreDumped.get()) {
@@ -93,19 +104,14 @@ public class GameController implements SubControllerRequests {
     drawMap();
     drawEntities();
     drawPlayer();
+    drawBar();
     view.revalidate();
-    //    drawBar();
-    synchronized (sceneDrawn) {
-      sceneDrawn.set(true);
-      sceneDrawn.notifyAll();
-    }
   }
 
   public GameController(Properties properties, GameView view, MainController mainController) {
     this.mainController = mainController;
     this.context = new GameSession(properties, IOHandler, mainController.getPlayerName());
     this.view = view;
-
     Properties keyProperties = new Properties();
     Properties mouseProperties = new Properties();
     Properties spriteProperties = new Properties();
@@ -137,16 +143,16 @@ public class GameController implements SubControllerRequests {
   }
 
   //todo need to refactor
-  /*private void drawBar() {
-    PlayerController pl = context.getPlayer();
+  private void drawBar() {
+  /*  PlayerController pl = context.getPlayer();
     curScore.setText("Score: " + context.getScore());
     livesQuantity.setText("Lives: " + pl.getLivesQuantity());
 
     if (pl.getWeapon() != null) {
       weaponName.setText(pl.getWeapon().getID().name());
       weaponCondition.setText("Ammunition: " + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
-    }
-  }*/
+    }*/
+  }
 
   private void drawPlayer() {
     PlayerController player = context.getPlayer();
@@ -180,7 +186,6 @@ public class GameController implements SubControllerRequests {
   }
 
   public void handlePressedKey(KeyEvent keyEvent) {
-    log.info("pressed " + keyEvent.getKeyCode());
     AtomicBoolean rez = keysInput.get(keyEvent.getKeyCode());
     if (rez != null) {
       rez.set(true);
