@@ -11,7 +11,7 @@ public class FXGame extends Application {
   @Override
   public void start(Stage primaryStage) throws IOException {
     this.primaryStage = primaryStage;
-    MainController mainController = new MainController(null, null, this.primaryStage);
+    MainController mainController = new MainController(this.primaryStage);
     mainController.perform();
   }
 

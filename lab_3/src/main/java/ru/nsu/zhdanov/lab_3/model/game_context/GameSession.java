@@ -38,14 +38,11 @@ public class GameSession {
   private double delayReduceCoef = 0.9;
 
   private final static long timeToUpdate = 17;
-  private final IOProcessing IOHandle;
+  private final IOProcessing IOGameSessionHandle;
   private Thread session;
 
-  private Semaphore semaphore;
-
-
   public GameSession(Properties properties, IOProcessing IOHandle, String playerName) {
-    this.IOHandle = IOHandle;
+    this.IOGameSessionHandle = IOHandle;
     this.playerName = playerName;
     this.initGameEnvironment();
   }
@@ -58,13 +55,13 @@ public class GameSession {
       while (!isGameEnd()) {
         start = System.currentTimeMillis();
 
-        IOHandle.handleInput();
+        IOGameSessionHandle.handleInput();
         this.update();
 
         try {
-          IOHandle.handleOutput();
+          IOGameSessionHandle.handleOutput();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          return;
         }
 
         end = System.currentTimeMillis();
@@ -74,13 +71,13 @@ public class GameSession {
             Thread.sleep(timeToUpdate - (diff));
           } catch (InterruptedException e) {
             log.info("break");
-            break;
+            return;
           }
         } else {
           log.info("required time do update: " + diff);
         }
       }
-      IOHandle.signalGameEnd();
+      IOGameSessionHandle.signalGameEnd();
     });
   }
 

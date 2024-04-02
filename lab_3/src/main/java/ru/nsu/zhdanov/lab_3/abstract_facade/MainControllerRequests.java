@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface MainControllerRequests {
   interface MenuContext {
-    void performGame(String name);
+    void performGameScreen(String name);
 
     List<MainModel.Score> acquireScore();
   }
@@ -14,7 +14,7 @@ public interface MainControllerRequests {
   interface GameContext {
     String getPlayerName();
 
-    void shutdownGame();
+    void shutdownGameScreen();
 
     void dumpScore(String name, int score);
   }

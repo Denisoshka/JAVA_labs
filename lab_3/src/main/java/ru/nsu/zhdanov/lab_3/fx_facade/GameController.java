@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.ResourceNotAvailable;
-import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.UnexpectedError;
 import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
@@ -134,7 +133,7 @@ public class GameController implements SubControllerRequests, FXControllerInterf
 
           Platform.runLater(() -> {
             primaryStage.setFullScreen(false);
-            mainController.shutdownGame();
+            mainController.shutdownGameScreen();
           });
         });
       }
@@ -191,7 +190,6 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     context.shutdown();
   }
 
-  //todo need to refactor
   private void drawBar() {
     PlayerController pl = context.getPlayer();
     curScore.setText("Score: " + context.getScore());

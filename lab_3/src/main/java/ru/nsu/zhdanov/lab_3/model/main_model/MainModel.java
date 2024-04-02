@@ -3,14 +3,15 @@ package ru.nsu.zhdanov.lab_3.model.main_model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.extern.slf4j.Slf4j;
+import ru.nsu.zhdanov.lab_3.model.exception.DumpScoreException;
+import ru.nsu.zhdanov.lab_3.model.exception.ResourceNotAvailable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
+@Slf4j
 public class MainModel {
   private final Properties properties;
   private String name = "unknown player";
@@ -20,7 +21,7 @@ public class MainModel {
     try {
       properties.load(Objects.requireNonNull(getClass().getResourceAsStream("main_model.properties")));
     } catch (NullPointerException | IOException e) {
-      throw new RuntimeException("unable to load main_model.properties", e);
+      throw new ResourceNotAvailable("main_model.properties", e);
     }
     this.properties = properties;
   }
@@ -28,31 +29,24 @@ public class MainModel {
   public List<Score> acquireScore() {
     try {
       File resource = new File(properties.getProperty("score"));
-      var mapper = new ObjectMapper();
-      return mapper.<ArrayList<Score>>readValue(resource, new TypeReference<>() {
-      });
-    } catch (IOException | RuntimeException e) {
-      throw new RuntimeException(e);
+      ObjectMapper mapper = new ObjectMapper();
+      return (mapper.<ArrayList<Score>>readValue(resource, new TypeReference<>() {
+      }));
+    } catch (IOException e) {
+      log.info("acq fail");
+      return null;
     }
   }
 
   public void dumpScore(Score score) {
-    try {
+    List<Score> scoresList = Objects.requireNonNullElse(acquireScore(), new ArrayList<>());
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(properties.getProperty("score")))) {
       ObjectMapper objectMapper = new ObjectMapper();
-      File scoreFile = new File(properties.getProperty("score"));
-
-      ArrayNode scores;
-      if (scoreFile.exists()) {
-        scores = (ArrayNode) objectMapper.readTree(scoreFile);
-      } else {
-        scores = objectMapper.createArrayNode();
-      }
-
-      scores.addPOJO(score);
-
-      objectMapper.writeValue(scoreFile, scores);
+      scoresList.add(score);
+      Collections.sort(scoresList, Collections.reverseOrder());
+      writer.write(objectMapper.writeValueAsString(scoresList));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new DumpScoreException(e);
     }
   }
 

@@ -32,7 +32,7 @@ public class MenuController implements SubControllerRequests, FXControllerInterf
 
   @FXML
   public void startGame() {
-    menuReq.performGame(playerName.getText());
+    menuReq.performGameScreen(playerName.getText());
   }
 
   @FXML
@@ -57,23 +57,4 @@ public class MenuController implements SubControllerRequests, FXControllerInterf
   @Override
   public void shutdown() {
   }
-
-  /*public static class Line {
-    private String name;
-    private int score;
-
-    @JsonCreator
-    public Line(@JsonProperty("name") String name, @JsonProperty("score") int score) {
-      this.name = name;
-      this.score = score;
-    }
-
-    public int getScore() {
-      return score;
-    }
-
-    public String getName() {
-      return name;
-    }
-  }*/
 }

@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class PlayerController extends Entity {
-  final static int LIVES_QUANTITY = 3000;
+  final static int LIVES_QUANTITY = 3;
   final static int RADIUS = 25;
   final static int MOVE_COEF = 4;
   final static int HILL = 1;

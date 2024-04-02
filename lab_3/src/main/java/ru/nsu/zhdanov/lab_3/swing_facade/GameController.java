@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 
-
 @Slf4j
 public class GameController implements SubControllerRequests {
   final private @Getter Map<Integer, AtomicBoolean> keysInput = new HashMap<>();//
@@ -42,7 +41,6 @@ public class GameController implements SubControllerRequests {
   private final Map<ContextID, SpriteInf> toDrawSprites = new HashMap<>();
   private final AtomicBoolean sceneDrawn = new AtomicBoolean(false);
 
-  //  private Stage primaryStage;
   private MainControllerRequests.GameContext mainController;
   private final AtomicBoolean scoreDumped = new AtomicBoolean(false);
 
@@ -71,22 +69,8 @@ public class GameController implements SubControllerRequests {
     public void signalGameEnd() {
       int workers = 2;
       try (ExecutorService endHandler = Executors.newFixedThreadPool(workers)) {
-        /*SwingUtilities.invokeLater(() -> {
-          graphicsContext.drawString(
-                  "Game end with score {" + context.getScore() + "}",
-                  (float) (context.getMap().getMaxX() / 4),
-                  (float) (context.getMap().getMaxY() / 2)
-          );
-        });*/
-
         endHandler.submit(() -> {
           mainController.dumpScore(context.getPlayerName(), context.getScore());
-          /*SwingUtilities.invokeLater(() -> {
-            graphicsContext.drawString("Press space to exit",
-                    (float) (context.getMap().getMaxX() / 4),
-                    (float) (context.getMap().getMaxY() / 1.5)
-            );
-          });*/
         });
 
         endHandler.submit(() -> {
@@ -97,9 +81,8 @@ public class GameController implements SubControllerRequests {
           } catch (InterruptedException e) {
             return;
           }
-
           SwingUtilities.invokeLater(() -> {
-            mainController.shutdownGame();
+            mainController.shutdownGameScreen();
           });
         });
       }

@@ -24,10 +24,10 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   @Override
-  public void performGame(String name) {
-    this.menuView.shutdown();
-    this.menuView = null;
-    this.mainModel.setPlayerName(name);
+  public void performGameScreen(String name) {
+    menuView.shutdown();
+    menuView = null;
+    mainModel.setPlayerName(name);
     Properties properties = new Properties();
     String menuControllerProp = "properties/game_controller.properties";
     try {
@@ -35,15 +35,15 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     } catch (IOException | NullPointerException e) {
       throw new RuntimeException("unable to load " + menuControllerProp);
     }
-    this.gameView = new GameView(properties, this);
-    this.gameView.perform();
+    gameView = new GameView(properties, this);
+    gameView.perform();
   }
 
   @Override
-  public void shutdownGame() {
-    this.gameView.shutdown();
-    this.gameView = null;
-    this.performMenu();
+  public void shutdownGameScreen() {
+    gameView.shutdown();
+    gameView = null;
+    performMenu();
   }
 
   @Override

@@ -21,13 +21,13 @@ public class MainController implements MainControllerRequests.GameContext, MainC
 
   private final MainModel model;
 
-  public MainController(Properties menuProperties, Properties gameProperties, Stage primaryStage) {
+  public MainController(Stage primaryStage) {
     this.primaryStage = primaryStage;
     this.model = new MainModel();
   }
 
   public void perform() throws IOException {
-    setMenuScreen();
+    performMenuScreen();
   }
 
   public SubControllerRequests changeScene(Properties properties, String FXMLPath) {
@@ -46,7 +46,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     return controller;
   }
 
-  public void setGameScreen() {
+  public void performGameScreen() {
     Properties properties = new Properties();
     String gameControllerProp = "properties/game_controller.properties";
     try {
@@ -58,7 +58,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     gameController.perform();
   }
 
-  public void setMenuScreen() {
+  public void performMenuScreen() {
     Properties properties = new Properties();
     String menuControllerProp = "properties/menu_controller.properties";
     try {
@@ -75,10 +75,11 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   @Override
-  public void performGame(String name) {
+  public void performGameScreen(String name) {
     menuController.shutdown();
+    menuController = null;
     model.setPlayerName(name);
-    setGameScreen();
+    performGameScreen();
   }
 
   @Override
@@ -87,9 +88,10 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   }
 
   @Override
-  public void shutdownGame() {
+  public void shutdownGameScreen() {
     gameController.shutdown();
-    setMenuScreen();
+    gameController = null;
+    performMenuScreen();
   }
 
   @Override
