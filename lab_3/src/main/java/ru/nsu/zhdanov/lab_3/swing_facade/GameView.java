@@ -30,7 +30,11 @@ public class GameView extends JFrame implements BaseViewInterface {
     this.curScore.setEditable(false);
     this.weaponName.setEditable(false);
     this.canvas.setPreferredSize(new Dimension(1200, 675));
-    add(canvas, BorderLayout.CENTER);
+
+    weaponName.setPreferredSize(new Dimension(150, 40));
+    livesQuantity.setPreferredSize(new Dimension(150, 40));
+    weaponCondition.setPreferredSize(new Dimension(150, 40));
+    curScore.setPreferredSize(new Dimension(150, 40));
 
     JPanel weaponPanel = new JPanel(new GridLayout(2, 1));
     weaponPanel.add(weaponName);
@@ -41,9 +45,10 @@ public class GameView extends JFrame implements BaseViewInterface {
     JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     bottomPanel.add(weaponPanel);
     bottomPanel.add(infoPanel);
-    this.add(bottomPanel, BorderLayout.SOUTH);
 
-//    this.graphicContext = (Graphics2D) canvas.getGraphics();
+    this.add(canvas, BorderLayout.WEST);
+
+    this.add(bottomPanel, BorderLayout.SOUTH);
     this.gameController = new GameController(properties, this, mainController);
     this.initInput();
   }
@@ -108,6 +113,22 @@ public class GameView extends JFrame implements BaseViewInterface {
     return graphicContext;
   }
 
+  public void updateWeaponCondition(String desc) {
+    weaponCondition.setText("Condition: " + desc);
+  }
+
+  public void updateLivesQuantity(int curLivesQuantity) {
+    livesQuantity.setText("Lives: " + curLivesQuantity);
+  }
+
+  public void updateCurScore(int score) {
+    curScore.setText("Score: " + score);
+  }
+
+  public void updateWeaponName(String weapon) {
+    weaponName.setText("Weapon: " + weapon);
+  }
+
   @Override
   public void perform() {
     this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -122,7 +143,6 @@ public class GameView extends JFrame implements BaseViewInterface {
   @Override
   public void shutdown() {
     this.gameController.shutdown();
-    log.info("call dispose");
     this.dispose();
   }
 }

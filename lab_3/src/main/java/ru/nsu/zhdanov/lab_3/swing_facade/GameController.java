@@ -60,13 +60,11 @@ public class GameController implements SubControllerRequests {
     @Override
     public void handleOutput() throws InterruptedException {
       SwingUtilities.invokeLater(() -> {
-        log.info("draw start");
         GameController.this.draw();
         synchronized (sceneDrawn) {
           sceneDrawn.set(true);
           sceneDrawn.notifyAll();
         }
-        log.info("draw end");
       });
       synchronized (sceneDrawn) {
         while (!sceneDrawn.get()) {
@@ -144,14 +142,14 @@ public class GameController implements SubControllerRequests {
 
   //todo need to refactor
   private void drawBar() {
-  /*  PlayerController pl = context.getPlayer();
-    curScore.setText("Score: " + context.getScore());
-    livesQuantity.setText("Lives: " + pl.getLivesQuantity());
+    PlayerController pl = context.getPlayer();
+    view.updateCurScore(context.getScore());
+    view.updateLivesQuantity(pl.getLivesQuantity());
 
     if (pl.getWeapon() != null) {
-      weaponName.setText(pl.getWeapon().getID().name());
-      weaponCondition.setText("Ammunition: " + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
-    }*/
+      view.updateWeaponName(pl.getWeapon().getID().name());
+      view.updateWeaponCondition("Ammunition: " + context.getWeaponOccupancy() + " / " + context.getWeaponCapacity());
+    }
   }
 
   private void drawPlayer() {
