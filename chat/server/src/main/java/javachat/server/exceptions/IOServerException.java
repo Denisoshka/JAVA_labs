@@ -1,4 +1,4 @@
-package javachar.server.exceptions;
+package javachat.server.exceptions;
 
 import java.io.IOException;
 

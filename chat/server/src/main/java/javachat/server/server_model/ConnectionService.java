@@ -1,7 +1,7 @@
-package javachar.server.server_model;
+package javachat.server.server_model;
 
-import javachar.server.exceptions.UnableToCreateConnection;
-import javachar.server.exceptions.UnableToCreateServer;
+import javachat.server.exceptions.UnableToCreateConnection;
+import javachat.server.exceptions.UnableToCreateServer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,7 +33,7 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
   private final static String PORT = "port";
   private final static String CONNECTION_TIMEOUT = "connection_timeout";
   private final static String CONNECTION_TIMEUNIT = "connection_timeunit";
-  private final static String FAILED_CONNECTION = "<error><message>REASON</message></error>";
+  private final static String FAILED_CONNECTION = GetMessage.getServerErrorAnswer("connection failed");
 
   private final Properties properties;
   private final ServerSocket srvSocket;
@@ -155,19 +155,22 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
         } else {
           acceptConnection(clSock);
         }
-      } catch (IOException | SAXException | ParserConfigurationException | InterruptedException e) {
+      } catch (IOException | SAXException | ParserConfigurationException e) {
 //todo
       }
     }
   }
 
-  private void acceptConnection(Socket socket) throws InterruptedException, UnableToCreateConnection {
-    try {
-      ConnectionsOnAction.acquire(maxHandleEventsQuantity);
-      connections.add(new Connection(socket, connections));
-    } finally {
-      ConnectionsOnAction.release(maxHandleEventsQuantity);
+  private void acceptConnection(Socket socket) throws Exception {
+    Connection conn = null;
+    try{
+      conn = new Connection(socket, connections);
+    }catch (UnableToCreateConnection e){
     }
+    synchronized (connections) {
+      connections.add(conn);
+    }
+    conn.receiveMessage(GetMessage.ServerSuccessAnswer());
   }
 
   private void sendConnectionError(DataOutputStream outStream) throws IOException {
@@ -175,15 +178,12 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
   }
 
   private void tearConnection(int connectionIndex) throws InterruptedException {
-    try {
-      ConnectionsOnAction.acquire(maxHandleEventsQuantity);
+    synchronized (connections) {
       try (Connection conn = connections.remove(connectionIndex)) {
-      conn.receiveMessage();
+        conn.receiveMessage();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-    } finally {
-      ConnectionsOnAction.release(maxHandleEventsQuantity);
     }
   }
 }

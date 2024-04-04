@@ -1,4 +1,4 @@
-package javachar.server.server_model;
+package javachat.server.server_model;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

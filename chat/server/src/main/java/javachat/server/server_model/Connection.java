@@ -1,25 +1,17 @@
-package javachar.server.server_model;
+package javachat.server.server_model;
 
-import javachar.server.exceptions.UnableToCreateConnection;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import javachat.server.exceptions.UnableToCreateConnection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Semaphore;
 
-public class Connection implements AutoCloseable, Runnable, MessageSendInterface , MessageReceiveInterface{
+public class Connection implements AutoCloseable, Runnable, MessageSendInterface, MessageReceiveInterface {
   public final static int BUFFERSIZE = 41_943_040;
   private final List<Connection> connections;
   private final Socket socket;
@@ -37,26 +29,22 @@ public class Connection implements AutoCloseable, Runnable, MessageSendInterface
       this.factory = DocumentBuilderFactory.newInstance();
       this.builder = factory.newDocumentBuilder();
     } catch (IOException | ParserConfigurationException e) {
-      if (outStream != null) {
-        try {
-          outStream.close();
-        } catch (IOException ignored) {
-        }
-      }
-      if (inStream != null) {
-        try {
-          inStream.close();
-        } catch (IOException ignored) {
-        }
-      }
       throw new UnableToCreateConnection("", e);
+    } finally {
+      try{
+        if (outStream != null) outStream.close();
+      }catch (IOException ignored){}
+      try{
+        if (inStream != null) inStream.close();
+      }catch (IOException ignored){}
+      try{
+        if (socket != null) socket.close();
+      }catch (IOException ignored){}
     }
-
   }
 
   @Override
   public void run() {
-
   }
 
   private void writeMessage(String message, DataOutputStream outStream) throws IOException {
@@ -67,11 +55,28 @@ public class Connection implements AutoCloseable, Runnable, MessageSendInterface
 
   @Override
   public void close() throws Exception {
-    socket.close();
+    Throwable ex = null;
+    try {
+      socket.close();
+    } catch (IOException e) {
+      ex = e;
+    } finally {
+      try {
+        if (outStream != null) outStream.close();
+      } catch (IOException e) {
+        if (ex != null) e.addSuppressed(ex);
+        else ex = e;
+      }
+      try {
+        if (inStream != null) inStream.close();
+      } catch (IOException e) {
+        if (ex != null) e.addSuppressed(ex);
+        throw e;
+      }
+    }
   }
-
   @Override
-  public void receiveMessage(String message) {
-
+  public void receiveMessage(String message) throws IOException {
+    sendMessage(message, outStream);
   }
 }

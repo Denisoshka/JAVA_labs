@@ -1,4 +1,4 @@
-package javachar.server.exceptions;
+package javachat.server.exceptions;
 
 public class ServerConfigUnavailable extends RuntimeServerException {
   public ServerConfigUnavailable(String message, Throwable cause) {

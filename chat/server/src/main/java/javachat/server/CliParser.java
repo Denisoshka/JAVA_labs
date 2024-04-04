@@ -1,4 +1,4 @@
-package javachar.server;
+package javachat.server;
 
 import org.apache.commons.cli.*;
 

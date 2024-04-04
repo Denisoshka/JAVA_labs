@@ -1,4 +1,4 @@
-package javachar.server.exceptions;
+package javachat.server.exceptions;
 
 public class UnableToCreateServer extends RuntimeServerException {
   public UnableToCreateServer(String message, Throwable cause) {

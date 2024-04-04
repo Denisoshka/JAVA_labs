@@ -1,6 +1,6 @@
-package javachar.server;
+package javachat.server;
 
-import javachar.server.exceptions.ServerConfigUnavailable;
+import javachat.server.exceptions.ServerConfigUnavailable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
