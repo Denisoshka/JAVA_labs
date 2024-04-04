@@ -158,13 +158,19 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     try {
       keyName = "keyInput";
       resName = properties.getProperty(keyName);
-      keyProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
+      try (var keyStream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName)))) {
+        keyProperties.load(keyStream);
+      }
       keyName = "mouseInput";
       resName = properties.getProperty(keyName);
-      mouseProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
+      try (var mouseStream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName)))) {
+        mouseProperties.load(mouseStream);
+      }
       keyName = "spriteInf";
       resName = properties.getProperty(keyName);
-      spriteProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
+      try (var spriteStream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName)))) {
+        spriteProperties.load(spriteStream);
+      }
     } catch (IOException | NullPointerException e) {
       throw new ResourceNotAvailable(keyName, e);
     }
@@ -265,26 +271,28 @@ public class GameController implements SubControllerRequests, FXControllerInterf
   private void initSprites(final Properties prop) {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode tree;
-    try {
-      tree = mapper.readTree(getClass().getResourceAsStream(prop.getProperty("SpriteInf")));
-    } catch (IOException e) {
+    try (var stream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty("SpriteInf"))))) {
+      tree = mapper.readTree(stream);
+    } catch (IOException | NullPointerException e) {
       throw new ResourceNotAvailable("Unable to load sprites info", e);
     }
     String spriteName = null;
     try {
       for (ContextID id : ContextID.values()) {
         spriteName = id.name();
-        Image sprite = new Image(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(spriteName))));
-        JsonNode curNode = tree.get(id.name());
-        toDrawSprites.put(id, new SpriteInf(
-                sprite,
-                curNode.get("shiftX").asInt(),
-                curNode.get("shiftY").asInt(),
-                curNode.get("width").asInt(),
-                curNode.get("height").asInt()
-        ));
+        try (var stream = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(prop.getProperty(spriteName))))) {
+          Image sprite = new Image(stream);
+          JsonNode curNode = tree.get(id.name());
+          toDrawSprites.put(id, new SpriteInf(
+                  sprite,
+                  curNode.get("shiftX").asInt(),
+                  curNode.get("shiftY").asInt(),
+                  curNode.get("width").asInt(),
+                  curNode.get("height").asInt()
+          ));
+        }
       }
-    } catch (NullPointerException e) {
+    } catch (NullPointerException | IOException e) {
       throw new ResourceNotAvailable("Unable to load sprite of " + spriteName, e);
     }
   }

@@ -14,9 +14,9 @@ public abstract class Weapon implements WeaponImpl {
     this.damage = damage;
   }
 
-  abstract public void update(GameSession context, PlayerController user);
+  public abstract void update(GameSession context, PlayerController user);
 
-  abstract public void action(GameSession context, PlayerController user);
+  public abstract void action(GameSession context, PlayerController user);
 
   public ContextID getID() {
     return this.ID;

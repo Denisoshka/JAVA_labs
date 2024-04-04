@@ -51,8 +51,8 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   public void performGameScreen() {
     Properties properties = new Properties();
     String gameControllerProp = "properties/game_controller.properties";
-    try {
-      properties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(gameControllerProp))));
+    try (var reader = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(gameControllerProp)))) {
+      properties.load(reader);
     } catch (IOException | NullPointerException | IllegalArgumentException e) {
       throw new ResourceNotAvailable(gameControllerProp, e);
     }
@@ -63,8 +63,8 @@ public class MainController implements MainControllerRequests.GameContext, MainC
   public void performMenuScreen() {
     Properties properties = new Properties();
     String menuControllerProp = "properties/menu_controller.properties";
-    try {
-      properties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(menuControllerProp))));
+    try (var reader = new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(menuControllerProp)))) {
+      properties.load(reader);
     } catch (IOException | NullPointerException | IllegalArgumentException e) {
       throw new ResourceNotAvailable(menuControllerProp, e);
     }
