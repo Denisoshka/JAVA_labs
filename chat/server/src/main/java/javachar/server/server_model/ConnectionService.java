@@ -144,11 +144,8 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
           commandName = commandElement.getAttribute(COMMAND_NAME_ATTR);
         }
 
-        connectionFailed = Objects.isNull(commandName) || commandName.isEmpty();
         try {
-          if (!connectionFailed) {
-            connectionFailed = !connectionsAvalibe.tryAcquire(timeout, timeoutUnit);
-          }
+          connectionFailed = Objects.isNull(commandName) || commandName.isEmpty() || !connectionsAvalibe.tryAcquire(timeout, timeoutUnit);
         } catch (InterruptedException e) {
           return;
         }
@@ -177,7 +174,16 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
     sendMessage(FAILED_CONNECTION, outStream);
   }
 
-  private void tearConnection(int connectionIndex) {
-// todo
+  private void tearConnection(int connectionIndex) throws InterruptedException {
+    try {
+      ConnectionsOnAction.acquire(maxHandleEventsQuantity);
+      try (Connection conn = connections.remove(connectionIndex)) {
+      conn.receiveMessage();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    } finally {
+      ConnectionsOnAction.release(maxHandleEventsQuantity);
+    }
   }
 }

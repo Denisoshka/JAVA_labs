@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
-public class Connection implements AutoCloseable, Runnable, MessageSendInterface {
+public class Connection implements AutoCloseable, Runnable, MessageSendInterface , MessageReceiveInterface{
   public final static int BUFFERSIZE = 41_943_040;
   private final List<Connection> connections;
   private final Socket socket;
@@ -68,5 +68,10 @@ public class Connection implements AutoCloseable, Runnable, MessageSendInterface
   @Override
   public void close() throws Exception {
     socket.close();
+  }
+
+  @Override
+  public void receiveMessage(String message) {
+
   }
 }
