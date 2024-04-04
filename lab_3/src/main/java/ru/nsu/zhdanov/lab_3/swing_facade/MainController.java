@@ -1,6 +1,5 @@
 package ru.nsu.zhdanov.lab_3.swing_facade;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-@Slf4j
 public class MainController implements MainControllerRequests.GameContext, MainControllerRequests.MenuContext {
   MainControllerRequests.MenuContext menuReq;
   private MenuView menuView;

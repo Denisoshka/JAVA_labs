@@ -23,12 +23,12 @@
 
     <TableView fx:id="scoreTable" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
         <columns>
-            <TableColumn fx:id="nameColumn" text="Name">
+            <TableColumn fx:id="nameColumn" text="Name" prefWidth="200">
                 <cellValueFactory>
                     <PropertyValueFactory property="name"/>
                 </cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="scoreColumn" text="Score">
+            <TableColumn fx:id="scoreColumn" text="Score" prefWidth="200">
                 <cellValueFactory>
                     <PropertyValueFactory property="score"/>
                 </cellValueFactory>

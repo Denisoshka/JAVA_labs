@@ -2,8 +2,6 @@ package ru.nsu.zhdanov.lab_3.swing_facade;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
@@ -29,10 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 
-@Slf4j
 public class GameController implements SubControllerRequests {
-  final private @Getter Map<Integer, AtomicBoolean> keysInput = new HashMap<>();//
-  final private @Getter Map<Integer, AtomicBoolean> mouseInput = new HashMap<>();//
+  final private  Map<Integer, AtomicBoolean> keysInput = new HashMap<>();//
+  final private  Map<Integer, AtomicBoolean> mouseInput = new HashMap<>();//
   final private AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
   private GameSession context;
 
@@ -299,5 +296,13 @@ public class GameController implements SubControllerRequests {
     public int getCode() {
       return code;
     }
+  }
+
+  public Map<Integer, AtomicBoolean> getKeysInput() {
+    return keysInput;
+  }
+
+  public Map<Integer, AtomicBoolean> getMouseInput() {
+    return mouseInput;
   }
 }

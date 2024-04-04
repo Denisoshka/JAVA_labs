@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.exception.DumpScoreException;
 import ru.nsu.zhdanov.lab_3.model.exception.ResourceNotAvailable;
 
 import java.io.*;
 import java.util.*;
 
-@Slf4j
 public class MainModel {
   private final Properties properties;
   private String name = "unknown player";
@@ -19,7 +17,7 @@ public class MainModel {
   public MainModel() {
     Properties properties = new Properties();
     try {
-      properties.load(Objects.requireNonNull(getClass().getResourceAsStream("main_model.properties")));
+      properties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream("main_model.properties"))));
     } catch (NullPointerException | IOException e) {
       throw new ResourceNotAvailable("main_model.properties", e);
     }
@@ -33,7 +31,6 @@ public class MainModel {
       return (mapper.<ArrayList<Score>>readValue(resource, new TypeReference<>() {
       }));
     } catch (IOException e) {
-      log.info("acq fail");
       return null;
     }
   }

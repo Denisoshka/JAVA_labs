@@ -1,13 +1,11 @@
 package ru.nsu.zhdanov.lab_3.swing_facade;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 
 import java.util.List;
 
-@Slf4j
 public class MenuController implements SubControllerRequests {
   private final MainControllerRequests.MenuContext menuReq;
 

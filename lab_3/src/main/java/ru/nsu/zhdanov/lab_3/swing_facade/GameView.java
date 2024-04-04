@@ -1,13 +1,11 @@
 package ru.nsu.zhdanov.lab_3.swing_facade;
 
-import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Properties;
 
-@Slf4j
 public class GameView extends JFrame implements BaseViewInterface {
   private MainController mainController;
   private Graphics2D graphicContext;

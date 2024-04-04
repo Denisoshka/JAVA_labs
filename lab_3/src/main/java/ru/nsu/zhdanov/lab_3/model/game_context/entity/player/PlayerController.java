@@ -1,13 +1,11 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.player;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.Fraction;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.ShootingWeapon;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.ItsGoingToHurt;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.shooting_weapons.RocketLauncher;
@@ -18,9 +16,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-@Slf4j
 public class PlayerController extends Entity {
-  final static int LIVES_QUANTITY = 3;
+  final static int LIVES_QUANTITY = 2500;
   final static int RADIUS = 25;
   final static int MOVE_COEF = 4;
   final static int HILL = 1;
@@ -29,7 +26,7 @@ public class PlayerController extends Entity {
 
   final private Map<PlayerAction, ShootingWeapon> guns;
   private long lastDamage;
-  private @Getter ShootingWeapon weapon;
+  private ShootingWeapon weapon;
 
   public PlayerController(int x, int y) {
     super(x, y, RADIUS, 0, 0, 0, LIVES_QUANTITY, ContextType.EntityT, ContextID.Player, Fraction.PLAYER);
@@ -112,5 +109,17 @@ public class PlayerController extends Entity {
 
   @Override
   public void checkCollisions(final GameSession context) {
+  }
+
+  public Map<PlayerAction, ShootingWeapon> getGuns() {
+    return this.guns;
+  }
+
+  public long getLastDamage() {
+    return this.lastDamage;
+  }
+
+  public ShootingWeapon getWeapon() {
+    return this.weapon;
   }
 }

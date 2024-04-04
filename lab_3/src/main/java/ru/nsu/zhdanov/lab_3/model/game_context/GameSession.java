@@ -1,6 +1,5 @@
 package ru.nsu.zhdanov.lab_3.model.game_context;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition.CycloDick;
@@ -12,7 +11,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
 public class GameSession {
   private GameMap map;
   private PlayerController player;
@@ -69,11 +67,8 @@ public class GameSession {
           try {
             Thread.sleep(timeToUpdate - (diff));
           } catch (InterruptedException e) {
-            log.info("break");
             return;
           }
-        } else {
-          log.info("required time do update: " + diff);
         }
       }
       IOGameSessionHandle.signalGameEnd();

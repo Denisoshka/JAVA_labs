@@ -2,7 +2,6 @@ package ru.nsu.zhdanov.lab_3.fx_facade;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -15,30 +14,31 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.ResourceNotAvailable;
-import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
-import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
+import ru.nsu.zhdanov.lab_3.model.game_context.IOProcessing;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.Entity;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
+import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.PlayerAction;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.player.PlayerController;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.base_weapons.Weapon;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
-@Slf4j
 public class GameController implements SubControllerRequests, FXControllerInterface {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(GameController.class);
   @FXML
   public TextField weaponCondition;
   @FXML
@@ -48,8 +48,8 @@ public class GameController implements SubControllerRequests, FXControllerInterf
   @FXML
   private TextField weaponName;
 
-  private final @Getter Map<KeyCode, AtomicBoolean> keysInput = new HashMap<>();//
-  private final @Getter Map<MouseButton, AtomicBoolean> mouseInput = new HashMap<>();//
+  private final Map<KeyCode, AtomicBoolean> keysInput = new HashMap<>();//
+  private final Map<MouseButton, AtomicBoolean> mouseInput = new HashMap<>();//
   private final AtomicIntegerArray mouseCords = new AtomicIntegerArray(2);//
   private GameSession context;
 
@@ -158,13 +158,13 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     try {
       keyName = "keyInput";
       resName = properties.getProperty(keyName);
-      keyProperties.load(getClass().getResourceAsStream(resName));
+      keyProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
       keyName = "mouseInput";
       resName = properties.getProperty(keyName);
-      mouseProperties.load(getClass().getResourceAsStream(resName));
+      mouseProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
       keyName = "spriteInf";
       resName = properties.getProperty(keyName);
-      spriteProperties.load(getClass().getResourceAsStream(resName));
+      spriteProperties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(resName))));
     } catch (IOException | NullPointerException e) {
       throw new ResourceNotAvailable(keyName, e);
     }
@@ -312,6 +312,14 @@ public class GameController implements SubControllerRequests, FXControllerInterf
     AtomicBoolean indicator = new AtomicBoolean(false);
     from.put(keyFrom, indicator);
     to.put(keyTo, indicator);
+  }
+
+  public Map<KeyCode, AtomicBoolean> getKeysInput() {
+    return this.keysInput;
+  }
+
+  public Map<MouseButton, AtomicBoolean> getMouseInput() {
+    return this.mouseInput;
   }
 
   private record SpriteInf(Image image, int shiftX, int shiftY, int width, int height) {

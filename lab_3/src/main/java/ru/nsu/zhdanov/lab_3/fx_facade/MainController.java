@@ -3,12 +3,12 @@ package ru.nsu.zhdanov.lab_3.fx_facade;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import lombok.Getter;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.fx_facade.exceptions.ResourceNotAvailable;
 import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +17,9 @@ import java.util.Properties;
 public class MainController implements MainControllerRequests.GameContext, MainControllerRequests.MenuContext {
   private MenuController menuController = null;
   private GameController gameController = null;
-  final private @Getter Stage primaryStage;
+
+
+  final private Stage primaryStage;
 
   private final MainModel model;
 
@@ -50,7 +52,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     Properties properties = new Properties();
     String gameControllerProp = "properties/game_controller.properties";
     try {
-      properties.load(getClass().getResourceAsStream(gameControllerProp));
+      properties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(gameControllerProp))));
     } catch (IOException | NullPointerException | IllegalArgumentException e) {
       throw new ResourceNotAvailable(gameControllerProp, e);
     }
@@ -62,7 +64,7 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     Properties properties = new Properties();
     String menuControllerProp = "properties/menu_controller.properties";
     try {
-      properties.load(getClass().getResourceAsStream(menuControllerProp));
+      properties.load(new BufferedInputStream(Objects.requireNonNull(getClass().getResourceAsStream(menuControllerProp))));
     } catch (IOException | NullPointerException | IllegalArgumentException e) {
       throw new ResourceNotAvailable(menuControllerProp, e);
     }
@@ -80,6 +82,10 @@ public class MainController implements MainControllerRequests.GameContext, MainC
     menuController = null;
     model.setPlayerName(name);
     performGameScreen();
+  }
+
+  public Stage getPrimaryStage() {
+    return primaryStage;
   }
 
   @Override

@@ -8,14 +8,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.abstract_facade.MainControllerRequests;
 import ru.nsu.zhdanov.lab_3.abstract_facade.SubControllerRequests;
 import ru.nsu.zhdanov.lab_3.model.main_model.MainModel;
 
 import java.util.Properties;
 
-@Slf4j
 public class MenuController implements SubControllerRequests, FXControllerInterface {
   @FXML
   private TableView<MainModel.Score> scoreTable = new TableView<>();

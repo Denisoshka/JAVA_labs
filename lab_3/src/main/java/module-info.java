@@ -7,7 +7,6 @@ module ru.nsu.zhdanov.lab_3.lab_3 {
   requires com.dlsc.formsfx;
   requires org.kordamp.bootstrapfx.core;
   requires com.almasb.fxgl.all;
-  requires static lombok;
   requires com.fasterxml.jackson.databind;
   requires java.desktop;
 
@@ -17,7 +16,6 @@ module ru.nsu.zhdanov.lab_3.lab_3 {
   opens ru.nsu.zhdanov.lab_3.fx_facade to javafx.fxml, com.fasterxml.jackson.databind;
   exports ru.nsu.zhdanov.lab_3.fx_facade;
 
-  //  opens javafx.beans.property to com.fasterxml.jackson.databind;
 
   exports ru.nsu.zhdanov.lab_3.model.main_model;
   opens ru.nsu.zhdanov.lab_3.model.game_context.entity to com.fasterxml.jackson.databind;

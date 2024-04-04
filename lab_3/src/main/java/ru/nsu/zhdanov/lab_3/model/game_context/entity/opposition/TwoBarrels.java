@@ -1,6 +1,5 @@
 package ru.nsu.zhdanov.lab_3.model.game_context.entity.opposition;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextID;
 import ru.nsu.zhdanov.lab_3.model.game_context.entity.context_labels.ContextType;
 import ru.nsu.zhdanov.lab_3.model.game_context.GameSession;
@@ -10,7 +9,6 @@ import ru.nsu.zhdanov.lab_3.model.game_context.entity.wearpon.missile.TwoBarrels
 
 import java.util.Random;
 
-@Slf4j
 public class TwoBarrels extends Entity {
   public static final int LIVES = 2500;
   public static final int RADIUS = 20;
