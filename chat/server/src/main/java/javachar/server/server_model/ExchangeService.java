@@ -18,7 +18,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class ExchangeService implements Runnable, Consumer<Socket>, AutoCloseable {
   private final ExecutorService handleEventsService;
-  private final Connection[] connections;
   private final int maxHandledUsersQuantity;
   private final BlockingQueue<Integer> busySockets;
   private final long timeout;
@@ -34,11 +33,10 @@ public class ExchangeService implements Runnable, Consumer<Socket>, AutoCloseabl
     this.unit = unit;
 
     this.handleEventsService = Executors.newFixedThreadPool(maxHandleEventsQuantity);
-    this.connections = new Connection[this.maxHandledUsersQuantity];
     this.charngeConnections = new Semaphore(this.maxHandledUsersQuantity);
     this.busySockets = new ArrayBlockingQueue<>(this.maxHandledUsersQuantity);
   }
-
+  
   @Override
   public void run() {
 
@@ -51,9 +49,7 @@ public class ExchangeService implements Runnable, Consumer<Socket>, AutoCloseabl
 
   @Override
   public void close() throws Exception {
-    for (var conn : connections) {
-      conn.close();
-    }
+//    todo
   }
 
 

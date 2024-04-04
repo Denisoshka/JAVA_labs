@@ -178,7 +178,6 @@ public class ConnectionService implements AutoCloseable, Runnable, MessageSendIn
   }
 
   private void tearConnection(int connectionIndex) {
-//
+// todo
   }
-
 }
