@@ -1,7 +1,5 @@
 package javachat.server.server_model;
 
-import javachat.server.exceptions.MessageHandlerCreateException;
-
 import javachat.server.exceptions.UnableToCreateServer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,12 +9,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -28,7 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class Server implements AutoCloseable, Runnable, MessageSendInterface {
+public class Server implements AbstractServer, AutoCloseable, Runnable, MessageSendInterface {
   private final static String COMMAND_TAG = "command";
   private final static String COMMAND_NAME_ATTR = "name";
   private final static String IP_ADDRESS = "ip_adress";
@@ -38,12 +30,14 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
   private final static String PORT = "port";
   private final static String CONNECTION_TIMEOUT = "connection_timeout";
   private final static String CONNECTION_TIMEUNIT = "connection_timeunit";
-  private final static String FAILED_CONNECTION = GetMessage.getServerErrorAnswer("connection failed");
+  private final static String FAILED_CONNECTION = GetMessage.ServerErrorAnswer("connection failed");
 
   private final Properties properties;
   private final ServerSocket srvSocket;
   private final ExecutorService connectionAccepterHandlerService;
   private final ExecutorService connectionHandler;
+
+
   private final Set<Connection> connections;
 
   private final int maxHandleConnectionsQuantity;
@@ -117,7 +111,6 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
         clSock = srvSocket.accept();
         connectionAccepterHandlerService.submit(new ConnectionAccepter(clSock));
       } catch (IOException ignored) {
-
         try {
           clSock.close();
         } catch (IOException e) {
@@ -162,7 +155,7 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
         if (connectionFailed) {
           sendConnectionError(outStream);
         } else {
-          acceptConnection(clSock);
+          setConnection(clSock);
         }
       } catch (IOException | SAXException | ParserConfigurationException e) {
 //todo
@@ -170,74 +163,8 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
     }
   }
 
-  public class MessageHandler {
-    private final DocumentBuilderFactory factory;
-    private final DocumentBuilder builder;
-    private final TransformerFactory transformerFactory;
-    private final Transformer transformer;
-    private final StringWriter writer;
-
-    MessageHandler() throws MessageHandlerCreateException {
-      try {
-        this.writer = new StringWriter();
-        this.factory = DocumentBuilderFactory.newInstance();
-        this.builder = factory.newDocumentBuilder();
-        this.transformerFactory = TransformerFactory.newInstance();
-        this.transformer = transformerFactory.newTransformer();
-      } catch (ParserConfigurationException | TransformerConfigurationException e) {
-        throw new MessageHandlerCreateException(e);
-      }
-    }
-
-    private String DocumtnttoString(Document doc) throws TransformerException {
-      transformer.transform(new DOMSource(doc), new StreamResult(writer));
-      return writer.toString();
-    }
-
-    public void handle(byte[] message, int len) throws IOException, SAXException {
-      Document document = builder.parse(new ByteArrayInputStream(message));
-    }
-
-    Map<String, Command> handlers;
-
-    interface Command {
-      void perform(Connection connection) throws Exception;
-    }
-
-    private final Command logoutUser = new Command() {
-      @Override
-      public void perform(Connection connection) throws Exception {
-        tearConnection(connection);
-      }
-    };
-
-    private final Command listUsers = new Command() {
-      @Override
-      public void perform(Connection connection) throws Exception {
-        Document doc = builder.newDocument();
-        Element rootElement = doc.createElement("success");
-        doc.appendChild(rootElement);
-        Element usersElement = doc.createElement("users");
-        rootElement.appendChild(usersElement);
-        for (Connection user : connections) {
-          Element userElement = doc.createElement("user");
-          usersElement.appendChild(userElement);
-          Element nameElement = doc.createElement("name");
-          nameElement.appendChild(doc.createTextNode(user.toString()));
-          userElement.appendChild(nameElement);
-        }
-        try {
-          String res = DocumtnttoString(doc);
-          connection.receiveMessage(res);
-        } catch (TransformerException | IOException e) {
-//          todo
-          throw new RuntimeException(e);
-        }
-      }
-    };
-  }
-
-  private void acceptConnection(Socket socket) throws IOException {
+  @Override
+  public void setConnection(Socket socket) throws IOException {
     Connection conn = new Connection(null, socket, connections);
     synchronized (connections) {
       connections.add(conn);
@@ -251,7 +178,8 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
     sendMessage(FAILED_CONNECTION, outStream);
   }
 
-  private void tearConnection(Connection conn) throws Exception {
+  @Override
+  public void tearConnection(Connection conn) throws Exception {
     synchronized (connections) {
       connections.remove(conn);
     }
@@ -262,4 +190,7 @@ public class Server implements AutoCloseable, Runnable, MessageSendInterface {
     }
   }
 
+  public Set<Connection> getConnections() {
+    return connections;
+  }
 }
