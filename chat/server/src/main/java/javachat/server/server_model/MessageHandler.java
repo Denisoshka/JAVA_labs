@@ -24,23 +24,37 @@ public class MessageHandler {
   private final static String MAIN_TAG = "command";
   private final static String MAIN_ATTRIBUTE = "name";
 
+  private final DocumentBuilderFactory factory;
+  private final DocumentBuilder builder;
+  private final TransformerFactory transformerFactory;
+  private final Transformer transformer;
+  private final StringWriter writer;
+  private final AbstractServer server;
+  private final Map<String, Command> handlers;
+
   interface Command {
     void perform(Connection connection, Document inDoc) throws Exception;
   }
 
-  private final Command logoutUser = new Command() {
+  private final Command logout = new Command() {
     @Override
     public void perform(Connection connection, Document inDoc) throws Exception {
       server.tearConnection(connection);
     }
   };
 
-  private final Command loginUser = new Command() {
+  private final Command login = new Command() {
     @Override
     public void perform(Connection connection, Document inDoc) throws Exception {
 
     }
   };
+  private final Command userlogin = new Command() {
+    @Override
+    public void perform(Connection connection, Document inDoc) throws Exception {
+
+    }
+  }
 
   private final Command listUsers = new Command() {
     @Override
@@ -89,13 +103,6 @@ public class MessageHandler {
     }
   };
 
-  private final DocumentBuilderFactory factory;
-  private final DocumentBuilder builder;
-  private final TransformerFactory transformerFactory;
-  private final Transformer transformer;
-  private final StringWriter writer;
-  private final AbstractServer server;
-  private final Map<String, Command> handlers;
 
   public MessageHandler(AbstractServer server) throws MessageHandlerCreateException {
     this.server = server;
@@ -109,8 +116,8 @@ public class MessageHandler {
       throw new MessageHandlerCreateException(e);
     }
     handlers = new HashMap<>();
-    handlers.put("login", loginUser);
-    handlers.put("logout", logoutUser);
+    handlers.put("login", login);
+    handlers.put("logout", logout);
     handlers.put("list", listUsers);
   }
 
@@ -123,10 +130,12 @@ public class MessageHandler {
   public Command handleMessage(Connection connection, byte[] message, int len) throws IOException, SAXException {
     Document document = builder.parse(new ByteArrayInputStream(message));
     Element element = document.getDocumentElement();
-    if (element.getNodeValue().compareTo(MAIN_ATTRIBUTE) == 0) {
-      return handlers.get(element.getAttribute(MAIN_ATTRIBUTE));
-    }
-    return UnsupportedType;
+    String atr = null;
+    Command com = null;
+    if (element.getNodeValue().compareTo(MAIN_ATTRIBUTE) != 0) return UnsupportedType;
+    if (!(atr = element.getAttribute(MAIN_ATTRIBUTE)).isEmpty()
+            || (com = handlers.get(atr)) == null) return UnsupportedCommand;
+    return com;
   }
 
 
@@ -134,5 +143,7 @@ public class MessageHandler {
     String atr = element.getAttribute(MAIN_ATTRIBUTE);
     return atr.isEmpty() ? null : atr;
   }
+
+  
 }
 
