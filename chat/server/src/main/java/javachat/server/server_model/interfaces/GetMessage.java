@@ -1,4 +1,4 @@
-package javachat.server.server_model;
+package javachat.server.server_model.interfaces;
 
 public interface GetMessage {
   static String ServerErrorAnswer(String desc) {
@@ -12,7 +12,12 @@ public interface GetMessage {
   static String UnsupportedType(String desc) {
     return "<error><message>Unknown type: " + desc + "</message></error>";
   }
+
   static String UnsupportedCommand(String desc) {
     return "<error><message>Unknown command: " + desc + "</message></error>";
+  }
+
+  static String BrokenMessageData(String desc) {
+    return "<error><message>Broken data: " + desc + "</message></error>";
   }
 }

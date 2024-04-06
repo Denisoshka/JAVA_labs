@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Properties;
 
-public class Server {
-  static final private Logger log = LoggerFactory.getLogger(Server.class);
+public class ServerStart {
+  static final private Logger log = LoggerFactory.getLogger(ServerStart.class);
   static final private String CONFIG = "config";
 
   public static void main(String[] args) {
@@ -36,6 +36,5 @@ public class Server {
     }
     commandLine = null;
     cliParser = null;
-
   }
 }
