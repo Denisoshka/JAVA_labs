@@ -1,54 +1,38 @@
 package javachat.server.server_model;
 
+import javachat.server.server_model.message_handler.MessageHandler;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 
-public class Connection implements AutoCloseable, Runnable {
-  public final static int BUFFERSIZE = 41_943_040;
-  private final Socket clSocket;
-  private final MessageHandler handler;
-  private final String connectionName;
+public class Connection implements Runnable, AutoCloseable {
+  private final Socket socket;
+  private final Server server;
+  private final String name;
 
-  private DataOutputStream sendStream = null;
-  private DataInputStream receiveStream = null;
+  DataInputStream receiveStream = null;
+  DataOutputStream sendStream = null;
 
-  public Connection(MessageHandler handler, String connectionName, Socket clSocket) {
-    this.connectionName = connectionName;
-    this.clSocket = clSocket;
-    this.handler = handler;
+  public Connection(Socket socket, Server server, MessageHandler handler, String name) {
+    this.socket = socket;
+    this.server = server;
+    this.name = name;
   }
 
   @Override
   public void run() {
-    try (DataOutputStream outStream = new DataOutputStream(clSocket.getOutputStream());
-         DataInputStream inStream = new DataInputStream(clSocket.getInputStream());
-    ) {
-      while (!clSocket.isClosed()) {
-        var msg = handler.receiveMessage(inStream);
-        MessageHandler.Command com = handler.handleMessage(msg);
-        com.perform(this, );
-//  todo
+    try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
+         DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
+      while (!socket.isClosed()) {
+
+
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+//      todo
     }
-  }
-
-  public DataOutputStream getSendStream() {
-    return sendStream;
-  }
-
-
-  public DataInputStream getReceiveStream() {
-    return receiveStream;
-  }
-
-  @Override
-  public void close() throws Exception {
-    clSocket.close();
   }
 
   @Override
@@ -56,11 +40,29 @@ public class Connection implements AutoCloseable, Runnable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Connection that = (Connection) o;
-    return Objects.equals(clSocket, that.clSocket);
+    return Objects.equals(socket, that.socket);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(clSocket);
+    return Objects.hash(socket);
+  }
+
+  @Override
+  public void close() throws IOException {
+    socket.close();
+  }
+
+
+  public DataInputStream getReceiveStream() {
+    return receiveStream;
+  }
+
+  public DataOutputStream getSendStream() {
+    return sendStream;
+  }
+
+  public String getName() {
+    return name;
   }
 }

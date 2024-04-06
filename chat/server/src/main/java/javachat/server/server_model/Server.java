@@ -1,194 +1,182 @@
 package javachat.server.server_model;
 
-import javachat.server.exceptions.IOServerException;
-import javachat.server.exceptions.ServerRegistrationException;
-import javachat.server.exceptions.UnableToCreateServer;
-import javachat.server.server_model.interfaces.AbstractServer;
-import javachat.server.server_model.interfaces.GetMessage;
-import javachat.server.server_model.interfaces.MessageSendInterface;
-import org.jetbrains.annotations.NotNull;
+import javachat.server.exceptions.UnableToDecodeMessage;
+import javachat.server.exceptions.UnableToRegisterUser;
+import javachat.server.server_model.message_handler.MessageHandler;
+import org.w3c.dom.Document;
 
-import java.io.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.security.MessageDigest;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.*;
 
-public class Server implements AbstractServer, AutoCloseable, Runnable, MessageSendInterface {
-  private final static String IP_ADDRESS = "ip_adress";
-  private final static String MAX_CONNECTIONS_QUANTITY = "max_connections_quantity";
-  private final static String MAX_HANDLED_CONNECTIONS_QUANTITY = "max_handled_connections_quantity";
-  private final static String MAX_HANDLED_EVENTS_QUANTITY = "max_handled_events_quantity";
-  private final static String PORT = "port";
-  private final static String CONNECTION_TIMEOUT = "connection_timeout";
-  private final static String CONNECTION_TIMEUNIT = "connection_timeunit";
-  private final static String FAILED_CONNECTION = GetMessage.ServerErrorAnswer("connection failed");
-  private final static String HASH_TYPE = "SHA-256";
+public class Server implements Runnable {
+  private static final String IP_ADDRESS = "ip_address";
+  private static final String PORT = "port";
+  private static final long MAX_CONNECTION_TIME = 60_000;
 
-  private ServerSocket srvSocket = null;
-  private final ExecutorService connectionAccepterHandlerService;
-  private final ExecutorService connectionHandler;
+  private final String sessionName = null;
+  private final ServerSocket serverSocket;
+  private final Set<Connection> connections;
   private final MessageHandler messageHandler;
-  private final MessageDigest hash;
-  private final Properties properties;
+  private final BlockingQueue<Connection> brokenConnections;
+  private final Executor expiredConnectionDeleter;
+  private final Executor chatExhangeExecutor;
+  private final Executor connectionAcceptExecutor;
   private final Properties registeredUsers;
 
-  private final List<Connection> brokenConnections;
-  private final Set<Connection> connections;
 
-  private final int maxHandleConnectionsQuantity;
-  //  private final int maxHandleConnectionsEventsQuantity;
-  private final int maxHandleEventsQuantity;
-
-  private final TimeUnit timeoutUnit;
-  private final long timeout;
-
-  public Server(Properties properties) {
-    String ipAddress;
-    int connectionsQuantity;
-    int eventsQuantity;
+  Server(Properties properties) throws TransformerConfigurationException, ParserConfigurationException, IOException {
+    String ipadress;
     int port;
-    long timeout;
-    TimeUnit unit;
-    this.properties = properties;
     try {
-      connectionsQuantity = Integer.parseInt(properties.getProperty(MAX_CONNECTIONS_QUANTITY));
-      eventsQuantity = Integer.parseInt(properties.getProperty(MAX_HANDLED_EVENTS_QUANTITY));
-      port = Integer.parseInt(properties.getProperty(PORT));
-      ipAddress = properties.getProperty(IP_ADDRESS);
-      timeout = Long.getLong(properties.getProperty(CONNECTION_TIMEOUT));
-      unit = TimeUnit.valueOf(properties.getProperty(CONNECTION_TIMEUNIT));
-    } catch (NumberFormatException e) {
-      throw new UnableToCreateServer("incorrect config file", e);
-    }
-    try {
-      this.hash = MessageDigest.getInstance(HASH_TYPE);
-      this.messageHandler = new MessageHandler(this);
-      this.srvSocket = new ServerSocket();
-      this.srvSocket.bind(new InetSocketAddress(ipAddress, port));
-    } catch (IOException | NoSuchAlgorithmException e) {
-      try {
-        if (srvSocket != null) srvSocket.close();
-      } catch (IOException ignored) {
-      }
-      throw new UnableToCreateServer("on port: " + properties.getProperty(PORT), e);
+      ipadress = Objects.requireNonNull(properties.getProperty(IP_ADDRESS));
+      port = Integer.parseInt(Objects.requireNonNull(properties.getProperty(PORT)));
+      serverSocket = new ServerSocket();
+      serverSocket.bind(new InetSocketAddress(ipadress, port));
+    } catch (NumberFormatException | NullPointerException | IOException e) {
+      //    todo
+      throw e;
     }
 
-    this.connectionAccepterHandlerService = Executors.newCachedThreadPool();
-    this.connectionHandler = Executors.newCachedThreadPool();
-    this.maxHandleConnectionsQuantity = connectionsQuantity;
-    this.maxHandleEventsQuantity = eventsQuantity;
-    this.timeout = timeout;
-    this.timeoutUnit = unit;
-    this.connections = new HashSet<>();
-    this.brokenConnections = new ArrayList<>();
     this.registeredUsers = new Properties();
-  }
+    this.connections = new HashSet<>();
+    this.messageHandler = new MessageHandler(this);
+    this.brokenConnections = new LinkedBlockingQueue<>();
 
-  @Override
-  public void close() throws Exception {
-    connectionAccepterHandlerService.shutdownNow();
-    for (var sock : connections) {
-      sock.close();
-    }
-    srvSocket.close();
+    //    todo
+    this.chatExhangeExecutor = Executors.newCachedThreadPool();
+    this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
+    this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
+    expiredConnectionDeleter.execute(() -> {
+      while (Thread.currentThread().isAlive()) {
+        Connection con;
+        try {
+          con = brokenConnections.take();
+        } catch (InterruptedException e) {
+          return;
+        }
+        synchronized (connections) {
+          connections.remove(con);
+        }
+        messageHandler.sendBroadcastMessage(con, ServerMSG.getUserLogout(con.getName()));
+        try {
+          con.close();
+        } catch (IOException ignored) {
+        }
+      }
+    });
   }
 
   @Override
   public void run() {
-    while (true) {
-      Socket clSock = null;
+    while (!serverSocket.isClosed()) {
       try {
-        clSock = srvSocket.accept();
-        connectionAccepterHandlerService.submit(new ConnectionAccepter(clSock));
-      } catch (IOException ignored0) {
-        try {
-          clSock.close();
-        } catch (IOException ignored1) {
-        }
-      }
-    }
-  }
-
-  private class ConnectionAccepter implements Runnable {
-    private final Socket clSock;
-    private Integer connectionNum = null;
-
-    public ConnectionAccepter(Socket clSock) {
-      this.clSock = clSock;
-    }
-
-    @Override
-    public void run() {
-      boolean connectionFailed = false;
-      String commandName = null;
-
-      try (DataOutputStream outStream = new DataOutputStream(clSock.getOutputStream());
-           DataInputStream inStream = new DataInputStream(clSock.getInputStream())) {
-        messageHandler.getNewConnection(clSock, outStream, inStream);
-
-        /*if (connectionFailed) {
-          sendConnectionError(outStream);
-        } else {
-
-          addConnection(clSock);
-        }*/
+        Socket clSocket = serverSocket.accept();
+        connectionAcceptExecutor.execute(new ConnectionAccepter(clSocket, this));
       } catch (IOException e) {
-//todo
+
+//      todo
+        return;
       }
     }
   }
 
-  public void addConnection(@NotNull Connection conn) {
-    Objects.requireNonNull(conn);
+  public void submitExpiredConnection(Connection connection) {
+    try {
+      brokenConnections.put(connection);
+    } catch (InterruptedException e) {
+      try {
+        connection.close();
+      } catch (IOException ignored) {
+      }
+    }
+  }
+
+  private void addNewConnection(Connection connection) {
     synchronized (connections) {
-      connections.add(conn);
+      connections.add(connection);
     }
-    connectionHandler.submit(conn);
-  }
-
-  public boolean registerNewConnection(String name, String password) throws ServerRegistrationException {
-    if (password == null || name == null) throw new ServerRegistrationException("incorrect name or password");
-    String hash, passwordHash = String.valueOf(password.hashCode());
-    if (null == (hash = registeredUsers.getProperty(name))) {
-      registeredUsers.setProperty(name, passwordHash);
-      return true;
-    }
-    return hash.compareTo(passwordHash) == 0;
-  }
-
-  private void sendConnectionError(DataOutputStream outStream) throws IOException {
-    receiveMessage(FAILED_CONNECTION, outStream);
-  }
-
-  @Override
-  public void tearConnection(Connection conn) {
-    synchronized (connections) {
-      connections.remove(conn);
-    }
-    try (Connection con = conn) {
-
-
-
-    } catch (IOServerException e) {
-//      todo make log
-    } catch (Exception ignored) {
-    }
-  }
-
-  @Override
-  public boolean addBrokenConnection(Connection conn) {
-    synchronized (brokenConnections) {
-      return brokenConnections.add(conn);
-    }
+    chatExhangeExecutor.execute(connection);
   }
 
   public Set<Connection> getConnections() {
     return connections;
+  }
+
+  public RegistrationState registerUser(String name, String password) throws UnableToRegisterUser {
+    if (name == null || name.isEmpty()) return RegistrationState.INCORRECT_NAME_DATA;
+    if (password == null || password.isEmpty()) return RegistrationState.INCORRECT_PASSWORD_DATA;
+    String pswrd;
+    if (null == (pswrd = registeredUsers.getProperty(name))) {
+      registeredUsers.setProperty(name, String.valueOf(password.hashCode()));
+      return RegistrationState.SUCCESS;
+    }
+    if (pswrd.hashCode() == password.hashCode()) return RegistrationState.SUCCESS;
+    return RegistrationState.INCORRECT_PASSWORD;
+  }
+
+  private class ConnectionAccepter implements Runnable {
+    private final Socket socket;
+    private final Server server;
+
+    public ConnectionAccepter(Socket socket, Server server) {
+      this.socket = socket;
+      this.server = server;
+    }
+
+    @Override
+    public void run() {
+      long start = System.currentTimeMillis();
+      long end = 0;
+      String name = null;
+      try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
+           DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
+        for (; end - start <= MAX_CONNECTION_TIME; end = System.currentTimeMillis()) {
+          try {
+            Document doc = messageHandler.receiveMessage(receiveStream);
+            RegistrationState ret = messageHandler.handleConnectionMessage(doc);
+            if (ret == RegistrationState.SUCCESS) {
+              messageHandler.sendMessage(sendStream, ServerMSG.getSuccess());
+              end = System.currentTimeMillis();
+              name = messageHandler.getConnectionName(doc);
+              break;
+            } else {
+              messageHandler.sendMessage(sendStream, ServerMSG.getError(ret.getDescription()));
+            }
+          } catch (UnableToDecodeMessage e) {
+            messageHandler.sendMessage(sendStream, ServerMSG.getError(e.getMessage()));
+          }
+        }
+        if (end - start <= MAX_CONNECTION_TIME) {
+          String msg = ServerMSG.getUserLogin(name);
+          messageHandler.sendBroadcastMessage(msg);
+          messageHandler.sendMessage(sendStream, ServerMSG.getSuccess());
+        } else {
+          messageHandler.sendMessage(sendStream, ServerMSG.getError(RegistrationState.TIMEOUT_EXPIRED.getDescription()));
+        }
+      } catch (IOException e) {
+        try {
+          socket.close();
+        } catch (IOException ignored) {
+        }
+      }
+      if (!socket.isClosed()) {
+        addNewConnection(new Connection(socket, server, messageHandler, name));
+      }
+    }
+  }
+
+  public String getSessionName() {
+    return sessionName;
   }
 }
