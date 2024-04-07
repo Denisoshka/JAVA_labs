@@ -7,6 +7,7 @@ import javachat.server.server_model.RegistrationState;
 import javachat.server.server_model.Server;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -32,15 +33,18 @@ public class MessageHandler {
   private final static String LOGIN_TAG = "login";
 
   private final Server server;
-  private final DocumentBuilderFactory factory;
-  private final DocumentBuilder builder;
-  private final TransformerFactory transformerFactory;
-  private final Transformer transformer;
+  private final CommandFactory commandFactory;
+
   private final StringWriter writer;
+  private final DocumentBuilder builder;
+  private final DocumentBuilderFactory factory;
+  private final Transformer transformer;
+  private final TransformerFactory transformerFactory;
 
   public MessageHandler(Server server) throws ParserConfigurationException, TransformerConfigurationException {
     this.server = server;
     this.writer = new StringWriter();
+    this.commandFactory = new CommandFactory();
     this.factory = DocumentBuilderFactory.newInstance();
     this.builder = factory.newDocumentBuilder();
     this.transformerFactory = TransformerFactory.newInstance();
@@ -96,8 +100,7 @@ public class MessageHandler {
     String converterMSG = documentToString(message);
     sendMessage(connection, converterMSG);
   }
-
-
+  
   public void sendBroadcastMessage(Connection connection, Document message) {
     String msg = documentToString(message);
     sendBroadcastMessage(connection, msg);
@@ -109,7 +112,7 @@ public class MessageHandler {
       for (var conn : connections) {
         if (conn == connection) continue;
         try {
-          sendMessage(conn, message);
+          if (!conn.isExpired()) sendMessage(conn, message);
         } catch (IOServerException e) {
           server.submitExpiredConnection(conn);
         }
@@ -122,7 +125,7 @@ public class MessageHandler {
     synchronized (connections) {
       for (var conn : connections) {
         try {
-          sendMessage(conn, message);
+          if (!conn.isExpired()) sendMessage(conn, message);
         } catch (IOServerException e) {
           server.submitExpiredConnection(conn);
         }
@@ -139,16 +142,12 @@ public class MessageHandler {
     );
   }
 
-  public CommandInterface handleMessage(Document doc) {
-    Element root = doc.getDocumentElement();
-//    todo
-
-
-
-
-
-//    todo
-    return null;
+  public CommandInterface handleMessage(Document message) {
+    Element root = message.getDocumentElement();
+    String comName;
+    if (root.getNodeName().compareTo(COMMAND_TAG) != 0) return null;
+    if ((comName = root.getAttribute(NAME_TAG)).isEmpty()) return null;
+    return commandFactory.getCommand(comName);
   }
 
   public String getConnectionName(Document doc) {

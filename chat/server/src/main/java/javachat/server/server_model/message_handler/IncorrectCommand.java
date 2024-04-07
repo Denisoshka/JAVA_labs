@@ -8,5 +8,6 @@ import org.w3c.dom.Document;
 public class IncorrectCommand implements CommandInterface {
   @Override
   public void perform(Connection connection, Server server, MessageHandler handler, Document message) {
+
   }
 }

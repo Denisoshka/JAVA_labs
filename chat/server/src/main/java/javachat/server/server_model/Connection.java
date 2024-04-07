@@ -11,9 +11,10 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class Connection implements Runnable, AutoCloseable {
+  private final String name;
+  private boolean expired;
   private final Socket socket;
   private final Server server;
-  private final String name;
   private final MessageHandler handler;
   DataInputStream receiveStream = null;
   DataOutputStream sendStream = null;
@@ -31,12 +32,15 @@ public class Connection implements Runnable, AutoCloseable {
          DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
       this.receiveStream = receiveStream;
       this.sendStream = sendStream;
-
       while (!socket.isClosed()) {
         try {
           var msg = handler.receiveMessage(this);
           CommandInterface command = handler.handleMessage(msg);
-
+          if (command == null) {
+            handler.sendMessage(sendStream, ServerMSG.getError("unsupported command"));
+          } else {
+            command.perform(this, server, handler, msg);
+          }
         } catch (UnableToDecodeMessage e) {
           handler.sendMessage(this, ServerMSG.getError(e.getMessage()));
         } catch (IOException e) {
@@ -46,7 +50,8 @@ public class Connection implements Runnable, AutoCloseable {
         }
       }
     } catch (IOException e) {
-//      todo
+      return;
+//      todo need to make ex handle
     }
   }
 
@@ -74,6 +79,12 @@ public class Connection implements Runnable, AutoCloseable {
     socket.close();
   }
 
+  public void markAsExpired(){
+    expired = true;
+  }
+  public boolean isExpired() {
+    return expired;
+  }
 
   public DataInputStream getReceiveStream() {
     return receiveStream;

@@ -3,6 +3,7 @@ package javachat.server.server_model;
 import javachat.server.exceptions.UnableToDecodeMessage;
 import javachat.server.exceptions.UnableToRegisterUser;
 import javachat.server.server_model.message_handler.MessageHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -19,6 +20,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.*;
 
+@Slf4j
 public class Server implements Runnable, AutoCloseable {
   private static final String IP_ADDRESS = "ip_address";
   private static final String PORT = "port";
@@ -44,7 +46,6 @@ public class Server implements Runnable, AutoCloseable {
       serverSocket = new ServerSocket();
       serverSocket.bind(new InetSocketAddress(ipadress, port));
     } catch (NumberFormatException | NullPointerException | IOException e) {
-      //    todo
       throw e;
     }
 
@@ -52,8 +53,6 @@ public class Server implements Runnable, AutoCloseable {
     this.connections = new HashSet<>();
     this.messageHandler = new MessageHandler(this);
     this.expiredConnections = new LinkedBlockingQueue<>();
-
-    //    todo
     this.chatExchangeExecutor = Executors.newCachedThreadPool();
     this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
     this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
@@ -84,14 +83,15 @@ public class Server implements Runnable, AutoCloseable {
         Socket clSocket = serverSocket.accept();
         connectionAcceptExecutor.execute(new ConnectionAccepter(clSocket, this));
       } catch (IOException e) {
-
-//      todo
+        log.info("Error received while wait connection");
+//      todo need to handle accept errors;
         return;
       }
     }
   }
 
   public void submitExpiredConnection(Connection connection) {
+    connection.markAsExpired();
     try {
       expiredConnections.put(connection);
     } catch (InterruptedException e) {
@@ -194,9 +194,7 @@ public class Server implements Runnable, AutoCloseable {
         } catch (IOException ignored) {
         }
       }
-      if (!socket.isClosed()) {
-        submitNewConnection(new Connection(socket, server, messageHandler, name));
-      }
+      if (!socket.isClosed()) submitNewConnection(new Connection(socket, server, messageHandler, name));
     }
   }
 
