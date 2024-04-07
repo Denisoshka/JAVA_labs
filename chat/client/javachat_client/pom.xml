@@ -134,7 +134,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                javachat_client.javachat_client/javachat_client.javachat_client.HelloApplication
+                                javachat_client.javachat_client/javachat.client.ClientApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

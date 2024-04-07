@@ -1,10 +1,13 @@
-package javachat.server.server_model.message_handler;
+package javachat.client.model.message_handler;
 
-import javachat.server.exceptions.IOServerException;
-import javachat.server.exceptions.UnableToDecodeMessage;
-import javachat.server.server_model.Connection;
-import javachat.server.server_model.RegistrationState;
-import javachat.server.server_model.Server;
+import javachat.client.exception.IOClientException;
+import javachat.client.exception.UnableToDecodeMessage;
+import javachat.client.model.Connection;
+import javachat.client.model.ContextExecutor;
+import org.w3c.dom.Document;
+
+import java.io.DataInputStream;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -32,7 +35,7 @@ public class MessageHandler {
   private final static String PASSWORD_TAG = "password";
   private final static String LOGIN_TAG = "login";
 
-  private final Server server;
+  private final ContextExecutor contextExecutor;
   private final CommandFactory commandFactory;
 
   private final StringWriter writer;
@@ -41,7 +44,7 @@ public class MessageHandler {
   private final Transformer transformer;
   private final TransformerFactory transformerFactory;
 
-  public MessageHandler(Server server) throws ParserConfigurationException, TransformerConfigurationException {
+  public MessageHandler(ContextExecutor server) throws ParserConfigurationException, TransformerConfigurationException {
     this.server = server;
     this.writer = new StringWriter();
     this.commandFactory = new CommandFactory();
@@ -51,12 +54,12 @@ public class MessageHandler {
     this.transformer = transformerFactory.newTransformer();
   }
 
-  public Document receiveMessage(Connection connection) throws IOServerException, UnableToDecodeMessage {
+  public Document receiveMessage(Connection connection) throws IOClientException, UnableToDecodeMessage {
     var receiver = connection.getReceiveStream();
     return receiveMessage(receiver);
   }
 
-  public Document receiveMessage(DataInputStream connection) throws IOServerException, UnableToDecodeMessage {
+  public Document receiveMessage(DataInputStream connection) throws IOClientException, UnableToDecodeMessage {
     int len;
     byte[] msg;
     Document doc;
@@ -66,7 +69,7 @@ public class MessageHandler {
         msg = connection.readNBytes(len);
       }
     } catch (IOException e) {
-      throw new IOServerException(e.getMessage(), e);
+      throw new IOClientException(e.getMessage(), e);
     }
     try (ByteArrayInputStream stream = new ByteArrayInputStream(msg, 0, len)) {
       doc = builder.parse(stream);
@@ -133,14 +136,7 @@ public class MessageHandler {
     }
   }
 
-  public RegistrationState handleConnectionMessage(Document doc) {
-    Element root = doc.getDocumentElement();
-    if (!correctLoginRequest(root)) return RegistrationState.INCORRECT_LOGIN_REQUEST;
-    return server.registerUser(
-            root.getElementsByTagName(NAME_TAG).item(0).getTextContent(),
-            root.getElementsByTagName(PASSWORD_TAG).item(0).getTextContent()
-    );
-  }
+
 
   public CommandInterface handleMessage(Document message) {
     Element root = message.getDocumentElement();
@@ -190,3 +186,4 @@ public class MessageHandler {
     return writer;
   }
 }
+

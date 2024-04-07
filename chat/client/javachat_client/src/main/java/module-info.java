@@ -11,6 +11,13 @@ module javachat_client.javachat_client {
   requires eu.hansolo.tilesfx;
   requires com.almasb.fxgl.all;
 
-  opens javachat_client.javachat_client to javafx.fxml;
-  exports javachat_client.javachat_client;
+  opens javachat.client to javafx.fxml;
+  exports javachat.client;
+  exports javachat.client.view;
+  exports javachat.client.exception;
+  opens javachat.client.view to javafx.fxml;
+  exports javachat.client.model;
+  opens javachat.client.model to javafx.fxml;
+  exports javachat.client.model.message_handler;
+  opens javachat.client.model.message_handler to javafx.fxml;
 }
