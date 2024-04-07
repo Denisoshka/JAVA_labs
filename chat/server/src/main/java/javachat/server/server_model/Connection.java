@@ -1,5 +1,7 @@
 package javachat.server.server_model;
 
+import javachat.server.exceptions.UnableToDecodeMessage;
+import javachat.server.server_model.message_handler.CommandInterface;
 import javachat.server.server_model.message_handler.MessageHandler;
 
 import java.io.DataInputStream;
@@ -12,13 +14,14 @@ public class Connection implements Runnable, AutoCloseable {
   private final Socket socket;
   private final Server server;
   private final String name;
-
+  private final MessageHandler handler;
   DataInputStream receiveStream = null;
   DataOutputStream sendStream = null;
 
   public Connection(Socket socket, Server server, MessageHandler handler, String name) {
     this.socket = socket;
     this.server = server;
+    this.handler = handler;
     this.name = name;
   }
 
@@ -26,13 +29,29 @@ public class Connection implements Runnable, AutoCloseable {
   public void run() {
     try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
          DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
+      this.receiveStream = receiveStream;
+      this.sendStream = sendStream;
+
       while (!socket.isClosed()) {
+        try {
+          var msg = handler.receiveMessage(this);
+          CommandInterface command = handler.handleMessage(msg);
 
-
+        } catch (UnableToDecodeMessage e) {
+          handler.sendMessage(this, ServerMSG.getError(e.getMessage()));
+        } catch (IOException e) {
+          handler.sendMessage(this, ServerMSG.getError(e.getMessage()));
+          server.submitExpiredConnection(this);
+          return;
+        }
       }
     } catch (IOException e) {
 //      todo
     }
+  }
+
+  public boolean isClosed() {
+    return socket.isClosed();
   }
 
   @Override
@@ -50,6 +69,8 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void close() throws IOException {
+    receiveStream = null;
+    sendStream = null;
     socket.close();
   }
 

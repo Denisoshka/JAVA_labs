@@ -15,19 +15,15 @@ public class ListCommand implements CommandInterface {
     Element usersElement = doc.createElement(MessageHandler.USERS_LIST_ROOT);
     doc.appendChild(rootElement);
     rootElement.appendChild(usersElement);
-    for (Connection user : connections) {
-      Element userElement = doc.createElement(MessageHandler.USER_TAG);
-      usersElement.appendChild(userElement);
-      Element nameElement = doc.createElement(MessageHandler.NAME_TAG);
-      nameElement.appendChild(doc.createTextNode(user.toString()));
-      userElement.appendChild(nameElement);
+    synchronized (connections) {
+      for (Connection user : connections) {
+        Element userElement = doc.createElement(MessageHandler.USER_TAG);
+        usersElement.appendChild(userElement);
+        Element nameElement = doc.createElement(MessageHandler.NAME_TAG);
+        nameElement.appendChild(doc.createTextNode(user.toString()));
+        userElement.appendChild(nameElement);
+      }
     }
-    try {
-      handler.sendMessage(connection, doc);
-      handler.sendMessage(connection, doc);
-    } catch (IOServerException e) {
-      server.submitExpiredConnection(connection);
-      throw e;
-    }
+    handler.sendMessage(connection, doc);
   }
 }

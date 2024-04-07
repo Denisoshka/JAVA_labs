@@ -1,12 +1,12 @@
 package javachat.server.server_model;
 
 public enum RegistrationState {
-  SUCCESS("success"),
-  TIMEOUT_EXPIRED("timeout expired"),
-  INCORRECT_NAME_DATA("incorrect name data"),
-  INCORRECT_PASSWORD_DATA("incorrect password data"),
-  INCORRECT_PASSWORD("incorrect password"),
-  INCORRECT_LOGIN_REQUEST("incorrect login request");
+  SUCCESS("Success"),
+  TIMEOUT_EXPIRED("Timeout expired"),
+  INCORRECT_NAME_DATA("Incorrect name data"),
+  INCORRECT_PASSWORD_DATA("Incorrect password data"),
+  INCORRECT_PASSWORD("Incorrect password"),
+  INCORRECT_LOGIN_REQUEST("Incorrect login request");
 
   final private String description;
 

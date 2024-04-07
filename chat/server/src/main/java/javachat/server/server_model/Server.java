@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.*;
 
-public class Server implements Runnable {
+public class Server implements Runnable, AutoCloseable {
   private static final String IP_ADDRESS = "ip_address";
   private static final String PORT = "port";
   private static final long MAX_CONNECTION_TIME = 60_000;
@@ -28,10 +28,10 @@ public class Server implements Runnable {
   private final ServerSocket serverSocket;
   private final Set<Connection> connections;
   private final MessageHandler messageHandler;
-  private final BlockingQueue<Connection> brokenConnections;
-  private final Executor expiredConnectionDeleter;
-  private final Executor chatExhangeExecutor;
-  private final Executor connectionAcceptExecutor;
+  private final BlockingQueue<Connection> expiredConnections;
+  private final ExecutorService expiredConnectionDeleter;
+  private final ExecutorService chatExchangeExecutor;
+  private final ExecutorService connectionAcceptExecutor;
   private final Properties registeredUsers;
 
 
@@ -51,17 +51,17 @@ public class Server implements Runnable {
     this.registeredUsers = new Properties();
     this.connections = new HashSet<>();
     this.messageHandler = new MessageHandler(this);
-    this.brokenConnections = new LinkedBlockingQueue<>();
+    this.expiredConnections = new LinkedBlockingQueue<>();
 
     //    todo
-    this.chatExhangeExecutor = Executors.newCachedThreadPool();
+    this.chatExchangeExecutor = Executors.newCachedThreadPool();
     this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
     this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
     expiredConnectionDeleter.execute(() -> {
       while (Thread.currentThread().isAlive()) {
         Connection con;
         try {
-          con = brokenConnections.take();
+          con = expiredConnections.take();
         } catch (InterruptedException e) {
           return;
         }
@@ -70,7 +70,7 @@ public class Server implements Runnable {
         }
         messageHandler.sendBroadcastMessage(con, ServerMSG.getUserLogout(con.getName()));
         try {
-          con.close();
+          if (!con.isClosed()) con.close();
         } catch (IOException ignored) {
         }
       }
@@ -93,7 +93,7 @@ public class Server implements Runnable {
 
   public void submitExpiredConnection(Connection connection) {
     try {
-      brokenConnections.put(connection);
+      expiredConnections.put(connection);
     } catch (InterruptedException e) {
       try {
         connection.close();
@@ -102,15 +102,11 @@ public class Server implements Runnable {
     }
   }
 
-  private void addNewConnection(Connection connection) {
+  private void submitNewConnection(Connection connection) {
     synchronized (connections) {
       connections.add(connection);
     }
-    chatExhangeExecutor.execute(connection);
-  }
-
-  public Set<Connection> getConnections() {
-    return connections;
+    chatExchangeExecutor.execute(connection);
   }
 
   public RegistrationState registerUser(String name, String password) throws UnableToRegisterUser {
@@ -125,6 +121,33 @@ public class Server implements Runnable {
     return RegistrationState.INCORRECT_PASSWORD;
   }
 
+  @Override
+  public void close() throws Exception {
+    try {
+      serverSocket.close();
+    } catch (IOException ignored) {
+    }
+    expiredConnectionDeleter.shutdownNow();
+    chatExchangeExecutor.shutdownNow();
+    connectionAcceptExecutor.shutdownNow();
+    synchronized (connections) {
+      for (var conn : connections) {
+        try {
+          conn.close();
+        } catch (IOException ignored) {
+        }
+      }
+    }
+    synchronized (expiredConnections) {
+      for (var conn : expiredConnections) {
+        try {
+          conn.close();
+        } catch (IOException ignored) {
+        }
+      }
+    }
+  }
+
   private class ConnectionAccepter implements Runnable {
     private final Socket socket;
     private final Server server;
@@ -136,6 +159,7 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
+//    todo очень смущает разделение на исполение подключения и иные команды
       long start = System.currentTimeMillis();
       long end = 0;
       String name = null;
@@ -171,9 +195,13 @@ public class Server implements Runnable {
         }
       }
       if (!socket.isClosed()) {
-        addNewConnection(new Connection(socket, server, messageHandler, name));
+        submitNewConnection(new Connection(socket, server, messageHandler, name));
       }
     }
+  }
+
+  public Set<Connection> getConnections() {
+    return connections;
   }
 
   public String getSessionName() {

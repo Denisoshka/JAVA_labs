@@ -142,6 +142,13 @@ public class MessageHandler {
   public CommandInterface handleMessage(Document doc) {
     Element root = doc.getDocumentElement();
 //    todo
+
+
+
+
+
+//    todo
+    return null;
   }
 
   public String getConnectionName(Document doc) {
