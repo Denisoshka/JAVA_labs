@@ -1,21 +1,16 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.zhdanov.lab_4.parts_section.SparePart;
+import ru.nsu.zhdanov.lab_4.model.SparePartSectionController;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ArrayBlockingQueue;
 
 @Slf4j
 public class MainController {

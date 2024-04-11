@@ -35,20 +35,10 @@ public class CustomThreadPool {
     public void run() {
       while (true) {
         Runnable task;
-        synchronized (queue) {
-          while (queue.isEmpty()) {
-            try {
-              queue.wait();
-            } catch (InterruptedException ignored) {
-              return;
-            }
-          }
-
-          try {
-            task = queue.take();
-          } catch (InterruptedException ignored) {
-            return;
-          }
+        try {
+          task = queue.take();
+        } catch (InterruptedException e) {
+          return;
         }
 
         try {

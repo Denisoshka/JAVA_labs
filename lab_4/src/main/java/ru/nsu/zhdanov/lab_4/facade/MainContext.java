@@ -1,7 +1,10 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_4.parts_section.SparePartFactory;
+import ru.nsu.zhdanov.lab_4.model.*;
+import ru.nsu.zhdanov.lab_4.model.AccessoriesModel;
+import ru.nsu.zhdanov.lab_4.model.BodyModel;
+import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartFactory;
 
 import java.util.Properties;
 @Slf4j
@@ -9,11 +12,11 @@ public class MainContext {
   private final int standardProvideDelay = 10000;
   private final Properties contextProperties;
   //  final Map<String, SparePartSectionController> sparePartSectionControllers;
-  final FactoryController factoryController;
-  final DealerController dealerController;
-  final EngineSectionController engineSectionController;
-  final BodySectionController bodySectionController;
-  final AccessoriesSectionController accessoriesSectionController;
+  final FactoryModel factoryController;
+  final DealerModel dealerController;
+  final EngineModel engineSectionController;
+  final BodyModel bodySectionController;
+  final AccessoriesModel accessoriesSectionController;
   //  final Eng
 
   public MainContext(final Properties sparePartProperties, final Properties contextProperties) {
@@ -21,15 +24,15 @@ public class MainContext {
     this.contextProperties = contextProperties;
 
     SparePartFactory.Instance(sparePartProperties);
-    this.engineSectionController = new EngineSectionController(standardProvideDelay, Integer.parseInt(this.contextProperties.get("engineRepoSize").toString()));
-    this.bodySectionController = new BodySectionController(standardProvideDelay, Integer.parseInt(this.contextProperties.get("bodyRepoSize").toString()));
-    this.accessoriesSectionController = new AccessoriesSectionController(
+    this.engineSectionController = new EngineModel(standardProvideDelay, Integer.parseInt(this.contextProperties.get("engineRepoSize").toString()));
+    this.bodySectionController = new BodyModel(standardProvideDelay, Integer.parseInt(this.contextProperties.get("bodyRepoSize").toString()));
+    this.accessoriesSectionController = new AccessoriesModel(
             standardProvideDelay,
             Integer.parseInt(this.contextProperties.get("accessoriesProviders").toString()),
             Integer.parseInt(this.contextProperties.get("accessoriesRepoSize").toString())
     );
 
-    this.factoryController = new FactoryController(
+    this.factoryController = new FactoryModel(
             Integer.parseInt(this.contextProperties.get("factoryWorkersQuantity").toString()),
             Integer.parseInt(this.contextProperties.get("factoryRepoSize").toString()),
             Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()),
@@ -39,7 +42,7 @@ public class MainContext {
             this.accessoriesSectionController.getRepository()
     );
 
-    this.dealerController = new DealerController(factoryController.getCarSupplier(), Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()), standardProvideDelay);
+    this.dealerController = new DealerModel(factoryController.getCarSupplier(), Integer.parseInt(this.contextProperties.get("dealersQuantity").toString()), standardProvideDelay);
 //    this.dealerController.setCarSupplier(factoryController.getCarSupplier());
   }
 

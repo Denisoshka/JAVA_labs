@@ -1,13 +1,11 @@
 package ru.nsu.zhdanov.lab_4.dealer_repository;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_4.car_factory.Car;
-import ru.nsu.zhdanov.lab_4.car_factory.CarSupplier;
+import ru.nsu.zhdanov.lab_4.model.factory.factory_section.Car;
+import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
