@@ -101,7 +101,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>ru.nsu.zhdanov.lab_4.lab_4/ru.nsu.zhdanov.lab_4.lab_4.Application
+                            <mainClass>ru.nsu.zhdanov.lab_4.lab_4/ru.nsu.zhdanov.lab_4.lab_4.Factory
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>

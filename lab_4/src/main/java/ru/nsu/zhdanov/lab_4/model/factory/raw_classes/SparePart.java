@@ -14,8 +14,8 @@ public abstract class SparePart {
 
   @Override
   public String toString() {
-    return getSparePartName() + " " + id.toString();
+    return getSparePatType() + " " + id.toString();
   }
 
-  public abstract String getSparePartName();
+  public abstract SparePartType getSparePatType();
 }

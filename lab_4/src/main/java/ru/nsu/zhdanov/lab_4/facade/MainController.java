@@ -6,7 +6,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.zhdanov.lab_4.model.SparePartSectionController;
+import ru.nsu.zhdanov.lab_4.model.SparePartSectionModel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,57 +36,28 @@ public class MainController {
     log.info("init MainController");
     Properties sparePartsProperties = null;
     Properties controllerProperties = null;
-
-    ClassLoader classLoader = MainController.class.getClassLoader();
-    if (classLoader == null) {
-      throw new RuntimeException("pizda ryly dorogoi");
-    }
-
-    try (InputStream in = classLoader.getResourceAsStream("spare_part.properties")) {
+    try (InputStream in = getClass().getResourceAsStream("spare_part.properties")) {
       sparePartsProperties = new Properties();
       sparePartsProperties.load(in);
     }
-    try (InputStream in = classLoader.getResourceAsStream("context.properties")) {
+    try (InputStream in = getClass().getResourceAsStream("context.properties")) {
       controllerProperties = new Properties();
       controllerProperties.load(in);
     }
-
     log.info("init MainContext");
     this.context = new MainContext(sparePartsProperties, controllerProperties);
-
-    initSlider(bodySlider, bodyValueSlider, this.context.bodySectionController);
-    initSlider(engineSlider, engineValueSlider, this.context.engineSectionController);
-    initSlider(accessoriesSlider, accessoriesValueSlider, this.context.accessoriesSectionController);
-
+    initSlider(bodySlider, bodyValueSlider, this.context.getBodySectionModel());
+    initSlider(engineSlider, engineValueSlider, this.context.getEngineSectionModel());
+    initSlider(accessoriesSlider, accessoriesValueSlider, this.context.getAccessoriesSectionController());
     this.context.perform();
   }
 
-  private void initSlider(@NotNull final Slider slider, @NotNull final TextField textField, final SparePartSectionController spController) {
-    log.info("init slider " + spController.toString());
+  private void initSlider(@NotNull final Slider slider, @NotNull final TextField textField, final SparePartSectionModel sparePartSectionController) {
+    log.info("init slider " + sparePartSectionController.toString());
     textField.setText(String.valueOf(slider.getValue()));
     slider.valueProperty().addListener((observable, oldValue, newValue) -> {
       textField.setText(String.valueOf(newValue.intValue()));
-      spController.setProviderDelay(newValue.intValue());
+      sparePartSectionController.setProviderDelay(newValue.intValue());
     });
-  }
-
-
-  private void initMainContextProperties(Properties controllerProperties, Properties sparePartsProperties) throws IOException {
-    log.info("initMainContextProperties");
-    ClassLoader classLoader = MainController.class.getClassLoader();
-    if (classLoader == null) {
-      throw new RuntimeException("pizda ryly dorogoi");
-    }
-
-    log.info("load sparePartsProperties");
-    try (InputStream in = classLoader.getResourceAsStream("lab_4/src/main/resources/ru.nsu.zhdanov.lab_4.facade/context.properties")) {
-      sparePartsProperties = new Properties();
-      sparePartsProperties.load(in);
-    }
-    log.info("load controllerProperties");
-    try (InputStream in = classLoader.getResourceAsStream("lab_4/src/main/resources/ru.nsu.zhdanov.lab_4.facade/spare_part_controllers.properties")) {
-      controllerProperties = new Properties();
-      controllerProperties.load(in);
-    }
   }
 }

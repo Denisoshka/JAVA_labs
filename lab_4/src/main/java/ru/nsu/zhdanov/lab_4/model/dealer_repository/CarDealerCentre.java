@@ -6,51 +6,49 @@ import ru.nsu.zhdanov.lab_4.model.factory.factory_section.Car;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class CarDealerCentre {
-  final ArrayList<Thread> managers;
-  @Getter
-  AtomicInteger delay;
+  private final ExecutorService managers;
+
+  private volatile int delay;
   final protected CarSupplier carRepo;
-  Runnable task;
+  private final int managersQuantity;
 
-  public CarDealerCentre(final CarSupplier carRepo ,final int managersQuantity, final AtomicInteger delay) {
-    this.task = () -> {
-      while (Thread.currentThread().isAlive()) {
-        try {
-          log.info("request car");
-          Car car = carRepo.getCar();
-          log.info("sell car" + car.toString());
-          log.info("cur delay " + delay.get());
-          Thread.sleep(delay.get());
-        } catch (InterruptedException e) {
-          return;
-        }
-      }
-    };
-
+  public CarDealerCentre(final CarSupplier carRepo, final int managersQuantity, final int delay) {
+    this.managersQuantity = managersQuantity;
     this.carRepo = carRepo;
     this.delay = delay;
-    managers = new ArrayList<>(managersQuantity);
-    for(int i = 0; i < managersQuantity; i++){
-      managers.add(new Thread(task));
-    }
-    log.info("init managersQuantity: " + this.managers.size()+ " delay: " + delay);
+    this.managers = Executors.newFixedThreadPool(managersQuantity);
   }
 
   public void perform() {
-    log.info("perform");
-    for (Thread mngr : managers) {
-      mngr.start();
+    for (int i = 0; i < managersQuantity; i++) {
+      managers.submit(() -> {
+        while (Thread.currentThread().isAlive()) {
+          try {
+            log.info("request car");
+            Car car = carRepo.getCar();
+            log.info("sell car" + car.toString());
+            log.info("cur delay " + delay);
+            Thread.sleep(delay);
+          } catch (InterruptedException e) {
+            return;
+          }
+        }
+      });
     }
   }
 
   public void shutdown() {
-    log.info("shutdown");
-    for (Thread mngr : managers) {
-      mngr.interrupt();
-    }
+    managers.shutdownNow();
+  }
+
+  public void setDelay(int delay) {
+    this.delay = delay;
   }
 }

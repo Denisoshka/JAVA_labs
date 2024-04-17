@@ -8,18 +8,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class DealerModel {
-  final AtomicInteger delay;
   CarDealerCentre dealer;
 
   public DealerModel(final CarSupplier carRepo, final int managersQuantity, final int delay) {
-//    todo fix this
-    this.delay = new AtomicInteger(delay);
-    this.dealer = new CarDealerCentre(carRepo, managersQuantity, this.delay);
+    this.dealer = new CarDealerCentre(carRepo, managersQuantity, delay);
   }
 
   public void setDelay(final int delay) {
     log.info("set delay " + delay);
-    this.delay.set(delay);
+    dealer.setDelay(delay);
   }
 
   public void perform() {

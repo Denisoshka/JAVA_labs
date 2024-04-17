@@ -19,17 +19,19 @@ public class FactoryModel {
   private final CarRepositoryController controller;
   private final CarRepository repository;
 
-  public FactoryModel(final int workersQuantity, final int repoSize,
-                      final int dealersQuantity, final int factoryDelay,
-                      final SparePartSupplier<Body> bodyRepo,
-                      final SparePartSupplier<Engine> engineRepo,
-                      final SparePartSupplier<Accessories> accRepo) {
+  public FactoryModel(
+          final int workersQuantity, final int repoSize,
+          final int dealersQuantity, final int factoryDelay,
+          final SparePartSupplier<Body> bodyRepo,
+          final SparePartSupplier<Engine> engineRepo,
+          final SparePartSupplier<Accessories> accRepo
+  ) {
     log.info("init FactoryController");
     this.factoryDelay = new AtomicInteger(factoryDelay);
     this.repository = new CarRepository(repoSize);
     this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, this.factoryDelay);
     this.controller = new CarRepositoryController(this.repository, this.factory, dealersQuantity);
-    this.repository.setController( this.controller);
+    this.repository.setController(this.controller);
   }
 
   public CarSupplier getCarSupplier() {
@@ -59,6 +61,4 @@ public class FactoryModel {
     this.factory.shutdown();
     this.controller.shutdown();
   }
-
-
 }

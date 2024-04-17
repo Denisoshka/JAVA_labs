@@ -3,16 +3,20 @@ package ru.nsu.zhdanov.lab_4.thread_pool;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomFixedThreadPool implements ExecutorService {
   private final BlockingQueue<Runnable> taskPool;
-  private final AtomicBoolean shutdowned = new AtomicBoolean(false);
-  private final AtomicInteger activeTaskQ;
-  private final CopyOnWriteArrayList<Worker> workersPool;
+  private volatile boolean shutdowned = false;
+  private volatile int activeTaskQ = 0;
+  private final HashSet<Worker> workers;
+  private final int nThreads;
+  private final ReentrantLock mainLock = new ReentrantLock();
 
   public CustomFixedThreadPool(int nThreads) {
     this(nThreads, new LinkedBlockingQueue<Runnable>());
@@ -20,8 +24,8 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   public CustomFixedThreadPool(int nThreads, BlockingQueue<Runnable> taskPool) {
     this.taskPool = taskPool;
-    this.activeTaskQ = new AtomicInteger(0);
-    this.workersPool = new CopyOnWriteArrayList<>();
+    this.nThreads = nThreads;
+    this.workers = new HashSet<>(nThreads);
   }
 
   private class Worker extends Thread {
@@ -29,9 +33,9 @@ public class CustomFixedThreadPool implements ExecutorService {
     public void run() {
       while (true) {
         try {
-          Runnable task = taskPool.poll(60, TimeUnit.SECONDS);
+          Runnable task = taskPool.poll(180, TimeUnit.SECONDS);
           if (task == null) {
-            workersPool.remove(this);
+            workers.remove(this);
             return;
           }
           task.run();
@@ -56,12 +60,12 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   @Override
   public boolean isShutdown() {
-    return shutdowned.get();
+    return shutdowned;
   }
 
   @Override
   public boolean isTerminated() {
-    return shutdowned.get();
+    return shutdowned;
   }
 
   @Override
@@ -72,7 +76,10 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public <T> Future<T> submit(@NotNull Callable<T> task) {
-    taskPool.put(task.);
+    if (activeTaskQ == nThreads) {
+//      taskPool.put();
+    }
+
     return new FutureTask<>(task);
   }
 

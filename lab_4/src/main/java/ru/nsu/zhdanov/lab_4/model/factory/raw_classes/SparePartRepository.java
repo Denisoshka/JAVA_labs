@@ -7,20 +7,18 @@ import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 public class SparePartRepository<SparePartT> implements SparePartSupplier<SparePartT>, SparePartConsumer<SparePartT> {
   @Setter
   protected SparePartSupplier supplier;
   final private BlockingQueue<SparePartT> repository;
-  protected final String sparePartName;
+  protected final SparePartType sparePartType;
 
-  public SparePartRepository(final String sparePartName, final int repositorySize) {
-    this.sparePartName = sparePartName;
+  public SparePartRepository(final SparePartType sparePartName,
+                             final int repositorySize) {
     this.repository = new ArrayBlockingQueue<>(repositorySize);
+    this.sparePartType = sparePartName;
   }
 
   public int remainingCapacity() {
@@ -29,13 +27,13 @@ public class SparePartRepository<SparePartT> implements SparePartSupplier<SpareP
 
   @Override
   public SparePartT getSparePart() throws InterruptedException {
-    log.info("getSparePart() " + sparePartName);
+    log.info("getSparePart() " + sparePartType);
     return repository.take();
   }
 
   @Override
   public void acceptSparePart(SparePartT sparePart) throws InterruptedException {
     repository.put(sparePart);
-    log.info("acceptSparePart() " + sparePartName);
+    log.info("acceptSparePart() " + sparePartType);
   }
 }

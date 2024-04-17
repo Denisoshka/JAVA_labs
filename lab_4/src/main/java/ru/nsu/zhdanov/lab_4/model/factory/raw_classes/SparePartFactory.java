@@ -4,41 +4,29 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.exceptions.SparePartCreateException;
 import ru.nsu.zhdanov.lab_4.model.exceptions.SparePartFactoryReinstanceException;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 @Slf4j
-public class SparePartFactory implements AutoCloseable {
+public class SparePartFactory implements SparePartFactoryInterface {
   @Getter
-  private static SparePartFactory instance;
   private final Properties commandsProperties;
 
-  private SparePartFactory(Properties properties) {
+  public SparePartFactory(Properties properties) {
     log.debug("init SparePartFactory" + properties);
     this.commandsProperties = properties;
   }
 
-  public SparePart newInstance(final String command) throws SparePartCreateException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-    return (SparePart) Class.forName(commandsProperties.getProperty(command))
-            .getDeclaredConstructor()
-            .newInstance();
-    /*catch (Exception e) {
-
-      throw new SparePartCreateException(className + e.getMessage());
-    }*/
-  }
-
-  public static void Instance(final Properties properties) {
-    if (instance == null) {
-      instance = new SparePartFactory(properties);
-    } else {
-      throw new SparePartFactoryReinstanceException();
+  public SparePart make(final String title) {
+    try {
+      return (SparePart) Class.forName(commandsProperties.getProperty(title))
+              .getDeclaredConstructor()
+              .newInstance();
+    } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+             InstantiationException | IllegalAccessException e) {
+      throw new SparePartCreateException("Unable to create spare part", e);
     }
-  }
-
-  @Override
-  public void close() throws Exception {
-    instance = null;
   }
 }
