@@ -6,13 +6,13 @@ import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
 import ru.nsu.zhdanov.lab_4.model.factory.accessories_section.Accessories;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.engine_section.Engine;
-import ru.nsu.zhdanov.lab_4.thread_pool.CustomThreadPool;
+import ru.nsu.zhdanov.lab_4.thread_pool.CustomFixedThreadPool;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class CarFactory implements CarsRequest {
-  final private CustomThreadPool workers;
+  final private CustomFixedThreadPool workers;
   final private SparePartSupplier<Body> bodyRepo;
   final private SparePartSupplier<Engine> engRepo;
   final private SparePartSupplier<Accessories> accRepo;
@@ -31,7 +31,7 @@ public class CarFactory implements CarsRequest {
     this.carRepo = carRepo;
 
     log.info("make CustomThreadPool");
-    this.workers = new CustomThreadPool(workersQuantity);
+    this.workers = new CustomFixedThreadPool(workersQuantity);
     this.task = () -> {
       log.info("make new car request");
       Body body;

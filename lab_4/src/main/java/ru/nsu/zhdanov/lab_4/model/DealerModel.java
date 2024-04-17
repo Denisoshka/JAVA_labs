@@ -2,7 +2,7 @@ package ru.nsu.zhdanov.lab_4.model;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
-import ru.nsu.zhdanov.lab_4.dealer_repository.CarDealerCentre;
+import ru.nsu.zhdanov.lab_4.model.dealer_repository.CarDealerCentre;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

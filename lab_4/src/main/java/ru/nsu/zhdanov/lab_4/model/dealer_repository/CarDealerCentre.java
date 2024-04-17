@@ -1,4 +1,4 @@
-package ru.nsu.zhdanov.lab_4.dealer_repository;
+package ru.nsu.zhdanov.lab_4.model.dealer_repository;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
