@@ -52,6 +52,14 @@ public class Connection implements Runnable, AutoCloseable {
     } catch (IOException e) {
       return;
 //      todo need to make ex handle
+    } finally {
+      try {
+        socket.close();
+      } catch (IOException ignored) {
+      }
+      receiveStream = null;
+      sendStream = null;
+
     }
   }
 
@@ -74,14 +82,13 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void close() throws IOException {
-    receiveStream = null;
-    sendStream = null;
-    socket.close();
+
   }
 
-  public void markAsExpired(){
+  public void markAsExpired() {
     expired = true;
   }
+
   public boolean isExpired() {
     return expired;
   }
