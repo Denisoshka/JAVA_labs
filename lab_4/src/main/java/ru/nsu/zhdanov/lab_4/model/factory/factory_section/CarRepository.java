@@ -24,7 +24,6 @@ public class CarRepository implements CarSupplier, CarConsumer {
     try {
       controller.carOrdered();
       car = repository.take();
-      log.debug("getCar()");
     } catch (InterruptedException ignored) {
     }
     return car;
@@ -34,7 +33,6 @@ public class CarRepository implements CarSupplier, CarConsumer {
   public void acceptCar(Car car) {
     try {
       repository.put(car);
-      log.debug("acceptCar()");
     } catch (InterruptedException ignored) {
     }
   }

@@ -29,7 +29,7 @@ public class FactoryModel {
     log.info("init FactoryController");
     this.factoryDelay = new AtomicInteger(factoryDelay);
     this.repository = new CarRepository(repoSize);
-    this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, this.factoryDelay);
+    this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, factoryDelay);
     this.controller = new CarRepositoryController(this.repository, this.factory, dealersQuantity);
     this.repository.setController(this.controller);
   }
@@ -47,17 +47,16 @@ public class FactoryModel {
   }
 
   public void setFactoryDelay(final int delay) {
-    log.info("set new FactoryDelay: " + delay);
     factoryDelay.set(delay);
   }
 
   public void perform() {
-    log.info("perform");
+   log.debug("perform");
     this.controller.perform();
   }
 
   public void shutdown() {
-    log.info("shut down factory");
+    log.debug("shut down factory");
     this.factory.shutdown();
     this.controller.shutdown();
   }

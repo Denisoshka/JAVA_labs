@@ -1,5 +1,6 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.*;
 import ru.nsu.zhdanov.lab_4.model.AccessoriesModel;
@@ -11,14 +12,13 @@ import java.util.Properties;
 
 @Slf4j
 public class MainContext {
-  private final FactoryModel factoryModel;
   private final DealerModel dealerModel;
-    private final EngineModel engineSectionModel;
+  private final FactoryModel factoryModel;
   private final BodyModel bodySectionModel;
+  private final EngineModel engineSectionModel;
   private final AccessoriesModel accessoriesSectionController;
 
   public MainContext(final Properties sparePartProperties, final Properties contextProperties) {
-    log.info("init main context");
     SparePartFactoryInterface factory = new SparePartFactory(sparePartProperties);
     this.engineSectionModel = new EngineModel(
             factory, Integer.parseInt(contextProperties.get("engineProviderDelay").toString()),
@@ -50,14 +50,7 @@ public class MainContext {
     );
   }
 
-  public int getCarsQuantity() {
-    int x = factoryModel.getRepositoryOccupancy();
-    log.info("call factoryController.getRepositoryOccupancy():" + x);
-    return x;
-  }
-
   public void perform() {
-    log.info("perform work");
     factoryModel.perform();
     dealerModel.perform();
     engineSectionModel.perform();
@@ -66,13 +59,17 @@ public class MainContext {
   }
 
   public void shutdown() {
-    log.info("shut down controller");
     factoryModel.shutdown();
     dealerModel.shutdown();
     engineSectionModel.shutdown();
     bodySectionModel.shutdown();
     accessoriesSectionController.shutdown();
   }
+
+  public int getCarsQuantity() {
+    return factoryModel.getRepositoryOccupancy();
+  }
+
 
   public EngineModel getEngineSectionModel() {
     return engineSectionModel;

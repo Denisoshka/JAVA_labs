@@ -2,19 +2,25 @@ package ru.nsu.zhdanov.lab_4.model.factory.factory_section;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Slf4j
-public class CarRepositoryController implements CatOrderedListener{
+public class CarRepositoryController implements CatOrderedListener {
   private final CarRepository repository;
   private final CarsRequest factory;
   private final int dealersQuantity;
-  private final Thread worker;
-  private final Runnable task;
+  private final ExecutorService worker;
 
   public CarRepositoryController(CarRepository repository, CarFactory factory, int dealersQuantity) {
     this.repository = repository;
     this.factory = factory;
     this.dealersQuantity = dealersQuantity;
-    this.task = () -> {
+    this.worker = Executors.newSingleThreadExecutor();
+  }
+
+  public void perform() {
+    worker.submit(() -> {
       while (Thread.currentThread().isAlive()) {
         synchronized (this) {
           try {
@@ -22,31 +28,21 @@ public class CarRepositoryController implements CatOrderedListener{
           } catch (InterruptedException e) {
             return;
           }
-          log.debug("controller is awake make request");
           if (repository.occupancy() < dealersQuantity) {
-            log.debug("request cars: " + repository.getRemainingCapacity());
             factory.requestCars(repository.getRemainingCapacity());
           }
         }
       }
-    };
-    this.worker = new Thread(task);
-    log.info("init CarRepositoryController");
-  }
-
-  public void perform() {
-    log.info("perform");
-    worker.start();
+    });
   }
 
   public void shutdown() {
-    log.info("shutdown");
-    worker.interrupt();
+    worker.shutdownNow();
   }
 
   @Override
   public void carOrdered() {
-    synchronized (this){
+    synchronized (this) {
       this.notifyAll();
     }
 

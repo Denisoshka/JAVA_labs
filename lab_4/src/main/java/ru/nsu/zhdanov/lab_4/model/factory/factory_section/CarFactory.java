@@ -8,32 +8,29 @@ import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.engine_section.Engine;
 import ru.nsu.zhdanov.lab_4.thread_pool.CustomFixedThreadPool;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class CarFactory implements CarsRequest {
-  final private CustomFixedThreadPool workers;
-  final private SparePartSupplier<Body> bodyRepo;
-  final private SparePartSupplier<Engine> engRepo;
-  final private SparePartSupplier<Accessories> accRepo;
-  final private CarConsumer carRepo;
-  final private @Getter AtomicInteger delay;
-  final private Runnable task;
+  private final ExecutorService workers;
+  private final SparePartSupplier<Body> bodyRepo;
+  private final SparePartSupplier<Engine> engRepo;
+  private final SparePartSupplier<Accessories> accRepo;
+  private volatile int delay;
+  private final Runnable task;
 
   public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
                     SparePartSupplier<Engine> engRepo,
                     SparePartSupplier<Accessories> accRepo,
-                    final int workersQuantity, final AtomicInteger delay) {
-    this.delay = delay;
+                    final int workersQuantity, final int delay) {
+    this.workers = Executors.newFixedThreadPool(workersQuantity);
     this.bodyRepo = bodyRepo;
     this.engRepo = engRepo;
     this.accRepo = accRepo;
-    this.carRepo = carRepo;
-
-    log.info("make CustomThreadPool");
-    this.workers = new CustomFixedThreadPool(workersQuantity);
+    this.delay = delay;
     this.task = () -> {
-      log.info("make new car request");
       Body body;
       Engine engine;
       Accessories acc;
@@ -41,29 +38,28 @@ public class CarFactory implements CarsRequest {
         body = this.bodyRepo.getSparePart();
         engine = this.engRepo.getSparePart();
         acc = this.accRepo.getSparePart();
-        log.debug("make new car");
-        Thread.sleep(delay.get());
+        Thread.sleep(delay);
       } catch (InterruptedException e) {
         return;
       }
-      log.info("new Car(body, engine, acc) " + body.toString() + " " + engine.toString() + " " + acc.toString());
       Car car = new Car(body, engine, acc);
-      log.info("call carRepo.acceptCar(car)");
       carRepo.acceptCar(car);
     };
-    log.info("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
+    log.debug("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
   }
 
   public void shutdown() {
-    log.info("shutdown");
     this.workers.shutdown();
   }
 
   @Override
   public void requestCars(int orderSize) {
-    log.info("request Cars: " + orderSize);
     for (int i = 0; i < orderSize; ++i) {
-      workers.execute(task);
+      workers.submit(task);
     }
+  }
+
+  public void setDelay(int delay) {
+    this.delay = delay;
   }
 }

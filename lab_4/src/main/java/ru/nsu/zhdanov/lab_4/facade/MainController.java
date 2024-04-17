@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.zhdanov.lab_4.model.SparePartSectionModel;
@@ -30,10 +31,10 @@ public class MainController {
   private TextField accessoriesValueSlider;
 
   private MainContext context = null;
+  private Stage primaryStage;
 
   @FXML
   private void initialize() throws IOException {
-    log.info("init MainController");
     Properties sparePartsProperties = null;
     Properties controllerProperties = null;
     try (InputStream in = getClass().getResourceAsStream("spare_part.properties")) {
@@ -44,7 +45,6 @@ public class MainController {
       controllerProperties = new Properties();
       controllerProperties.load(in);
     }
-    log.info("init MainContext");
     this.context = new MainContext(sparePartsProperties, controllerProperties);
     initSlider(bodySlider, bodyValueSlider, this.context.getBodySectionModel());
     initSlider(engineSlider, engineValueSlider, this.context.getEngineSectionModel());
@@ -53,11 +53,16 @@ public class MainController {
   }
 
   private void initSlider(@NotNull final Slider slider, @NotNull final TextField textField, final SparePartSectionModel sparePartSectionController) {
-    log.info("init slider " + sparePartSectionController.toString());
+    log.debug("init slider " + sparePartSectionController.toString());
     textField.setText(String.valueOf(slider.getValue()));
     slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+      log.debug("new delay" + sparePartSectionController + "=" + newValue.toString());
       textField.setText(String.valueOf(newValue.intValue()));
       sparePartSectionController.setProviderDelay(newValue.intValue());
     });
+  }
+
+  public void setPrimaryStage(Stage primaryStage) {
+    this.primaryStage = primaryStage;
   }
 }

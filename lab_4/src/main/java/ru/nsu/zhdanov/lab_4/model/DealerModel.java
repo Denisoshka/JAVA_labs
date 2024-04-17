@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 import ru.nsu.zhdanov.lab_4.model.dealer_repository.CarDealerCentre;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Slf4j
 public class DealerModel {
   CarDealerCentre dealer;
@@ -20,12 +18,10 @@ public class DealerModel {
   }
 
   public void perform() {
-    log.info("perform");
     dealer.perform();
   }
 
   public void shutdown() {
-    log.info("shutdown");
     dealer.shutdown();
   }
 }

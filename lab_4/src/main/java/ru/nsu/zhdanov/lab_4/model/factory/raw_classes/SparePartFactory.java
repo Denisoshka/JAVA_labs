@@ -1,9 +1,7 @@
 package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.exceptions.SparePartCreateException;
-import ru.nsu.zhdanov.lab_4.model.exceptions.SparePartFactoryReinstanceException;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +9,6 @@ import java.util.Properties;
 
 @Slf4j
 public class SparePartFactory implements SparePartFactoryInterface {
-  @Getter
   private final Properties commandsProperties;
 
   public SparePartFactory(Properties properties) {
@@ -28,5 +25,9 @@ public class SparePartFactory implements SparePartFactoryInterface {
              InstantiationException | IllegalAccessException e) {
       throw new SparePartCreateException("Unable to create spare part", e);
     }
+  }
+
+  public Properties getCommandsProperties() {
+    return this.commandsProperties;
   }
 }
