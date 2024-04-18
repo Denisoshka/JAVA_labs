@@ -32,6 +32,7 @@ public abstract class SparePartProvider<SparePartT> {
       while (Thread.currentThread().isAlive()) {
         try {
           SparePartT sparePart = (SparePartT) factory.make(sparePartName.toString());
+//          log.debug("delay in provider " + sparePartName + " " + delay);
           Thread.sleep(delay);
           repository.acceptSparePart(sparePart);
         } catch (InterruptedException e) {
@@ -53,6 +54,7 @@ public abstract class SparePartProvider<SparePartT> {
   }
 
   public void setDelay(int delay) {
+    log.debug("set delay in provider " + sparePartName + " " + delay);
     this.delay = delay;
   }
 

@@ -31,18 +31,24 @@ public class CustomFixedThreadPool implements ExecutorService {
   private class Worker extends Thread {
     @Override
     public void run() {
-      while (true) {
-        try {
+      try {
+        while (true) {
           Runnable task = taskPool.poll(180, TimeUnit.SECONDS);
           if (task == null) {
-            workers.remove(this);
-            return;
+            break;
           }
           task.run();
-        } catch (InterruptedException e) {
-          return;
         }
+      } catch (InterruptedException ignored) {
+      } finally {
+        workerExpired(this);
       }
+    }
+  }
+
+  private void workerExpired(Worker worker) {
+    synchronized (workers) {
+      workers.remove(worker);
     }
   }
 
@@ -92,7 +98,16 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public Future<?> submit(@NotNull Runnable task) {
-    return new FutureTask<>(task, null);
+    if (task == null) {
+      throw new NullPointerException();
+    }
+    RunnableFuture<Void> futureTask = new FutureTask<>(task, null);
+    execute(futureTask);
+    return futureTask;
+  }
+
+  private Future<?> handleSubmitArgs(){
+    return null;
   }
 
   @NotNull
@@ -122,7 +137,7 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   @Override
   public void execute(@NotNull Runnable command) {
-
+    taskPool.add(command);
   }
 
 

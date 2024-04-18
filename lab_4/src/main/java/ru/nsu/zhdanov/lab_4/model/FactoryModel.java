@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class FactoryModel implements SetDelayInterface {
-  private final AtomicInteger factoryDelay;
   private final CarFactory factory;
   private final CarRepositoryController controller;
   private final CarRepository repository;
@@ -28,7 +27,6 @@ public class FactoryModel implements SetDelayInterface {
           final SparePartSupplier<Accessories> accRepo
   ) {
     log.info("init FactoryController");
-    this.factoryDelay = new AtomicInteger(factoryDelay);
     this.repository = new CarRepository(repoSize);
     this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, factoryDelay);
     this.controller = new CarRepositoryController(this.repository, this.factory, dealersQuantity);
@@ -43,9 +41,9 @@ public class FactoryModel implements SetDelayInterface {
     return repository.occupancy();
   }
 
-  public int getFactoryDelay() {
-    return factoryDelay.get();
-  }
+//  public int getFactoryDelay() {
+//    return factoryDelay.get();
+//  }
 
   public void perform() {
    log.debug("perform");
@@ -60,6 +58,6 @@ public class FactoryModel implements SetDelayInterface {
 
   @Override
   public void setDelay(int delay) {
-    factoryDelay.set(delay);
+    factory.setDelay(delay);
   }
 }

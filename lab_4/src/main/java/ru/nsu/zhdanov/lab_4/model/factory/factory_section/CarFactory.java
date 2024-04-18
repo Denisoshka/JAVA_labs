@@ -18,7 +18,7 @@ public class CarFactory implements CarsRequest {
   private final SparePartSupplier<Body> bodyRepo;
   private final SparePartSupplier<Engine> engRepo;
   private final SparePartSupplier<Accessories> accRepo;
-  private final Runnable task;
+  private final CarConsumer carRepo;
   private volatile int delay;
 
   public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
@@ -29,22 +29,8 @@ public class CarFactory implements CarsRequest {
     this.bodyRepo = bodyRepo;
     this.engRepo = engRepo;
     this.accRepo = accRepo;
+    this.carRepo = carRepo;
     this.delay = delay;
-    this.task = () -> {
-      Body body;
-      Engine engine;
-      Accessories acc;
-      try {
-        body = this.bodyRepo.getSparePart();
-        engine = this.engRepo.getSparePart();
-        acc = this.accRepo.getSparePart();
-        Thread.sleep(delay);
-      } catch (InterruptedException e) {
-        return;
-      }
-      Car car = new Car(body, engine, acc);
-      carRepo.acceptCar(car);
-    };
     log.debug("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
   }
 
@@ -54,6 +40,23 @@ public class CarFactory implements CarsRequest {
 
   @Override
   public void requestCars(int orderSize) {
+    Runnable task = () -> {
+      Body body;
+      Engine engine;
+      Accessories acc;
+      try {
+        body = this.bodyRepo.getSparePart();
+        engine = this.engRepo.getSparePart();
+        acc = this.accRepo.getSparePart();
+//        log.debug("factory delay is " + this.delay);
+        Thread.sleep(this.delay);
+      } catch (InterruptedException e) {
+        return;
+      }
+      Car car = new Car(body, engine, acc);
+      carRepo.acceptCar(car);
+    };
+
     for (int i = 0; i < orderSize; ++i) {
       workers.submit(task);
     }

@@ -27,6 +27,7 @@ public class CarDealerCentre {
         while (Thread.currentThread().isAlive()) {
           try {
             Car car = carRepo.getCar();
+//          todo make here interface for loging
             log.info("sell car" + car.toString());
             Thread.sleep(delay);
           } catch (InterruptedException e) {
