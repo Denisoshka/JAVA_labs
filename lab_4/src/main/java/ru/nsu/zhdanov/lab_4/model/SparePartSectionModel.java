@@ -1,10 +1,11 @@
 package ru.nsu.zhdanov.lab_4.model;
 
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
 import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePart;
 import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartProvider;
 import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartRepository;
 
-public class SparePartSectionModel<SparePartT extends SparePart> {
+public class SparePartSectionModel<SparePartT extends SparePart> implements SetDelayInterface {
   private SparePartProvider<SparePartT> provider;
   private SparePartRepository<SparePartT> repository;
 
@@ -14,8 +15,9 @@ public class SparePartSectionModel<SparePartT extends SparePart> {
     this.provider.setRepository(repository);
   }
 
-  public void setProviderDelay(final int providerDelay) {
-    provider.setDelay(providerDelay);
+  @Override
+  public void setDelay(int delay) {
+    provider.setDelay(delay);
   }
 
   public int getProviderDelay() {

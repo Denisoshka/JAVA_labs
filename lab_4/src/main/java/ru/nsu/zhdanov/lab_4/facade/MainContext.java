@@ -1,6 +1,5 @@
 package ru.nsu.zhdanov.lab_4.facade;
 
-import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.*;
 import ru.nsu.zhdanov.lab_4.model.AccessoriesModel;
@@ -70,6 +69,9 @@ public class MainContext {
     return factoryModel.getRepositoryOccupancy();
   }
 
+  public FactoryModel getFactoryModel() {
+    return factoryModel;
+  }
 
   public EngineModel getEngineSectionModel() {
     return engineSectionModel;

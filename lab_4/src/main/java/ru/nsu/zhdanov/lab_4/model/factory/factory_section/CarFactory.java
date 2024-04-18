@@ -18,8 +18,8 @@ public class CarFactory implements CarsRequest {
   private final SparePartSupplier<Body> bodyRepo;
   private final SparePartSupplier<Engine> engRepo;
   private final SparePartSupplier<Accessories> accRepo;
-  private volatile int delay;
   private final Runnable task;
+  private volatile int delay;
 
   public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
                     SparePartSupplier<Engine> engRepo,
@@ -49,7 +49,7 @@ public class CarFactory implements CarsRequest {
   }
 
   public void shutdown() {
-    this.workers.shutdown();
+    this.workers.shutdownNow();
   }
 
   @Override

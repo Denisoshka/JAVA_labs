@@ -32,8 +32,8 @@ public abstract class SparePartProvider<SparePartT> {
       while (Thread.currentThread().isAlive()) {
         try {
           SparePartT sparePart = (SparePartT) factory.make(sparePartName.toString());
-          repository.acceptSparePart(sparePart);
           Thread.sleep(delay);
+          repository.acceptSparePart(sparePart);
         } catch (InterruptedException e) {
           return;
         }

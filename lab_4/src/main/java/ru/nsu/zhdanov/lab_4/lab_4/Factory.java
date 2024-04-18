@@ -14,9 +14,9 @@ public class Factory extends javafx.application.Application {
   public void start(Stage stage) throws IOException {
     FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("factory-view.fxml")));
     Scene scene = new Scene(fxmlLoader.load());
+    ((MainController) fxmlLoader.getController()).setPrimaryStage(stage);
     stage.setTitle("Car factory!");
     stage.setScene(scene);
-    ((MainController) fxmlLoader.getController()).setPrimaryStage(stage);
     stage.show();
   }
 

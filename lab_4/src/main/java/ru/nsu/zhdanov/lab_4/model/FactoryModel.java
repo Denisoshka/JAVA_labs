@@ -8,12 +8,13 @@ import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarFactory;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarRepository;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarRepositoryController;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class FactoryModel {
+public class FactoryModel implements SetDelayInterface {
   private final AtomicInteger factoryDelay;
   private final CarFactory factory;
   private final CarRepositoryController controller;
@@ -46,18 +47,19 @@ public class FactoryModel {
     return factoryDelay.get();
   }
 
-  public void setFactoryDelay(final int delay) {
-    factoryDelay.set(delay);
-  }
-
   public void perform() {
    log.debug("perform");
     this.controller.perform();
   }
 
   public void shutdown() {
-    log.debug("shut down factory");
+    log.debug("shutdown factory");
     this.factory.shutdown();
     this.controller.shutdown();
+  }
+
+  @Override
+  public void setDelay(int delay) {
+    factoryDelay.set(delay);
   }
 }

@@ -24,22 +24,24 @@
                             <Label text="lf"/>
                             <VBox xmlns="http://javafx.com/javafx"
                                   xmlns:fx="http://javafx.com/fxml">
-                                <Slider fx:id="bodySlider" min="1000" max="5000" value="2000" showTickMarks="true"
-                                        showTickLabels="true"
+                                <Slider fx:id="bodySlider" min="1000" max="5000" value="2000"
                                         majorTickUnit="25" minorTickCount="4" blockIncrement="5"/>
                                 <TextField fx:id="bodyValueSlider" editable="false"/>
                             </VBox>
                             <VBox alignment="CENTER" spacing="10">
-                                <Slider fx:id="engineSlider" min="1000" max="5000" value="2000" showTickMarks="true"
-                                        showTickLabels="true"
+                                <Slider fx:id="engineSlider" min="1000" max="5000" value="2000"
                                         majorTickUnit="25" minorTickCount="4" blockIncrement="5"/>
                                 <TextField fx:id="engineValueSlider" editable="false"/>
                             </VBox>
                             <VBox alignment="CENTER" spacing="10">
-                                <Slider fx:id="accessoriesSlider" min="1000" max="5000" value="2000" showTickMarks="true"
-                                        showTickLabels="true"
+                                <Slider fx:id="accessoriesSlider" min="1000" max="5000" value="2000"
                                         majorTickUnit="25" minorTickCount="4" blockIncrement="5"/>
                                 <TextField fx:id="accessoriesValueSlider" editable="false"/>
+                            </VBox>
+                            <VBox alignment="CENTER" spacing="10">
+                                <Slider fx:id="factorySlider" min="1000" max="5000" value="2000"
+                                        majorTickUnit="25" minorTickCount="4" blockIncrement="5"/>
+                                <TextField fx:id="factoryValueSlider" editable="false"/>
                             </VBox>
                         </VBox>
                     </children>
