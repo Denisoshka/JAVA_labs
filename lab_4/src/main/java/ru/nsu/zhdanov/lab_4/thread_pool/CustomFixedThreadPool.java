@@ -1,28 +1,32 @@
 package ru.nsu.zhdanov.lab_4.thread_pool;
 
+import kotlin.ContextFunctionTypeParams;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomFixedThreadPool implements ExecutorService {
   public final static int POOL_DELAY = 180;
   public final static int OFFER_DELAY = 30;
 
+  private final ReentrantLock lock = new ReentrantLock();
+  private final Condition termination = lock.newCondition();
+
   private final BlockingQueue<Runnable> taskPool;
-  private volatile boolean isShutdown = false;
-  private volatile boolean terminated = false;
   private final Set<Worker> workers;
   private final int nThreads;
+
+  private volatile boolean isShutdown = false;
 
   public CustomFixedThreadPool(int nThreads) {
     this(nThreads, new LinkedBlockingQueue<>());
   }
 
   public CustomFixedThreadPool(int nThreads, BlockingQueue<Runnable> taskPool) {
-    this.workers = ConcurrentHashMap.newKeySet();
+    this.workers = ConcurrentHashMap.newKeySet(nThreads);
     this.nThreads = nThreads;
     this.taskPool = taskPool;
   }
@@ -35,6 +39,15 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public List<Runnable> shutdownNow() {
+    shutdown();
+    lock.lock();
+    try {
+      for (var worker : workers) {
+        worker.interrupt();
+      }
+    } finally {
+      lock.unlock();
+    }
     return taskPool.stream().toList();
   }
 
@@ -45,13 +58,24 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   @Override
   public boolean isTerminated() {
-    return isShutdown;
+    return isShutdown && workers.isEmpty();
   }
 
   @Override
   public boolean awaitTermination(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-    while
-    return false;
+    long duration = unit.convert(timeout, TimeUnit.MILLISECONDS);
+    long start = System.currentTimeMillis();
+    long cur = System.currentTimeMillis();
+
+    lock.lock();
+    try {
+      for (; !workers.isEmpty() && cur - start < duration; cur = System.currentTimeMillis()) {
+        termination.await(timeout - (cur - start), TimeUnit.MILLISECONDS);
+      }
+    } finally {
+      lock.unlock();
+    }
+    return workers.isEmpty();
   }
 
   @NotNull
@@ -79,15 +103,35 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull Collection<? extends Callable<T>> tasks) throws InterruptedException {
-    for (var task : tasks) {
-    }
-    return null;
+    return invokeAll(tasks, Integer.MAX_VALUE, TimeUnit.DAYS);
   }
 
   @NotNull
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-    return null;
+    List<Future<T>> targetList = new ArrayList<>(tasks.size());
+    for (var task : tasks) {
+      var fut = new FutureTask<>(task);
+      execute(fut);
+      targetList.add(fut);
+    }
+
+    long duration = unit.toMillis(timeout);
+    long start = System.currentTimeMillis();
+    long end = start + duration;
+
+    try {
+      for (var fut : targetList) {
+        long cur = System.currentTimeMillis();
+        try {
+          if (end - cur > 0) fut.get(end - cur, TimeUnit.MILLISECONDS);
+          else break;
+        } catch (ExecutionException | CancellationException ignored) {
+        }
+      }
+    } catch (TimeoutException ignored) {
+    }
+    return targetList;
   }
 
   @NotNull
@@ -104,6 +148,7 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   @Override
   public void execute(@NotNull Runnable command) {
+    if (command == null) throw new NullPointerException();
     addTask(command);
   }
 
@@ -125,22 +170,19 @@ public class CustomFixedThreadPool implements ExecutorService {
     }
   }
 
-  private void submitExpiredWorker(Worker worker) {
-    workers.remove(worker);
-  }
-
   private void submitNewWorker() {
     var worker = new Worker();
+    lock.lock();
+    try {
+      worker.setName("CustomThreadPool " + this + " thread " + workers.size());
+    } finally {
+      lock.unlock();
+    }
     worker.start();
     workers.add(worker);
   }
 
   private void addTask(Runnable task) {
-    boolean rez = taskPool.offer(task);
-    if (rez) {
-      return;
-    }
-
     if (workers.size() < nThreads) {
       synchronized (workers) {
         if (workers.size() < nThreads) {
@@ -149,5 +191,15 @@ public class CustomFixedThreadPool implements ExecutorService {
       }
     }
     taskPool.add(task);
+  }
+
+  private void submitExpiredWorker(Worker worker) {
+    lock.lock();
+    try {
+      workers.remove(worker);
+      termination.signalAll();
+    } finally {
+      lock.unlock();
+    }
   }
 }

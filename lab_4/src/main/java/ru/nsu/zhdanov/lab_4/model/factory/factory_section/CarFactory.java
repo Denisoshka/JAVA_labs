@@ -25,7 +25,8 @@ public class CarFactory implements CarsRequest {
                     SparePartSupplier<Engine> engRepo,
                     SparePartSupplier<Accessories> accRepo,
                     final int workersQuantity, final int delay) {
-    this.workers = Executors.newFixedThreadPool(workersQuantity);
+//    this.workers = Executors.newFixedThreadPool(workersQuantity);
+    this.workers = new  CustomFixedThreadPool(workersQuantity);
     this.bodyRepo = bodyRepo;
     this.engRepo = engRepo;
     this.accRepo = accRepo;
