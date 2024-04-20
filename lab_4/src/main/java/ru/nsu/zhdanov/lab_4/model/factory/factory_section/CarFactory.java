@@ -25,8 +25,7 @@ public class CarFactory implements CarsRequest {
                     SparePartSupplier<Engine> engRepo,
                     SparePartSupplier<Accessories> accRepo,
                     final int workersQuantity, final int delay) {
-//    this.workers = Executors.newFixedThreadPool(workersQuantity);
-    this.workers = new  CustomFixedThreadPool(workersQuantity);
+    this.workers = new CustomFixedThreadPool(workersQuantity);
     this.bodyRepo = bodyRepo;
     this.engRepo = engRepo;
     this.accRepo = accRepo;
@@ -49,12 +48,12 @@ public class CarFactory implements CarsRequest {
         body = this.bodyRepo.getSparePart();
         engine = this.engRepo.getSparePart();
         acc = this.accRepo.getSparePart();
-//        log.debug("factory delay is " + this.delay);
         Thread.sleep(this.delay);
       } catch (InterruptedException e) {
         return;
       }
       Car car = new Car(body, engine, acc);
+      log.debug("new car: " + car);
       carRepo.acceptCar(car);
     };
 
