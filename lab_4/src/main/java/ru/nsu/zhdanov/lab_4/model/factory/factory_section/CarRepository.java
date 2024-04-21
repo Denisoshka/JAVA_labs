@@ -1,18 +1,11 @@
 package ru.nsu.zhdanov.lab_4.model.factory.factory_section;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
 public class CarRepository implements CarSupplier, CarConsumer {
   final BlockingQueue<Car> repository;
-  private @Setter CarRepositoryController controller;
-  @Setter
-  AtomicInteger delay;
+  private CarRepositoryController controller;
 
   public CarRepository(int repSize) {
     this.repository = new ArrayBlockingQueue<>(repSize);
@@ -43,5 +36,9 @@ public class CarRepository implements CarSupplier, CarConsumer {
 
   public int occupancy() {
     return repository.size();
+  }
+
+  public void setController(CarRepositoryController controller) {
+    this.controller = controller;
   }
 }

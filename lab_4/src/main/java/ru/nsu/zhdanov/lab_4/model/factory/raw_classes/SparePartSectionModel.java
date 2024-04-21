@@ -3,8 +3,8 @@ package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
 
 public class SparePartSectionModel<SparePartT extends SparePart> implements SetDelayInterface {
-  private SparePartProvider<SparePartT> provider;
-  private SparePartRepository<SparePartT> repository;
+  private final SparePartProvider<SparePartT> provider;
+  private final SparePartRepository<SparePartT> repository;
 
   public SparePartSectionModel(SparePartProvider<SparePartT> provider, SparePartRepository<SparePartT> repository) {
     this.repository = repository;

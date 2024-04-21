@@ -21,6 +21,6 @@ public class Car {
 
   @Override
   public String toString() {
-    return "Car " + id.toString() + " (" + body.toString() + " " + engine.toString() + " " + acc.toString() + ")";
+    return "Car " + id.toString() + " " + body.toString() + " " + engine.toString() + " " + acc.toString();
   }
 }

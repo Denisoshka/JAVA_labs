@@ -36,7 +36,6 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
     this.accRepo = accRepo;
     this.carRepo = carRepo;
     this.delay = delay;
-    log.trace("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
   }
 
   public void shutdown() {
@@ -63,10 +62,6 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
     }
   }
 
-  public void setDelay(int delay) {
-    this.delay = delay;
-  }
-
   @Override
   public void addProduceMonitorListener(SparePartModelMonitorListener listener) {
     listeners.add(listener);
@@ -75,5 +70,9 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
   private void onCarProduced() {
     String condition = String.valueOf(totalProduced.incrementAndGet());
     for (var listener : listeners) listener.changed(condition);
+  }
+
+  public void setDelay(int delay) {
+    this.delay = delay;
   }
 }

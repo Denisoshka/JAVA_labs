@@ -16,13 +16,13 @@
         </AnchorPane>
         <AnchorPane>
             <VBox alignment="CENTER" spacing="10">
-                <SectionStateView fx:id="engineState" min="1000" max="5000"
+                <SectionStateView fx:id="engineState" min="500" max="8000"
                                   label="engine section" description="total produced"/>
-                <SectionStateView fx:id="bodyState" min="1000" max="5000"
+                <SectionStateView fx:id="bodyState" min="500" max="8000"
                                   label="body section" description="total produced"/>
-                <SectionStateView fx:id="accessoriesState" min="1000" max="5000"
+                <SectionStateView fx:id="accessoriesState" min="500" max="8000"
                                   label="accessories section" description="total produced"/>
-                <SectionStateView fx:id="factoryState" min="1000" max="5000"
+                <SectionStateView fx:id="factoryState" min="500" max="8000"
                                   label="factory section" description="total produced"/>
             </VBox>
         </AnchorPane>

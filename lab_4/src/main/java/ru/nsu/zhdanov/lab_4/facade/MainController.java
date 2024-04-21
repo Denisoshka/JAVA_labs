@@ -4,15 +4,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-@Slf4j
 public class MainController {
   @FXML
   private SectionStateView engineState;
@@ -30,8 +26,8 @@ public class MainController {
 
   @FXML
   private void initialize() throws IOException {
-    Properties sparePartsProperties = null;
-    Properties controllerProperties = null;
+    Properties sparePartsProperties;
+    Properties controllerProperties;
     try (InputStream in = getClass().getResourceAsStream("spare_part.properties")) {
       sparePartsProperties = new Properties();
       sparePartsProperties.load(in);

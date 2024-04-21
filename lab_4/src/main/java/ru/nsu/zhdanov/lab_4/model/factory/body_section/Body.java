@@ -8,7 +8,8 @@ public class Body extends SparePart {
   public Body() {
     super();
   }
-@Override
+
+  @Override
   public SparePartType getSparePatType() {
     return SparePartType.BODY;
   }

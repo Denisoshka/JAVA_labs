@@ -1,14 +1,14 @@
 package ru.nsu.zhdanov.lab_4.model.dealer_repository;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.Car;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
 public class CarDealerCentre {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(CarDealerCentre.class);
   private final ExecutorService managers;
   private final CarSupplier carRepo;
   private final int managersQuantity;
@@ -28,14 +28,14 @@ public class CarDealerCentre {
           log.trace("start");
           while (!Thread.currentThread().isInterrupted()) {
             Car car = carRepo.getCar();
-//          todo make here interface for loging
+//          todo make here interface for logging sold car
             log.info("sell car" + car.toString());
             Thread.sleep(delay);
           }
         } catch (InterruptedException ignored) {
-        } catch (Exception e){
+        } catch (Exception e) {
           log.warn("unexpected exception " + e.getMessage());
-        }finally {
+        } finally {
           log.trace("interrupted");
         }
       });
