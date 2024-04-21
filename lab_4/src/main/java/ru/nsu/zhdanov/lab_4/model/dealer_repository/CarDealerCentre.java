@@ -24,15 +24,19 @@ public class CarDealerCentre {
   public void perform() {
     for (int i = 0; i < managersQuantity; i++) {
       managers.submit(() -> {
-        while (Thread.currentThread().isAlive()) {
-          try {
+        try {
+          log.trace("start");
+          while (!Thread.currentThread().isInterrupted()) {
             Car car = carRepo.getCar();
 //          todo make here interface for loging
             log.info("sell car" + car.toString());
             Thread.sleep(delay);
-          } catch (InterruptedException e) {
-            return;
           }
+        } catch (InterruptedException ignored) {
+        } catch (Exception e){
+          log.warn("unexpected exception " + e.getMessage());
+        }finally {
+          log.trace("interrupted");
         }
       });
     }

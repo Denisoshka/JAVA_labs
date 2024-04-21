@@ -13,7 +13,7 @@ public class DealerModel {
   }
 
   public void setDelay(final int delay) {
-    log.info("set delay " + delay);
+    log.trace("set delay " + delay);
     dealer.setDelay(delay);
   }
 

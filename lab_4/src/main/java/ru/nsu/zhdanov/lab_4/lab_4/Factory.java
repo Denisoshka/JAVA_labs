@@ -12,10 +12,10 @@ public class Factory extends javafx.application.Application {
 
   @Override
   public void start(Stage stage) throws IOException {
-    FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("factory-view.fxml")));
+    FXMLLoader fxmlLoader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("FactoryView.fxml")));
     Scene scene = new Scene(fxmlLoader.load());
     ((MainController) fxmlLoader.getController()).setPrimaryStage(stage);
-    stage.setTitle("Car factory!");
+    stage.setTitle("da ne krady ia labi");
     stage.setScene(scene);
     stage.show();
   }

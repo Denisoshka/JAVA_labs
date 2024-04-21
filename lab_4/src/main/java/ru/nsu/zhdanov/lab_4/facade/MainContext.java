@@ -13,21 +13,21 @@ import java.util.Properties;
 public class MainContext {
   private final DealerModel dealerModel;
   private final FactoryModel factoryModel;
-  private final BodyModel bodySectionModel;
-  private final EngineModel engineSectionModel;
-  private final AccessoriesModel accessoriesSectionController;
+  private final BodyModel bodyModel;
+  private final EngineModel engineModel;
+  private final AccessoriesModel accessoriesModel;
 
   public MainContext(final Properties sparePartProperties, final Properties contextProperties) {
     SparePartFactoryInterface factory = new SparePartFactory(sparePartProperties);
-    this.engineSectionModel = new EngineModel(
+    this.engineModel = new EngineModel(
             factory, Integer.parseInt(contextProperties.get("engineProviderDelay").toString()),
             Integer.parseInt(contextProperties.get("engineRepoSize").toString())
     );
-    this.bodySectionModel = new BodyModel(
+    this.bodyModel = new BodyModel(
             factory, Integer.parseInt(contextProperties.get("bodyProviderDelay").toString()),
             Integer.parseInt(contextProperties.get("bodyRepoSize").toString())
     );
-    this.accessoriesSectionController = new AccessoriesModel(
+    this.accessoriesModel = new AccessoriesModel(
             factory,
             Integer.parseInt(contextProperties.get("accessoriesProviderDelay").toString()),
             Integer.parseInt(contextProperties.get("accessoriesProvidersQuantity").toString()),
@@ -38,9 +38,9 @@ public class MainContext {
             Integer.parseInt(contextProperties.get("factoryRepoSize").toString()),
             Integer.parseInt(contextProperties.get("dealersQuantity").toString()),
             Integer.parseInt(contextProperties.get("factoryDelay").toString()),
-            this.bodySectionModel.getRepository(),
-            this.engineSectionModel.getRepository(),
-            this.accessoriesSectionController.getRepository()
+            this.bodyModel.getRepository(),
+            this.engineModel.getRepository(),
+            this.accessoriesModel.getRepository()
     );
     this.dealerModel = new DealerModel(
             factoryModel.getCarSupplier(),
@@ -52,17 +52,17 @@ public class MainContext {
   public void perform() {
     factoryModel.perform();
     dealerModel.perform();
-    engineSectionModel.perform();
-    bodySectionModel.perform();
-    accessoriesSectionController.perform();
+    engineModel.perform();
+    bodyModel.perform();
+    accessoriesModel.perform();
   }
 
   public void shutdown() {
     factoryModel.shutdown();
     dealerModel.shutdown();
-    engineSectionModel.shutdown();
-    bodySectionModel.shutdown();
-    accessoriesSectionController.shutdown();
+    engineModel.shutdownNow();
+    bodyModel.shutdownNow();
+    accessoriesModel.shutdownNow();
   }
 
   public int getCarsQuantity() {
@@ -73,15 +73,15 @@ public class MainContext {
     return factoryModel;
   }
 
-  public EngineModel getEngineSectionModel() {
-    return engineSectionModel;
+  public EngineModel getEngineModel() {
+    return engineModel;
   }
 
-  public BodyModel getBodySectionModel() {
-    return bodySectionModel;
+  public BodyModel getBodyModel() {
+    return bodyModel;
   }
 
-  public AccessoriesModel getAccessoriesSectionController() {
-    return accessoriesSectionController;
+  public AccessoriesModel getAccessoriesModel() {
+    return accessoriesModel;
   }
 }

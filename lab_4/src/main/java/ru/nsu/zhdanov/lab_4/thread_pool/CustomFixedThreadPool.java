@@ -2,16 +2,13 @@ package ru.nsu.zhdanov.lab_4.thread_pool;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomFixedThreadPool implements ExecutorService {
   public final static int POOL_DELAY = 180;
-  public final static int OFFER_DELAY = 30;
   private final String namePrefix;
 
   private final ReentrantLock lock = new ReentrantLock();
@@ -110,18 +107,15 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-    List<Future<T>> targetList = new ArrayList<>(tasks.size());
-    for (var task : tasks) {
-      var fut = new FutureTask<>(task);
-      execute(fut);
-      targetList.add(fut);
-    }
+    List<Future<T>> futures = new ArrayList<>(tasks.size());
+    tasks.forEach(callbl -> futures.add(submit((callbl))));
+
     long duration = unit.toMillis(timeout);
     long start = System.currentTimeMillis();
     long end = start + duration;
 
     try {
-      for (var fut : targetList) {
+      for (var fut : futures) {
         long cur = System.currentTimeMillis();
         try {
           if (end - cur > 0) fut.get(end - cur, TimeUnit.MILLISECONDS);
@@ -130,8 +124,9 @@ public class CustomFixedThreadPool implements ExecutorService {
         }
       }
     } catch (TimeoutException ignored) {
+      futures.forEach(future -> future.cancel(true));
     }
-    return targetList;
+    return futures;
   }
 
   @NotNull
@@ -147,25 +142,24 @@ public class CustomFixedThreadPool implements ExecutorService {
   @NotNull
   @Override
   public <T> T invokeAny(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-    BlockingQueue<T> sync = new SynchronousQueue<>();
-    AtomicBoolean anyInvoked = new AtomicBoolean(false);
+    ExecutorCompletionService<T> cs = new ExecutorCompletionService<>(this);
+    List<Future<T>> futures = new ArrayList<>(tasks.size());
+    tasks.forEach(task -> futures.add(cs.submit(task)));
 
-    for (var task : tasks) {
-      execute(() -> {
-        try {
-          T rez = task.call();
-          while (!anyInvoked.get()) {
-            anyInvoked.compareAndSet(true, sync.offer(rez));
-          }
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      });
+    long duration = unit.toMillis(timeout);
+    long start = System.currentTimeMillis();
+    long end = start + duration;
+
+    try {
+      for (long cur = System.currentTimeMillis(); cur < end; cur = System.currentTimeMillis()) {
+        var future = cs.poll(end - cur, TimeUnit.MILLISECONDS);
+        if (future != null) return future.get();
+      }
+    } finally {
+      futures.forEach(tFuture -> tFuture.cancel(true));
     }
-    T rez = sync.poll(timeout, unit);
 
-    if (rez == null) throw new TimeoutException();
-    return rez;
+    throw new TimeoutException();
   }
 
   @Override
@@ -194,22 +188,20 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   private void submitNewWorker() {
     var worker = new Worker();
-    lock.lock();
-    try {
-      worker.setName(namePrefix + (workers.size() + 1));
-    } finally {
-      lock.unlock();
-    }
+    worker.setName(namePrefix + (workers.size() + 1));
     worker.start();
     workers.add(worker);
   }
 
   private void addTask(Runnable task) {
     if (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads) {
-      synchronized (workers) {
+      lock.lock();
+      try {
         if (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads) {
           submitNewWorker();
         }
+      } finally {
+        lock.unlock();
       }
     }
     if (!taskPool.offer(task)) throw new RejectedExecutionException();

@@ -22,8 +22,7 @@
         <fileAppend>false</fileAppend>
     </appender>
 
-    <!-- Уровень логирования -->
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>

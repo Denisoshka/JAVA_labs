@@ -21,17 +21,21 @@ public class CarRepositoryController implements CatOrderedListener {
 
   public void perform() {
     worker.submit(() -> {
-      while (Thread.currentThread().isAlive()) {
-        synchronized (this) {
-          try {
+      try {
+        while (!Thread.currentThread().isInterrupted()) {
+          synchronized (this) {
             this.wait();
-          } catch (InterruptedException e) {
-            return;
-          }
-          if (repository.occupancy() < dealersQuantity) {
-            factory.requestCars(repository.getRemainingCapacity());
+            if (repository.occupancy() < dealersQuantity) {
+              factory.requestCars(repository.getRemainingCapacity());
+              log.trace("request " + repository.getRemainingCapacity());
+            }
           }
         }
+      } catch (InterruptedException ignored) {
+      } catch (Exception e) {
+        log.warn("unexpected exception " + e.getMessage());
+      } finally {
+        log.trace("interrupted");
       }
     });
   }
@@ -45,6 +49,5 @@ public class CarRepositoryController implements CatOrderedListener {
     synchronized (this) {
       this.notifyAll();
     }
-
   }
 }

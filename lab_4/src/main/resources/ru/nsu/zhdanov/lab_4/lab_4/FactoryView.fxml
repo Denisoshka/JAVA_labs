@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import ru.nsu.zhdanov.lab_4.facade.SectionStateView ?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.nsu.zhdanov.lab_4.facade.MainController">
+    <SplitPane dividerPositions="0.45" prefWidth="600" prefHeight="400" AnchorPane.leftAnchor="0"
+               AnchorPane.bottomAnchor="0" xmlns="http://javafx.com/javafx"
+               xmlns:fx="http://javafx.com/fxml">
+        <AnchorPane>
+            <VBox alignment="CENTER" spacing="10">
+                <TextArea fx:id="logsPool" prefWidth="250" prefHeight="350"/>
+            </VBox>
+        </AnchorPane>
+        <AnchorPane>
+            <VBox alignment="CENTER" spacing="10">
+                <SectionStateView fx:id="engineState" min="1000" max="5000"
+                                  label="engine section" description="total produced"/>
+                <SectionStateView fx:id="bodyState" min="1000" max="5000"
+                                  label="body section" description="total produced"/>
+                <SectionStateView fx:id="accessoriesState" min="1000" max="5000"
+                                  label="accessories section" description="total produced"/>
+                <SectionStateView fx:id="factoryState" min="1000" max="5000"
+                                  label="factory section" description="total produced"/>
+            </VBox>
+        </AnchorPane>
+    </SplitPane>
+</AnchorPane>

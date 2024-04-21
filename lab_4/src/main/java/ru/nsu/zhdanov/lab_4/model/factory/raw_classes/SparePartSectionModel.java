@@ -1,9 +1,6 @@
-package ru.nsu.zhdanov.lab_4.model;
+package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
-import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePart;
-import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartProvider;
-import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartRepository;
 
 public class SparePartSectionModel<SparePartT extends SparePart> implements SetDelayInterface {
   private SparePartProvider<SparePartT> provider;
@@ -20,19 +17,11 @@ public class SparePartSectionModel<SparePartT extends SparePart> implements SetD
     provider.setDelay(delay);
   }
 
-  public int getProviderDelay() {
-    return provider.getDelay();
-  }
-
-  public int getProductsQuantity() {
-    return repository.remainingCapacity();
-  }
-
   public void perform() {
     provider.perform();
   }
 
-  public void shutdown() {
+  public void shutdownNow() {
     provider.shutdownNow();
   }
 

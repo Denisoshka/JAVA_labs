@@ -9,9 +9,9 @@ import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarRepository;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarRepositoryController;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartModelMonitorListener;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
 
 @Slf4j
 public class FactoryModel implements SetDelayInterface {
@@ -26,7 +26,6 @@ public class FactoryModel implements SetDelayInterface {
           final SparePartSupplier<Engine> engineRepo,
           final SparePartSupplier<Accessories> accRepo
   ) {
-    log.info("init FactoryController");
     this.repository = new CarRepository(repoSize);
     this.factory = new CarFactory(this.repository, bodyRepo, engineRepo, accRepo, workersQuantity, factoryDelay);
     this.controller = new CarRepositoryController(this.repository, this.factory, dealersQuantity);
@@ -41,17 +40,13 @@ public class FactoryModel implements SetDelayInterface {
     return repository.occupancy();
   }
 
-//  public int getFactoryDelay() {
-//    return factoryDelay.get();
-//  }
-
   public void perform() {
-   log.debug("perform");
+    log.trace("perform");
     this.controller.perform();
   }
 
   public void shutdown() {
-    log.debug("shutdown factory");
+    log.trace("shutdown");
     this.factory.shutdown();
     this.controller.shutdown();
   }
@@ -59,5 +54,9 @@ public class FactoryModel implements SetDelayInterface {
   @Override
   public void setDelay(int delay) {
     factory.setDelay(delay);
+  }
+
+  public CarFactory getFactory() {
+    return factory;
   }
 }

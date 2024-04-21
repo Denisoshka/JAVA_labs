@@ -1,43 +1,53 @@
 package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartConsumer;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartModelMonitorListener;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
-public abstract class SparePartProvider<SparePartT> {
-  protected @Setter SparePartConsumer<SparePartT> repository;
+public class SparePartProvider<SparePartT> implements MonitorListenerIntroduction {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(SparePartProvider.class);
+  protected SparePartConsumer<SparePartT> repository;
   private final SparePartFactoryInterface factory;
 
   private volatile int delay;
+  ;
   private final ExecutorService executorService;
-  private final SparePartType sparePartName;
+  private final SparePartType sparePartType;
   private final int providersQuantity;
+  private final AtomicInteger totalProduced = new AtomicInteger(0);
+  private final List<SparePartModelMonitorListener> listeners = new ArrayList<>(1);
 
   public SparePartProvider(final SparePartFactoryInterface factory, final SparePartType type, final int providersQuantity, final int delay) {
     this.executorService = Executors.newFixedThreadPool(providersQuantity);
     this.providersQuantity = providersQuantity;
-    this.sparePartName = type;
+    this.sparePartType = type;
     this.factory = factory;
     this.delay = delay;
-    log.debug(this.sparePartName + " init " + "providersQuantity: " + providersQuantity + ", " + "delay: " + delay);
   }
 
   public void perform() {
     Runnable task = () -> {
-      while (Thread.currentThread().isAlive()) {
-        try {
-          SparePartT sparePart = (SparePartT) factory.make(sparePartName.toString());
-//          log.debug("delay in provider " + sparePartName + " " + delay);
+      try {
+        while (Thread.currentThread().isAlive()) {
+          SparePartT sparePart = (SparePartT) factory.make(sparePartType.toString());
+          log.trace("spare part " + sparePartType + " " + Integer.toHexString(sparePart.hashCode()));
+          onSparePartProduced();
           Thread.sleep(delay);
           repository.acceptSparePart(sparePart);
-        } catch (InterruptedException e) {
-          return;
         }
+      } catch (InterruptedException ignored) {
+      } catch (Exception e) {
+        log.warn("unexpected exception " + e.getMessage());
+      } finally {
+        log.trace("interrupted");
       }
     };
     for (int i = 0; i < providersQuantity; i++) {
@@ -49,16 +59,29 @@ public abstract class SparePartProvider<SparePartT> {
     executorService.shutdownNow();
   }
 
+  private void onSparePartProduced() {
+    String condition = String.valueOf(totalProduced.incrementAndGet());
+    for (var listener : listeners) listener.changed(condition);
+  }
+
+  @Override
+  public void addProduceMonitorListener(SparePartModelMonitorListener listener) {
+    listeners.add(listener);
+  }
+
   public int getDelay() {
     return delay;
   }
 
   public void setDelay(int delay) {
-    log.debug("set delay in provider " + sparePartName + " " + delay);
     this.delay = delay;
   }
 
-  public SparePartType getSparePartName() {
-    return sparePartName;
+  public SparePartType getSparePartType() {
+    return sparePartType;
+  }
+
+  public void setRepository(SparePartConsumer<SparePartT> repository) {
+    this.repository = repository;
   }
 }

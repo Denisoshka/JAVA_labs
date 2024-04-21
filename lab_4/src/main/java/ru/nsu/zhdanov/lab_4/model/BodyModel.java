@@ -4,6 +4,7 @@ import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.BodyProvider;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.BodyRepository;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
+import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartSectionModel;
 
 public class BodyModel extends SparePartSectionModel<Body> {
   public BodyModel(final SparePartFactoryInterface factory, int provideDelay, int repoSize) {

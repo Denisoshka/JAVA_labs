@@ -2,40 +2,28 @@ package ru.nsu.zhdanov.lab_4.facade;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import ru.nsu.zhdanov.lab_4.model.SparePartSectionModel;
-import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SetDelayInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class MainController {
   @FXML
-  private TextField factoryValueSlider;
+  private SectionStateView engineState;
   @FXML
-  private Slider factorySlider;
+  private SectionStateView bodyState;
+  @FXML
+  private SectionStateView factoryState;
+  @FXML
+  private SectionStateView accessoriesState;
   @FXML
   private TextArea logsPool;
-  @FXML
-  private Slider bodySlider;
-  @FXML
-  private TextField bodyValueSlider;
-  @FXML
-  private Slider engineSlider;
-  @FXML
-  private TextField engineValueSlider;
-  @FXML
-  private Slider accessoriesSlider;
-  @FXML
-  private TextField accessoriesValueSlider;
 
   private MainContext context = null;
   private Stage primaryStage;
@@ -52,23 +40,35 @@ public class MainController {
       controllerProperties = new Properties();
       controllerProperties.load(in);
     }
+
+    factoryState.addListener(
+            (observable, oldValue, newValue) -> context.getFactoryModel().setDelay(newValue.intValue())
+    );
+    engineState.addListener(
+            (observable, oldValue, newValue) -> context.getEngineModel().setDelay(newValue.intValue())
+    );
+    bodyState.addListener(
+            (observable, oldValue, newValue) -> context.getBodyModel().setDelay(newValue.intValue())
+    );
+    accessoriesState.addListener(
+            (observable, oldValue, newValue) -> context.getAccessoriesModel().setDelay(newValue.intValue())
+    );
     this.context = new MainContext(sparePartsProperties, controllerProperties);
-    initSlider(bodySlider, bodyValueSlider, this.context.getBodySectionModel());
-    initSlider(engineSlider, engineValueSlider, this.context.getEngineSectionModel());
-    initSlider(accessoriesSlider, accessoriesValueSlider, this.context.getAccessoriesSectionController());
-    initSlider(factorySlider, factoryValueSlider, this.context.getFactoryModel());
+    context.getBodyModel().getProvider().addProduceMonitorListener(
+            condition -> Platform.runLater(() -> bodyState.setCondition(condition))
+    );
+    context.getEngineModel().getProvider().addProduceMonitorListener(
+            condition -> Platform.runLater(() -> engineState.setCondition(condition))
+    );
+    context.getAccessoriesModel().getProvider().addProduceMonitorListener(
+            condition -> Platform.runLater(() -> accessoriesState.setCondition(condition))
+    );
+    context.getFactoryModel().getFactory().addProduceMonitorListener(
+            condition -> Platform.runLater(() -> factoryState.setCondition(condition))
+    );
     this.context.perform();
   }
 
-  private void initSlider(@NotNull final Slider slider, @NotNull final TextField textField, final SetDelayInterface model) {
-    log.debug("init slider " + model.toString());
-    textField.setText(String.valueOf(slider.getValue()));
-    slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-      log.debug("new delay" + model + "=" + newValue.toString());
-      textField.setText(String.valueOf(newValue.intValue()));
-      model.setDelay(newValue.intValue());
-    });
-  }
 
   public void setPrimaryStage(Stage primaryStage) {
     this.primaryStage = primaryStage;

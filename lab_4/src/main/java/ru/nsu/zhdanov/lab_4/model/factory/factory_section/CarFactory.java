@@ -1,25 +1,30 @@
 package ru.nsu.zhdanov.lab_4.model.factory.factory_section;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
+import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_4.model.factory.accessories_section.Accessories;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.engine_section.Engine;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartModelMonitorListener;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartSupplier;
 import ru.nsu.zhdanov.lab_4.thread_pool.CustomFixedThreadPool;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
-public class CarFactory implements CarsRequest {
+public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(CarFactory.class);
   private final ExecutorService workers;
   private final SparePartSupplier<Body> bodyRepo;
   private final SparePartSupplier<Engine> engRepo;
   private final SparePartSupplier<Accessories> accRepo;
   private final CarConsumer carRepo;
   private volatile int delay;
+
+  private final List<SparePartModelMonitorListener> listeners = new ArrayList<>(1);
+  private final AtomicInteger totalProduced = new AtomicInteger(0);
 
   public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
                     SparePartSupplier<Engine> engRepo,
@@ -31,7 +36,7 @@ public class CarFactory implements CarsRequest {
     this.accRepo = accRepo;
     this.carRepo = carRepo;
     this.delay = delay;
-    log.debug("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
+    log.trace("init CarFactory workersQuantity:" + workersQuantity + " " + this.bodyRepo + " " + this.engRepo + " " + this.accRepo + " delay: " + this.delay);
   }
 
   public void shutdown() {
@@ -41,22 +46,18 @@ public class CarFactory implements CarsRequest {
   @Override
   public void requestCars(int orderSize) {
     Runnable task = () -> {
-      Body body;
-      Engine engine;
-      Accessories acc;
       try {
-        body = this.bodyRepo.getSparePart();
-        engine = this.engRepo.getSparePart();
-        acc = this.accRepo.getSparePart();
+        Body body = this.bodyRepo.getSparePart();
+        Engine engine = this.engRepo.getSparePart();
+        Accessories acc = this.accRepo.getSparePart();
         Thread.sleep(this.delay);
-      } catch (InterruptedException e) {
-        return;
+        Car car = new Car(body, engine, acc);
+        log.trace("new car: " + car);
+        onCarProduced();
+        carRepo.acceptCar(car);
+      } catch (InterruptedException ignored) {
       }
-      Car car = new Car(body, engine, acc);
-      log.debug("new car: " + car);
-      carRepo.acceptCar(car);
     };
-
     for (int i = 0; i < orderSize; ++i) {
       workers.submit(task);
     }
@@ -64,5 +65,15 @@ public class CarFactory implements CarsRequest {
 
   public void setDelay(int delay) {
     this.delay = delay;
+  }
+
+  @Override
+  public void addProduceMonitorListener(SparePartModelMonitorListener listener) {
+    listeners.add(listener);
+  }
+
+  private void onCarProduced() {
+    String condition = String.valueOf(totalProduced.incrementAndGet());
+    for (var listener : listeners) listener.changed(condition);
   }
 }
