@@ -8,6 +8,8 @@ module ru.nsu.zhdanov.lab_4.lab_4 {
   requires com.almasb.fxgl.all;
   requires static lombok;
   requires annotations;
+  requires ch.qos.logback.classic;
+  requires ch.qos.logback.core;
 
   opens ru.nsu.zhdanov.lab_4.lab_4 to javafx.fxml;
   exports ru.nsu.zhdanov.lab_4.lab_4;

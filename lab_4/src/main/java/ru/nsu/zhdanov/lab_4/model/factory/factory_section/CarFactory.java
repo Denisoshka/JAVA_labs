@@ -1,6 +1,8 @@
 package ru.nsu.zhdanov.lab_4.model.factory.factory_section;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.nsu.zhdanov.lab_4.model.factory.accessories_section.Accessories;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.engine_section.Engine;
@@ -15,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
-  private static final Logger log = org.slf4j.LoggerFactory.getLogger(CarFactory.class);
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(CarFactory.class.getName());
   private final ExecutorService workers;
   private final SparePartSupplier<Body> bodyRepo;
   private final SparePartSupplier<Engine> engRepo;
@@ -36,6 +38,7 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
     this.accRepo = accRepo;
     this.carRepo = carRepo;
     this.delay = delay;
+//    log.s
   }
 
   public void shutdown() {

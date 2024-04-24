@@ -1,10 +1,10 @@
 package ru.nsu.zhdanov.lab_4.model;
 
-import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 import ru.nsu.zhdanov.lab_4.model.dealer_repository.CarDealerCentre;
+import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 
 public class DealerModel {
-  CarDealerCentre dealer;
+  private final CarDealerCentre dealer;
 
   public DealerModel(final CarSupplier carRepo, final int managersQuantity, final int delay) {
     this.dealer = new CarDealerCentre(carRepo, managersQuantity, delay);
@@ -20,5 +20,9 @@ public class DealerModel {
 
   public void shutdown() {
     dealer.shutdown();
+  }
+
+  public CarDealerCentre getDealer() {
+    return dealer;
   }
 }

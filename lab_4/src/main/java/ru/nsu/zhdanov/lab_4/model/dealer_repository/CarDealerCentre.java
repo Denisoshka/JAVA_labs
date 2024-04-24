@@ -4,14 +4,17 @@ import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.Car;
 import ru.nsu.zhdanov.lab_4.model.factory.factory_section.CarSupplier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CarDealerCentre {
+public class CarDealerCentre implements CarSellListenerIntroduction {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(CarDealerCentre.class);
   private final ExecutorService managers;
   private final CarSupplier carRepo;
   private final int managersQuantity;
+  private final List<CarSellListener> listeners = new ArrayList<>(1);
   private volatile int delay;
 
   public CarDealerCentre(final CarSupplier carRepo, final int managersQuantity, final int delay) {
@@ -28,8 +31,7 @@ public class CarDealerCentre {
           log.trace("start");
           while (!Thread.currentThread().isInterrupted()) {
             Car car = carRepo.getCar();
-//          todo make here interface for logging sold car
-            log.info("sell car" + car.toString());
+            onCarSold(car);
             Thread.sleep(delay);
           }
         } catch (InterruptedException ignored) {
@@ -39,6 +41,21 @@ public class CarDealerCentre {
           log.trace("interrupted");
         }
       });
+    }
+  }
+
+  @Override
+  public void addCarProduceListener(CarSellListener listener) {
+    listeners.add(listener);
+  }
+
+  private void onCarSold(Car car) {
+    try{
+      for (var listener : listeners) {
+        listener.produced(car);
+      }
+    }catch (Exception e){
+      log.warn("onCarSold", e);
     }
   }
 

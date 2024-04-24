@@ -1,10 +1,10 @@
 package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 
 import org.slf4j.Logger;
+import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartConsumer;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartModelMonitorListener;
-import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class SparePartProvider<SparePartT> implements MonitorListenerIntroductio
   public void perform() {
     Runnable task = () -> {
       try {
-        while (Thread.currentThread().isAlive()) {
+        while (!Thread.currentThread().isInterrupted()) {
           SparePartT sparePart = (SparePartT) factory.make(sparePartType.toString());
           log.trace("spare part " + sparePartType + " " + Integer.toHexString(sparePart.hashCode()));
           onSparePartProduced();

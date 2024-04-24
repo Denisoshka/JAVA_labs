@@ -12,14 +12,9 @@ public class CarRepository implements CarSupplier, CarConsumer {
   }
 
   @Override
-  public Car getCar() {
-    Car car = null;
-    try {
-      controller.carOrdered();
-      car = repository.take();
-    } catch (InterruptedException ignored) {
-    }
-    return car;
+  public Car getCar() throws InterruptedException {
+    controller.carOrdered();
+    return repository.take();
   }
 
   @Override

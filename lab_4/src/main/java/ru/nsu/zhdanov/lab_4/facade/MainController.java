@@ -4,12 +4,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class MainController {
+  private final Logger log = org.slf4j.LoggerFactory.getLogger(MainController.class.getName());
+//  private final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+
   @FXML
   private SectionStateView engineState;
   @FXML
@@ -21,7 +25,7 @@ public class MainController {
   @FXML
   private TextArea logsPool;
 
-  private MainContext context = null;
+  private MainContext modelContext = null;
   private Stage primaryStage;
 
   @FXML
@@ -38,38 +42,43 @@ public class MainController {
     }
 
     factoryState.addListener(
-            (observable, oldValue, newValue) -> context.getFactoryModel().setDelay(newValue.intValue())
+            (observable, oldValue, newValue) -> modelContext.getFactoryModel().setDelay(newValue.intValue())
     );
     engineState.addListener(
-            (observable, oldValue, newValue) -> context.getEngineModel().setDelay(newValue.intValue())
+            (observable, oldValue, newValue) -> modelContext.getEngineModel().setDelay(newValue.intValue())
     );
     bodyState.addListener(
-            (observable, oldValue, newValue) -> context.getBodyModel().setDelay(newValue.intValue())
+            (observable, oldValue, newValue) -> modelContext.getBodyModel().setDelay(newValue.intValue())
     );
     accessoriesState.addListener(
-            (observable, oldValue, newValue) -> context.getAccessoriesModel().setDelay(newValue.intValue())
+            (observable, oldValue, newValue) -> modelContext.getAccessoriesModel().setDelay(newValue.intValue())
     );
-    this.context = new MainContext(sparePartsProperties, controllerProperties);
-    context.getBodyModel().getProvider().addProduceMonitorListener(
+    this.modelContext = new MainContext(sparePartsProperties, controllerProperties);
+    modelContext.getBodyModel().getProvider().addProduceMonitorListener(
             condition -> Platform.runLater(() -> bodyState.setCondition(condition))
     );
-    context.getEngineModel().getProvider().addProduceMonitorListener(
+    modelContext.getEngineModel().getProvider().addProduceMonitorListener(
             condition -> Platform.runLater(() -> engineState.setCondition(condition))
     );
-    context.getAccessoriesModel().getProvider().addProduceMonitorListener(
+    modelContext.getAccessoriesModel().getProvider().addProduceMonitorListener(
             condition -> Platform.runLater(() -> accessoriesState.setCondition(condition))
     );
-    context.getFactoryModel().getFactory().addProduceMonitorListener(
+    modelContext.getFactoryModel().getFactory().addProduceMonitorListener(
             condition -> Platform.runLater(() -> factoryState.setCondition(condition))
     );
-    this.context.perform();
+
+    if (Boolean.parseBoolean((String) controllerProperties.getOrDefault("logSale", "false"))) {
+      modelContext.getDealerModel().getDealer().addCarProduceListener(car -> log.info(car.toString()));
+    }
+
+    this.modelContext.perform();
   }
 
 
   public void setPrimaryStage(Stage primaryStage) {
     this.primaryStage = primaryStage;
     this.primaryStage.setOnCloseRequest(event -> {
-      context.shutdown();
+      modelContext.shutdown();
       Platform.exit();
     });
   }

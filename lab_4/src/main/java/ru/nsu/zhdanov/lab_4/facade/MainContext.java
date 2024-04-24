@@ -2,8 +2,6 @@ package ru.nsu.zhdanov.lab_4.facade;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.nsu.zhdanov.lab_4.model.*;
-import ru.nsu.zhdanov.lab_4.model.AccessoriesModel;
-import ru.nsu.zhdanov.lab_4.model.BodyModel;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
 import ru.nsu.zhdanov.lab_4.model.factory.raw_classes.SparePartFactory;
 
@@ -84,4 +82,9 @@ public class MainContext {
   public AccessoriesModel getAccessoriesModel() {
     return accessoriesModel;
   }
+
+  public DealerModel getDealerModel() {
+    return dealerModel;
+  }
+
 }

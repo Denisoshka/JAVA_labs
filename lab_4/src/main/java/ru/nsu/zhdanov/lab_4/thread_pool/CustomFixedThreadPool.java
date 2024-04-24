@@ -2,7 +2,10 @@ package ru.nsu.zhdanov.lab_4.thread_pool;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,8 +73,13 @@ public class CustomFixedThreadPool implements ExecutorService {
     long duration = unit.toMillis(timeout);
     long start = System.currentTimeMillis();
     long end = start + duration;
-    for (long cur = System.currentTimeMillis(); !workers.isEmpty() && end - cur > 0; cur = System.currentTimeMillis()) {
-      termination.await(end - cur, TimeUnit.MILLISECONDS);
+    lock.lock();
+    try {
+      for (long cur = System.currentTimeMillis(); !workers.isEmpty() && end - cur > 0; cur = System.currentTimeMillis()) {
+        termination.await(end - cur, TimeUnit.MILLISECONDS);
+      }
+    } finally {
+      lock.unlock();
     }
     return workers.isEmpty();
   }
@@ -108,7 +116,7 @@ public class CustomFixedThreadPool implements ExecutorService {
   @Override
   public <T> List<Future<T>> invokeAll(@NotNull Collection<? extends Callable<T>> tasks, long timeout, @NotNull TimeUnit unit) throws InterruptedException {
     List<Future<T>> futures = new ArrayList<>(tasks.size());
-    tasks.forEach(callbl -> futures.add(submit((callbl))));
+    tasks.forEach(callbl -> futures.add(submit(callbl)));
 
     long duration = unit.toMillis(timeout);
     long start = System.currentTimeMillis();
@@ -188,7 +196,7 @@ public class CustomFixedThreadPool implements ExecutorService {
 
   private void submitNewWorker() {
     var worker = new Worker();
-    worker.setName(namePrefix + (workers.size() + 1));
+    worker.setName(namePrefix + worker.hashCode());
     worker.start();
     workers.add(worker);
   }
