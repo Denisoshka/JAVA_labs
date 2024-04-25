@@ -11,9 +11,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class MainController {
-  private final Logger log = org.slf4j.LoggerFactory.getLogger(MainController.class.getName());
-//  private final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-
   @FXML
   private SectionStateView engineState;
   @FXML
@@ -55,18 +52,19 @@ public class MainController {
     );
     this.modelContext = new MainContext(sparePartsProperties, controllerProperties);
     modelContext.getBodyModel().getProvider().addProduceMonitorListener(
-            condition -> Platform.runLater(() -> bodyState.setCondition(condition))
+            (occupancy, totalProduced) -> Platform.runLater(() -> bodyState.setCondition(occupancy + " / " + totalProduced))
     );
     modelContext.getEngineModel().getProvider().addProduceMonitorListener(
-            condition -> Platform.runLater(() -> engineState.setCondition(condition))
+            (occupancy, totalProduced) -> Platform.runLater(() -> engineState.setCondition(occupancy + " / " + totalProduced))
     );
     modelContext.getAccessoriesModel().getProvider().addProduceMonitorListener(
-            condition -> Platform.runLater(() -> accessoriesState.setCondition(condition))
+            (occupancy, totalProduced) -> Platform.runLater(() -> accessoriesState.setCondition(occupancy + " / " + totalProduced))
     );
     modelContext.getFactoryModel().getFactory().addProduceMonitorListener(
-            condition -> Platform.runLater(() -> factoryState.setCondition(condition))
+            (occupancy, totalProduced) -> Platform.runLater(() -> factoryState.setCondition(occupancy + " / " + totalProduced))
     );
 
+    final Logger log = org.slf4j.LoggerFactory.getLogger("carLogger");
     if (Boolean.parseBoolean((String) controllerProperties.getOrDefault("logSale", "false"))) {
       modelContext.getDealerModel().getDealer().addCarProduceListener((dealer, car) -> log.info(dealer + " " + car.toString()));
     }

@@ -22,4 +22,8 @@ public class SparePartRepository<SparePartT> implements SparePartSupplier<SpareP
   public void acceptSparePart(SparePartT sparePart) throws InterruptedException {
     repository.put(sparePart);
   }
+
+  public int occupancy() {
+    return repository.size();
+  }
 }

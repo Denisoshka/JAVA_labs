@@ -2,7 +2,6 @@ package ru.nsu.zhdanov.lab_4.model.factory.raw_classes;
 
 import org.slf4j.Logger;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.MonitorListenerIntroduction;
-import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartConsumer;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartFactoryInterface;
 import ru.nsu.zhdanov.lab_4.model.factory.interfaces.SparePartModelMonitorListener;
 
@@ -14,11 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SparePartProvider<SparePartT> implements MonitorListenerIntroduction {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(SparePartProvider.class);
-  protected SparePartConsumer<SparePartT> repository;
+  protected SparePartRepository<SparePartT> repository;
   private final SparePartFactoryInterface factory;
 
   private volatile int delay;
-  ;
   private final ExecutorService executorService;
   private final SparePartType sparePartType;
   private final int providersQuantity;
@@ -39,8 +37,8 @@ public class SparePartProvider<SparePartT> implements MonitorListenerIntroductio
         while (!Thread.currentThread().isInterrupted()) {
           SparePartT sparePart = (SparePartT) factory.make(sparePartType.toString());
           log.trace("spare part " + sparePartType + " " + Integer.toHexString(sparePart.hashCode()));
-          onSparePartProduced();
           Thread.sleep(delay);
+          onSparePartProduced();
           repository.acceptSparePart(sparePart);
         }
       } catch (InterruptedException ignored) {
@@ -60,8 +58,7 @@ public class SparePartProvider<SparePartT> implements MonitorListenerIntroductio
   }
 
   private void onSparePartProduced() {
-    String condition = String.valueOf(totalProduced.incrementAndGet());
-    for (var listener : listeners) listener.changed(condition);
+    for (var listener : listeners) listener.changed(repository.occupancy(), this.totalProduced.incrementAndGet());
   }
 
   @Override
@@ -81,7 +78,7 @@ public class SparePartProvider<SparePartT> implements MonitorListenerIntroductio
     return sparePartType;
   }
 
-  public void setRepository(SparePartConsumer<SparePartT> repository) {
+  public void setRepository(SparePartRepository<SparePartT> repository) {
     this.repository = repository;
   }
 }

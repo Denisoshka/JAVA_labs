@@ -1,8 +1,6 @@
 package ru.nsu.zhdanov.lab_4.model.factory.factory_section;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ru.nsu.zhdanov.lab_4.model.factory.accessories_section.Accessories;
 import ru.nsu.zhdanov.lab_4.model.factory.body_section.Body;
 import ru.nsu.zhdanov.lab_4.model.factory.engine_section.Engine;
@@ -22,13 +20,13 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
   private final SparePartSupplier<Body> bodyRepo;
   private final SparePartSupplier<Engine> engRepo;
   private final SparePartSupplier<Accessories> accRepo;
-  private final CarConsumer carRepo;
+  private final CarRepository carRepo;
   private volatile int delay;
 
   private final List<SparePartModelMonitorListener> listeners = new ArrayList<>(1);
   private final AtomicInteger totalProduced = new AtomicInteger(0);
 
-  public CarFactory(CarConsumer carRepo, SparePartSupplier<Body> bodyRepo,
+  public CarFactory(CarRepository carRepo, SparePartSupplier<Body> bodyRepo,
                     SparePartSupplier<Engine> engRepo,
                     SparePartSupplier<Accessories> accRepo,
                     final int workersQuantity, final int delay) {
@@ -55,8 +53,8 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
         Thread.sleep(this.delay);
         Car car = new Car(body, engine, acc);
         log.trace("new car: " + car);
-        onCarProduced();
         carRepo.acceptCar(car);
+        onCarProduced();
       } catch (InterruptedException ignored) {
       }
     };
@@ -71,8 +69,7 @@ public class CarFactory implements CarsRequest, MonitorListenerIntroduction {
   }
 
   private void onCarProduced() {
-    String condition = String.valueOf(totalProduced.incrementAndGet());
-    for (var listener : listeners) listener.changed(condition);
+    for (var listener : listeners) listener.changed(carRepo.occupancy(), totalProduced.incrementAndGet());
   }
 
   public void setDelay(int delay) {

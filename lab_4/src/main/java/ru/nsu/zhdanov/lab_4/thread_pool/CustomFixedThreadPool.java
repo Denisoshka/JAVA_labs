@@ -202,17 +202,17 @@ public class CustomFixedThreadPool implements ExecutorService {
   }
 
   private void addTask(Runnable task) {
-    if (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads) {
+    if (!isShutdown && (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads)) {
       lock.lock();
       try {
-        if (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads) {
+        if (!isShutdown && (workers.isEmpty() || !taskPool.isEmpty() && workers.size() < nThreads)) {
           submitNewWorker();
         }
       } finally {
         lock.unlock();
       }
     }
-    if (!taskPool.offer(task)) throw new RejectedExecutionException();
+    if (isShutdown || !taskPool.offer(task)) throw new RejectedExecutionException();
   }
 
   private void submitExpiredWorker(Worker worker) {
