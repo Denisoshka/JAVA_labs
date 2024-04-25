@@ -8,9 +8,9 @@ public class EventFactory implements EventSupplier {
 
   public EventFactory() {
     this.events = new HashMap<>();
-    this.events.put("list", new ListCommand());
-    this.events.put("message", new MessageCommand());
-    this.events.put("logout", new LogoutCommand());
+//    this.events.put("list", new ListCommand());
+//    this.events.put("message", new MessageCommand());
+//    this.events.put("logout", new LogoutCommand());
   }
 
   @Override

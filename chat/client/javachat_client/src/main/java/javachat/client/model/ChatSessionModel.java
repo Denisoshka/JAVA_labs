@@ -1,4 +1,9 @@
 package javachat.client.model;
 
-public class ChatSession {
+import org.w3c.dom.Document;
+
+public class ChatSessionModel {
+  void newMessage(Document message){
+
+  }
 }
