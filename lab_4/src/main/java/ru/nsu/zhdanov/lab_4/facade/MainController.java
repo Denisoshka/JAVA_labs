@@ -68,7 +68,7 @@ public class MainController {
     );
 
     if (Boolean.parseBoolean((String) controllerProperties.getOrDefault("logSale", "false"))) {
-      modelContext.getDealerModel().getDealer().addCarProduceListener(car -> log.info(car.toString()));
+      modelContext.getDealerModel().getDealer().addCarProduceListener((dealer, car) -> log.info(dealer + " " + car.toString()));
     }
 
     this.modelContext.perform();

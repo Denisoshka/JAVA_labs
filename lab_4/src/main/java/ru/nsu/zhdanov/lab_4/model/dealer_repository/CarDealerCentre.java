@@ -26,12 +26,14 @@ public class CarDealerCentre implements CarSellListenerIntroduction {
 
   public void perform() {
     for (int i = 0; i < managersQuantity; i++) {
+
+      String dealerName = "dealer " + i;
       managers.submit(() -> {
         try {
           log.trace("start");
           while (!Thread.currentThread().isInterrupted()) {
             Car car = carRepo.getCar();
-            onCarSold(car);
+            onCarSold(dealerName, car);
             Thread.sleep(delay);
           }
         } catch (InterruptedException ignored) {
@@ -49,12 +51,12 @@ public class CarDealerCentre implements CarSellListenerIntroduction {
     listeners.add(listener);
   }
 
-  private void onCarSold(Car car) {
-    try{
+  private void onCarSold(String dealer, Car car) {
+    try {
       for (var listener : listeners) {
-        listener.produced(car);
+        listener.produced(dealer, car);
       }
-    }catch (Exception e){
+    } catch (Exception e) {
       log.warn("onCarSold", e);
     }
   }
