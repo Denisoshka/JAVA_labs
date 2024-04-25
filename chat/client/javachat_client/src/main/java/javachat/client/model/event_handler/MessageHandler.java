@@ -5,9 +5,6 @@ import javachat.client.exception.UnableToDecodeMessage;
 import javachat.client.model.Connection;
 import javachat.client.model.ContextExecutor;
 import org.w3c.dom.Document;
-
-import java.io.DataInputStream;
-
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -34,7 +31,7 @@ public class MessageHandler {
   private final static String LOGIN_TAG = "login";
 
   private final ContextExecutor contextExecutor;
-  private final CommandFactory commandFactory;
+  private final EventFactory commandFactory;
 
   private final StringWriter writer;
   private final DocumentBuilder builder;
@@ -44,7 +41,7 @@ public class MessageHandler {
 
   public MessageHandler(ContextExecutor server) throws ParserConfigurationException, TransformerConfigurationException {
     this.writer = new StringWriter();
-    this.commandFactory = new CommandFactory();
+    this.commandFactory = new EventFactory();
     this.factory = DocumentBuilderFactory.newInstance();
     this.builder = factory.newDocumentBuilder();
     this.transformerFactory = TransformerFactory.newInstance();
@@ -52,8 +49,7 @@ public class MessageHandler {
   }
 
   public Document receiveMessage(Connection connection) throws IOClientException, UnableToDecodeMessage {
-    var receiver = connection.getReceiveStream();
-    return receiveMessage(receiver);
+    return receiveMessage(connection.getReceiveStream());
   }
 
   public Document receiveMessage(DataInputStream connection) throws IOClientException, UnableToDecodeMessage {
@@ -120,13 +116,6 @@ public class MessageHandler {
       throw new UnableToDecodeMessage(e.getMessage(), e);
     }
     return writer.toString();
-  }
-
-  private boolean correctLoginRequest(Element root) {
-    if (root.getNodeName().compareTo(COMMAND_TAG) != 0) return false;
-    if (root.getAttribute(NAME_TAG).compareTo(LOGIN_TAG) != 0) return false;
-    if (root.getElementsByTagName(NAME_TAG).getLength() != 1) return false;
-    return root.getElementsByTagName(PASSWORD_TAG).getLength() == 1;
   }
 
   public DocumentBuilderFactory getFactory() {

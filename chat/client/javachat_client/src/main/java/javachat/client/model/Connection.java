@@ -1,6 +1,9 @@
 package javachat.client.model;
 
-import javachat.client.model.message_handler.MessageHandler;
+import javachat.client.exception.UnableToDecodeMessage;
+import javachat.client.model.event_handler.EventInterface;
+import javachat.client.model.event_handler.MessageHandler;
+import org.slf4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,7 +11,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 
+
 public class Connection implements Runnable, AutoCloseable {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
   private final String name;
   private boolean expired;
   private final Socket socket;
@@ -33,23 +38,15 @@ public class Connection implements Runnable, AutoCloseable {
       while (!socket.isClosed()) {
         try {
           var msg = handler.receiveMessage(this);
-          CommandInterface command = handler.handleMessage(msg);
-          if (command == null) {
-            handler.sendMessage(sendStream, ServerMSG.getError("unsupported command"));
-          } else {
-            command.perform(this, contextExecutor, handler, msg);
-          }
+          EventInterface command = handler.handleMessage(msg);
+          command.perform(this, contextExecutor, handler, msg);
         } catch (UnableToDecodeMessage e) {
-          handler.sendMessage(this, ServerMSG.getError(e.getMessage()));
-        } catch (IOException e) {
-          handler.sendMessage(this, ServerMSG.getError(e.getMessage()));
-          contextExecutor.submitExpiredConnection(this);
-          return;
+          log.info(e.getMessage(), e);
+//        todo
         }
       }
     } catch (IOException e) {
-      return;
-//      todo need to make ex handle
+//    todo need to make ex handle
     }
   }
 
@@ -95,6 +92,10 @@ public class Connection implements Runnable, AutoCloseable {
 
   public String getName() {
     return name;
+  }
+
+  public static Logger getLog() {
+    return Connection.log;
   }
 }
 

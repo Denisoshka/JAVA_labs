@@ -10,6 +10,8 @@ module javachat_client.javachat_client {
   requires org.kordamp.bootstrapfx.core;
   requires eu.hansolo.tilesfx;
   requires com.almasb.fxgl.all;
+  requires static lombok;
+  requires org.slf4j;
 
   opens javachat.client to javafx.fxml;
   exports javachat.client;
@@ -18,6 +20,6 @@ module javachat_client.javachat_client {
   opens javachat.client.view to javafx.fxml;
   exports javachat.client.model;
   opens javachat.client.model to javafx.fxml;
-  exports javachat.client.model.message_handler;
-  opens javachat.client.model.message_handler to javafx.fxml;
+  exports javachat.client.model.event_handler;
+  opens javachat.client.model.event_handler to javafx.fxml;
 }
