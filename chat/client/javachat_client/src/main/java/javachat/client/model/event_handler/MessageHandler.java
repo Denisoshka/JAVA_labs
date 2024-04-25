@@ -1,4 +1,4 @@
-package javachat.client.model.message_handler;
+package javachat.client.model.event_handler;
 
 import javachat.client.exception.IOClientException;
 import javachat.client.exception.UnableToDecodeMessage;
@@ -8,9 +8,7 @@ import org.w3c.dom.Document;
 
 import java.io.DataInputStream;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -45,7 +43,6 @@ public class MessageHandler {
   private final TransformerFactory transformerFactory;
 
   public MessageHandler(ContextExecutor server) throws ParserConfigurationException, TransformerConfigurationException {
-    this.server = server;
     this.writer = new StringWriter();
     this.commandFactory = new CommandFactory();
     this.factory = DocumentBuilderFactory.newInstance();
@@ -79,66 +76,32 @@ public class MessageHandler {
     return doc;
   }
 
-  public void sendMessage(Connection connection, String message) throws IOServerException {
+  public void sendMessage(Connection connection, String message) throws IOClientException {
     sendMessage(connection.getSendStream(), message);
   }
 
-  public void sendMessage(DataOutputStream connection, String message) throws IOServerException {
+  public void sendMessage(DataOutputStream connection, String message) throws IOClientException {
     try {
       synchronized (connection) {
         connection.writeInt(message.getBytes().length);
         connection.write(message.getBytes(), 0, message.getBytes().length);
       }
     } catch (IOException e) {
-      throw new IOServerException(e.getMessage(), e);
+      throw new IOClientException(e.getMessage(), e);
     }
   }
 
-  public void sendMessage(Connection connection, Document message) throws IOServerException {
+  public void sendMessage(Connection connection, Document message) throws IOClientException {
     String converterMSG = documentToString(message);
     sendMessage(connection, converterMSG);
   }
 
-  public void sendMessage(DataOutputStream connection, Document message) throws IOServerException {
+  public void sendMessage(DataOutputStream connection, Document message) throws IOClientException {
     String converterMSG = documentToString(message);
     sendMessage(connection, converterMSG);
   }
 
-  public void sendBroadcastMessage(Connection connection, Document message) {
-    String msg = documentToString(message);
-    sendBroadcastMessage(connection, msg);
-  }
-
-  public void sendBroadcastMessage(Connection connection, String message) {
-    var connections = server.getConnections();
-    synchronized (connections) {
-      for (var conn : connections) {
-        if (conn == connection) continue;
-        try {
-          if (!conn.isExpired()) sendMessage(conn, message);
-        } catch (IOServerException e) {
-          server.submitExpiredConnection(conn);
-        }
-      }
-    }
-  }
-
-  public void sendBroadcastMessage(String message) {
-    var connections = server.getConnections();
-    synchronized (connections) {
-      for (var conn : connections) {
-        try {
-          if (!conn.isExpired()) sendMessage(conn, message);
-        } catch (IOServerException e) {
-          server.submitExpiredConnection(conn);
-        }
-      }
-    }
-  }
-
-
-
-  public CommandInterface handleMessage(Document message) {
+  public EventInterface handleMessage(Document message) {
     Element root = message.getDocumentElement();
     String comName;
     if (root.getNodeName().compareTo(COMMAND_TAG) != 0) return null;

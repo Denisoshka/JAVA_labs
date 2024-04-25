@@ -14,11 +14,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class Server implements Runnable, AutoCloseable {
@@ -26,16 +27,15 @@ public class Server implements Runnable, AutoCloseable {
   private static final String PORT = "port";
   private static final long MAX_CONNECTION_TIME = 60_000;
 
-  private final String sessionName = null;
+  private final ConcurrentHashMap.KeySetView<Connection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
+  private final CopyOnWriteArrayList<Connection> connections = new CopyOnWriteArrayList<>();
+
   private final ServerSocket serverSocket;
-  private final Set<Connection> connections;
   private final MessageHandler messageHandler;
-  private final BlockingQueue<Connection> expiredConnections;
   private final ExecutorService expiredConnectionDeleter;
   private final ExecutorService chatExchangeExecutor;
   private final ExecutorService connectionAcceptExecutor;
   private final Properties registeredUsers;
-
 
   Server(Properties properties) throws TransformerConfigurationException, ParserConfigurationException, IOException {
     String ipadress;
@@ -47,33 +47,14 @@ public class Server implements Runnable, AutoCloseable {
       serverSocket.bind(new InetSocketAddress(ipadress, port));
     } catch (NumberFormatException | NullPointerException | IOException e) {
       throw e;
+//      todo make custom exc
     }
 
     this.registeredUsers = new Properties();
-    this.connections = new HashSet<>();
     this.messageHandler = new MessageHandler(this);
-    this.expiredConnections = new LinkedBlockingQueue<>();
     this.chatExchangeExecutor = Executors.newCachedThreadPool();
     this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
     this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
-    expiredConnectionDeleter.execute(() -> {
-      while (Thread.currentThread().isAlive()) {
-        Connection con;
-        try {
-          con = expiredConnections.take();
-        } catch (InterruptedException e) {
-          return;
-        }
-        synchronized (connections) {
-          connections.remove(con);
-        }
-        messageHandler.sendBroadcastMessage(con, ServerMSG.getUserLogout(con.getName()));
-        try {
-          if (!con.isClosed()) con.close();
-        } catch (IOException ignored) {
-        }
-      }
-    });
   }
 
   @Override
@@ -92,20 +73,11 @@ public class Server implements Runnable, AutoCloseable {
 
   public void submitExpiredConnection(Connection connection) {
     connection.markAsExpired();
-    try {
-      expiredConnections.put(connection);
-    } catch (InterruptedException e) {
-      try {
-        connection.close();
-      } catch (IOException ignored) {
-      }
-    }
+    expiredConnections.add(connection);
   }
 
   private void submitNewConnection(Connection connection) {
-    synchronized (connections) {
-      connections.add(connection);
-    }
+    connections.add(connection);
     chatExchangeExecutor.execute(connection);
   }
 
@@ -130,20 +102,16 @@ public class Server implements Runnable, AutoCloseable {
     expiredConnectionDeleter.shutdownNow();
     chatExchangeExecutor.shutdownNow();
     connectionAcceptExecutor.shutdownNow();
-    synchronized (connections) {
-      for (var conn : connections) {
-        try {
-          conn.close();
-        } catch (IOException ignored) {
-        }
+    for (var conn : connections) {
+      try {
+        conn.close();
+      } catch (IOException ignored) {
       }
     }
-    synchronized (expiredConnections) {
-      for (var conn : expiredConnections) {
-        try {
-          conn.close();
-        } catch (IOException ignored) {
-        }
+    for (var conn : expiredConnections) {
+      try {
+        conn.close();
+      } catch (IOException ignored) {
       }
     }
   }
@@ -198,11 +166,11 @@ public class Server implements Runnable, AutoCloseable {
     }
   }
 
-  public Set<Connection> getConnections() {
+  public CopyOnWriteArrayList<Connection> getConnections() {
     return connections;
   }
 
   public String getSessionName() {
-    return sessionName;
+    return "xyi";
   }
 }

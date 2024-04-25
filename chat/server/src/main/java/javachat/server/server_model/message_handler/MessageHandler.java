@@ -7,7 +7,6 @@ import javachat.server.server_model.RegistrationState;
 import javachat.server.server_model.Server;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -108,27 +107,23 @@ public class MessageHandler {
 
   public void sendBroadcastMessage(Connection connection, String message) {
     var connections = server.getConnections();
-    synchronized (connections) {
-      for (var conn : connections) {
-        if (conn == connection) continue;
-        try {
-          if (!conn.isExpired()) sendMessage(conn, message);
-        } catch (IOServerException e) {
-          server.submitExpiredConnection(conn);
-        }
+    for (var conn : connections) {
+      if (conn == connection) continue;
+      try {
+        if (!conn.isExpired()) sendMessage(conn, message);
+      } catch (IOServerException e) {
+        server.submitExpiredConnection(conn);
       }
     }
   }
 
   public void sendBroadcastMessage(String message) {
     var connections = server.getConnections();
-    synchronized (connections) {
-      for (var conn : connections) {
-        try {
-          if (!conn.isExpired()) sendMessage(conn, message);
-        } catch (IOServerException e) {
-          server.submitExpiredConnection(conn);
-        }
+    for (var conn : connections) {
+      try {
+        if (!conn.isExpired()) sendMessage(conn, message);
+      } catch (IOServerException e) {
+        server.submitExpiredConnection(conn);
       }
     }
   }
