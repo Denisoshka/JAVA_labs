@@ -1,8 +1,8 @@
 package javachat.client.model;
 
 import javachat.client.exception.UnableToDecodeMessage;
-import javachat.client.model.event_handler.EventInterface;
-import javachat.client.model.event_handler.MessageHandler;
+import javachat.client.model.request_handler.IOHandler;
+import javachat.client.model.request_handler.RequestInterface;
 import org.slf4j.Logger;
 
 import java.io.DataInputStream;
@@ -14,19 +14,17 @@ import java.util.Objects;
 
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
-  private final String name;
   private boolean expired;
   private final Socket socket;
-  private final ContextExecutor contextExecutor;
-  private final MessageHandler handler;
+  private final ChatSessionExecutor contextExecutor;
+  private final IOHandler handler;
   DataInputStream receiveStream = null;
   DataOutputStream sendStream = null;
 
-  public Connection(Socket socket, ContextExecutor executor, MessageHandler handler, String name) {
-    this.socket = socket;
+  public Connection(String ipaddr, String port, ChatSessionExecutor executor, IOHandler handler) throws IOException {
+    this.socket = new Socket(ipaddr, Integer.parseInt(port));
     this.contextExecutor = executor;
     this.handler = handler;
-    this.name = name;
   }
 
   @Override
@@ -38,11 +36,10 @@ public class Connection implements Runnable, AutoCloseable {
       while (!socket.isClosed()) {
         try {
           var msg = handler.receiveMessage(this);
-          EventInterface command = handler.handleMessage(msg);
+          RequestInterface command = handler.harendleMessage(msg);
           command.perform(this, contextExecutor, handler, msg);
         } catch (UnableToDecodeMessage e) {
           log.info(e.getMessage(), e);
-//        todo
         }
       }
     } catch (IOException e) {
@@ -91,7 +88,7 @@ public class Connection implements Runnable, AutoCloseable {
   }
 
   public String getName() {
-    return name;
+//    return name;
   }
 
   public static Logger getLog() {

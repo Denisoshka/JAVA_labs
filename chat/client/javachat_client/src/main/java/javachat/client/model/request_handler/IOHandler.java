@@ -1,9 +1,9 @@
-package javachat.client.model.event_handler;
+package javachat.client.model.request_handler;
 
 import javachat.client.exception.IOClientException;
 import javachat.client.exception.UnableToDecodeMessage;
+import javachat.client.model.ChatSessionExecutor;
 import javachat.client.model.Connection;
-import javachat.client.model.ContextExecutor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -19,7 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 
-public class MessageHandler {
+public class IOHandler {
   public final static String COMMAND_TAG = "command";
   public final static String COMMAND_ATTRIBUTE = "name";
   public final static String SUCCESS_TAG = "success";
@@ -30,18 +30,20 @@ public class MessageHandler {
   private final static String PASSWORD_TAG = "password";
   private final static String LOGIN_TAG = "login";
 
-  private final ContextExecutor contextExecutor;
-  private final EventFactory commandFactory;
+  //  private final ContextExecutor contextExecutor;
+  private final RequestFactory commandFactory;
 
   private final StringWriter writer;
   private final DocumentBuilder builder;
   private final DocumentBuilderFactory factory;
   private final Transformer transformer;
   private final TransformerFactory transformerFactory;
+  private final ChatSessionExecutor chatSessionModel;
 
-  public MessageHandler(ContextExecutor server) throws ParserConfigurationException, TransformerConfigurationException {
+  public IOHandler(ChatSessionExecutor chatSessionModel) throws ParserConfigurationException, TransformerConfigurationException {
+    this.chatSessionModel = chatSessionModel;
     this.writer = new StringWriter();
-    this.commandFactory = new EventFactory();
+    this.commandFactory = new RequestFactory();
     this.factory = DocumentBuilderFactory.newInstance();
     this.builder = factory.newDocumentBuilder();
     this.transformerFactory = TransformerFactory.newInstance();
@@ -97,26 +99,36 @@ public class MessageHandler {
     sendMessage(connection, converterMSG);
   }
 
-  public EventInterface handleMessage(Document message) {
+  public RequestInterface handleMessage(Document message) {
     Element root = message.getDocumentElement();
     String comName;
     if (root.getNodeName().compareTo(COMMAND_TAG) != 0) return null;
     if ((comName = root.getAttribute(NAME_TAG)).isEmpty()) return null;
-    return commandFactory.getCommand(comName);
+    return commandFactory.getRequest(comName);
   }
 
   public String getConnectionName(Document doc) {
     return doc.getDocumentElement().getElementsByTagName(NAME_TAG).item(0).getTextContent();
   }
 
-  public String documentToString(Document doc) {
+  public String documentToString(Document document) {
     try {
-      transformer.transform(new DOMSource(doc), new StreamResult(writer));
+      transformer.transform(new DOMSource(document), new StreamResult(writer));
     } catch (TransformerException e) {
       throw new UnableToDecodeMessage(e.getMessage(), e);
     }
     return writer.toString();
   }
+
+  public Document stringToDocument(String message) {
+    Document doc;
+    try (ByteArrayInputStream stream = new ByteArrayInputStream(message.getBytes(), 0, message.getBytes().length)) {
+      return builder.parse(stream);
+    } catch (SAXException | IOException e) {
+      throw new UnableToDecodeMessage(e.getMessage(), e);
+    }
+  }
+
 
   public DocumentBuilderFactory getFactory() {
     return factory;
