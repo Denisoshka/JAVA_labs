@@ -1,8 +1,12 @@
 package javachat.client.model.DTO;
 
+import javachat.client.model.DTO.commands.COMMAND_SECTION;
+
+import java.util.List;
+
 public interface DTOInterfaces {
-  interface NAME {
-    String getName();
+  interface NAME_ATTRIBUTE {
+    String getNameAttribute();
   }
 
   interface HOSTNAME {
@@ -21,8 +25,19 @@ public interface DTOInterfaces {
     String getMessage();
   }
 
+  interface NAME {
+    String getName();
+  }
+
   interface FROM {
     String getFrom();
   }
-//  interface
+
+  interface STATUS {
+    COMMAND_SECTION.RESPONSE_STATUS getStatus();
+  }
+
+  interface USERS {
+    List<RequestDTO.User> getUsers();
+  }
 }
