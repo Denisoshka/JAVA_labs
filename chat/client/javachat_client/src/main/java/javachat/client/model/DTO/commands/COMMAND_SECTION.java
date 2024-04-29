@@ -50,9 +50,6 @@ public enum COMMAND_SECTION {
     @XmlAttribute(name = "name")
     private String nameAttribute;
 
-    public Command() {
-    }
-
     public Command(String name) {
       this.nameAttribute = name;
     }
@@ -95,9 +92,6 @@ public enum COMMAND_SECTION {
   @Setter
   public static class Response implements DTOInterfaces.STATUS {
     RESPONSE_STATUS status;
-
-    public Response() {
-    }
 
     public Response(RESPONSE_STATUS status) {
       this.status = status;

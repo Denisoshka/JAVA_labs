@@ -18,6 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class IOHandler {
   public final static String COMMAND_TAG = "command";
@@ -32,22 +33,18 @@ public class IOHandler {
 
   //  private final ContextExecutor contextExecutor;
   private final RequestFactory commandFactory;
-
   private final StringWriter writer;
-  private final DocumentBuilder builder;
-  private final DocumentBuilderFactory factory;
-  private final Transformer transformer;
-  private final TransformerFactory transformerFactory;
   private final ChatSessionExecutor chatSessionModel;
+
 
   public IOHandler(ChatSessionExecutor chatSessionModel) throws ParserConfigurationException, TransformerConfigurationException {
     this.chatSessionModel = chatSessionModel;
     this.writer = new StringWriter();
     this.commandFactory = new RequestFactory();
-    this.factory = DocumentBuilderFactory.newInstance();
-    this.builder = factory.newDocumentBuilder();
-    this.transformerFactory = TransformerFactory.newInstance();
-    this.transformer = transformerFactory.newTransformer();
+//    this.factory = DocumentBuilderFactory.newInstance();
+//    this.builder = factory.newDocumentBuilder();
+//    this.transformerFactory = TransformerFactory.newInstance();
+//    this.transformer = transformerFactory.newTransformer();
   }
 
   public Document receiveMessage(Connection connection) throws IOClientException, UnableToDecodeMessage {

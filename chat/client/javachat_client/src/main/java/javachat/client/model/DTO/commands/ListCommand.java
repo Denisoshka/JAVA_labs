@@ -17,6 +17,9 @@ public class ListCommand extends COMMAND_SECTION.Command {
 
   @XmlSeeAlso({MessageCommand.MessageSuccessResponse.class, MessageCommand.MessageErrorResponse.class})
   public static class ListResponse extends COMMAND_SECTION.Response {
+    public ListResponse(COMMAND_SECTION.RESPONSE_STATUS status) {
+      super(status);
+    }
   }
 
   @Data

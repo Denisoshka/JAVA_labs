@@ -7,7 +7,9 @@ import javachat.client.model.request_handler.IOHandler;
 
 public class LoginCommand implements CommandRequest {
   @Override
-  public void performCommand(Connection connection, ChatSessionExecutor chatSession, IOHandler handler, COMMAND_SECTION.Command command) {
+  public void performCommand(Connection connection, ChatSessionExecutor chatSession,
+                             IOHandler handler, COMMAND_SECTION.Command command) {
     javachat.client.model.DTO.commands.LoginCommand loginCommand = (javachat.client.model.DTO.commands.LoginCommand) command;
+
   }
 }

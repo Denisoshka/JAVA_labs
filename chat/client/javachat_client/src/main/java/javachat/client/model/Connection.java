@@ -10,16 +10,19 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
-  private boolean expired;
-  private final Socket socket;
+  private final ReentrantLock writeLock = new ReentrantLock();
+  private final ReentrantLock readLock = new ReentrantLock();
   private final ChatSessionExecutor contextExecutor;
   private final IOHandler handler;
-  DataInputStream receiveStream = null;
-  DataOutputStream sendStream = null;
+  private final Socket socket;
+  private boolean expired;
+  private DataInputStream receiveStream = null;
+  private DataOutputStream sendStream = null;
 
   public Connection(String ipaddr, String port, ChatSessionExecutor executor, IOHandler handler) throws IOException {
     this.socket = new Socket(ipaddr, Integer.parseInt(port));
@@ -33,7 +36,8 @@ public class Connection implements Runnable, AutoCloseable {
          DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
       this.receiveStream = receiveStream;
       this.sendStream = sendStream;
-      while (!socket.isClosed()) {
+      while (!socket.isClosed()
+              && !Thread.currentThread().isInterrupted()) {
         try {
           var msg = handler.receiveMessage(this);
           RequestInterface command = handler.harendleMessage(msg);
@@ -85,14 +89,6 @@ public class Connection implements Runnable, AutoCloseable {
 
   public DataOutputStream getSendStream() {
     return sendStream;
-  }
-
-  public String getName() {
-//    return name;
-  }
-
-  public static Logger getLog() {
-    return Connection.log;
   }
 }
 

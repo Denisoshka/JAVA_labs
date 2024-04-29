@@ -7,5 +7,5 @@ import javachat.client.model.request_handler.IOHandler;
 
 public interface CommandRequest {
   void performCommand(Connection connection, ChatSessionExecutor chatSession,
-                             IOHandler handler, COMMAND_SECTION.Command command);
+                      IOHandler handler, COMMAND_SECTION.Command command);
 }
