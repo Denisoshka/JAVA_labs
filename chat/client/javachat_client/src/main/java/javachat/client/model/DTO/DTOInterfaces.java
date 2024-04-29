@@ -40,4 +40,8 @@ public interface DTOInterfaces {
   interface USERS {
     List<RequestDTO.User> getUsers();
   }
+
+  interface TYPE {
+    String getType();
+  }
 }

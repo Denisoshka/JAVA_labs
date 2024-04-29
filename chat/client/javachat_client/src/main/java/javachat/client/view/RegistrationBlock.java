@@ -37,7 +37,7 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
 
   @FXML
   public void performLogin() {
-    controller.login(null, null, null, null);
+//    controller.login(null, null, null, null);
   }
 
   @FXML

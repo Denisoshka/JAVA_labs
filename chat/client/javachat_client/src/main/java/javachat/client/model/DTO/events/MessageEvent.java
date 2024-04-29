@@ -1,17 +1,12 @@
 package javachat.client.model.DTO.events;
 
 import javachat.client.model.DTO.DTOInterfaces;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.Objects;
 
-@Getter
-@Setter
-@EqualsAndHashCode(callSuper = true)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
   @XmlElement(name = "from", required = true)
@@ -19,9 +14,44 @@ public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.F
   @XmlElement(name = "message", required = true)
   private String message;
 
+  public MessageEvent() {
+    super(EVENT_SECTION.MESSAGE.getType());
+  }
+
   public MessageEvent(String from, String message) {
-    super(EVENT_SECTION.MESSAGE.getName());
+    this();
     this.from = from;
+    this.message = message;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof MessageEvent that)) return false;
+    if (!super.equals(o)) return false;
+    return Objects.equals(from, that.from) && Objects.equals(message, that.message);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), from, message);
+  }
+
+  @Override
+  public String getFrom() {
+    return from;
+  }
+
+  public void setFrom(String from) {
+    this.from = from;
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
     this.message = message;
   }
 }

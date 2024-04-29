@@ -5,15 +5,40 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.xml.bind.annotation.XmlElement;
+import java.util.Objects;
 
-@Getter
-@Setter
 public class UserLoginEvent extends EVENT_SECTION.Event implements DTOInterfaces.NAME {
   @XmlElement(name = "name", required = true)
   private String name;
 
+  public UserLoginEvent() {
+    super(EVENT_SECTION.USER_LOGIN.getType());
+  }
+
   public UserLoginEvent(String name) {
-    super(EVENT_SECTION.USER_LOGIN.getName());
+    this();
     this.name = name;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof UserLoginEvent that)) return false;
+    if (!super.equals(o)) return false;
+    return Objects.equals(name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), name);
   }
 }

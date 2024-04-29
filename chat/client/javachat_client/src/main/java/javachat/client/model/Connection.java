@@ -1,8 +1,6 @@
 package javachat.client.model;
 
-import javachat.client.exception.UnableToDecodeMessage;
 import javachat.client.model.request_handler.IOHandler;
-import javachat.client.model.request_handler.RequestInterface;
 import org.slf4j.Logger;
 
 import java.io.DataInputStream;
@@ -38,13 +36,7 @@ public class Connection implements Runnable, AutoCloseable {
       this.sendStream = sendStream;
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
-        try {
-          var msg = handler.receiveMessage(this);
-          RequestInterface command = handler.harendleMessage(msg);
-          command.perform(this, contextExecutor, handler, msg);
-        } catch (UnableToDecodeMessage e) {
-          log.info(e.getMessage(), e);
-        }
+
       }
     } catch (IOException e) {
 //    todo need to make ex handle

@@ -6,8 +6,9 @@ import javachat.client.model.Connection;
 import org.w3c.dom.Document;
 
 public class RegistrationRequest implements RequestInterface{
+
   @Override
-  public void perform(Connection connection, ChatSessionExecutor chatSession, IOHandler handler, Document message) throws IOClientException {
+  public void perform(Connection connection, ChatSessionExecutor chatSession, IOHandler handler, String message) {
 
   }
 }

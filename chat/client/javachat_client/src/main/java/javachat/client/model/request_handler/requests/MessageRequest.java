@@ -8,8 +8,9 @@ import javachat.client.model.request_handler.RequestInterface;
 import org.w3c.dom.Document;
 
 public class MessageRequest implements RequestInterface {
+
   @Override
-  public void perform(Connection connection, ChatSessionExecutor chatSessionModel, IOHandler handler, Document message) throws IOClientException {
+  public void perform(Connection connection, ChatSessionExecutor chatSession, IOHandler handler, String message) {
 
   }
 }
