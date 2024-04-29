@@ -6,7 +6,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 import static javachat.client.model.DTO.commands.COMMAND_SECTION.MESSAGE;
 
@@ -16,7 +19,7 @@ public class MessageCommand {
   @EqualsAndHashCode(callSuper = true)
   @XmlAccessorType(XmlAccessType.FIELD)
   public static final class Message extends COMMAND_SECTION.Command implements DTOInterfaces.MESSAGE {
-    @XmlElement(name = "message")
+    @XmlElement(name = "message", required = true)
     private String message;
 
     public Message(String message) {
@@ -34,7 +37,7 @@ public class MessageCommand {
   @Data
   @EqualsAndHashCode(callSuper = true)
   @XmlAccessorType(XmlAccessType.FIELD)
-  public static class MessageSuccessResponse extends COMMAND_SECTION.SuccessResponse  {
+  public static class MessageSuccessResponse extends COMMAND_SECTION.SuccessResponse {
   }
 
   @Getter

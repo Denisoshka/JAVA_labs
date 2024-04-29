@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 @Getter
@@ -14,7 +15,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @EqualsAndHashCode(callSuper = true)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LoginCommand extends COMMAND_SECTION.Command implements DTOInterfaces.NAME, DTOInterfaces.PASSWORD {
+  @XmlElement(name = "name", required = true)
   private String name;
+  @XmlElement(name = "password", required = true)
   private String password;
 
   public LoginCommand(String name, String password) {

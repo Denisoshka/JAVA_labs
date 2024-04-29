@@ -23,7 +23,7 @@ public class ListCommand extends COMMAND_SECTION.Command {
   @EqualsAndHashCode(callSuper = true)
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class ListSuccessResponse extends COMMAND_SECTION.SuccessResponse implements DTOInterfaces.USERS {
-    @XmlElementWrapper(name = "users")
+    @XmlElementWrapper(name = "users", required = true)
     @XmlElement(name = "user")
     private List<RequestDTO.User> users;
 
