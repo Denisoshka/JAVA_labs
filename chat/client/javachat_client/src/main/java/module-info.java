@@ -29,4 +29,6 @@ module javachat_client.javachat_client {
   exports javachat.client.model.request_handler.requests;
   opens javachat.client.model.request_handler.requests to javafx.fxml;
   opens javachat.client.model.DTO.commands to java.xml.bind;
+  opens javachat.client.model.DTO.events to java.xml.bind;
+
 }

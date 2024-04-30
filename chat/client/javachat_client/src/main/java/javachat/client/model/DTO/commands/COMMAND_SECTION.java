@@ -1,10 +1,6 @@
 package javachat.client.model.DTO.commands;
 
 import javachat.client.model.DTO.DTOInterfaces;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.xml.bind.annotation.*;
 import java.util.Objects;
@@ -44,11 +40,7 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
     }
   }
 
-  @Getter
-  @Setter
-  @Data
   @XmlAccessorType(XmlAccessType.FIELD)
-//  @XmlRootElement(name = "command")
   @XmlType(name = "baseCommand")
   @XmlSeeAlso({MessageSection.class, ListSection.class, LoginSection.class, LoginSection.class})
   public static class Command implements DTOInterfaces.NAME_ATTRIBUTE {
@@ -87,7 +79,6 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
     }
   }
 
-  @EqualsAndHashCode
   public static class BaseResponse implements DTOInterfaces.STATUS {
 
     private RESPONSE_STATUS status;
@@ -108,32 +99,16 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
       this.status = status;
     }
 
-  }
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof BaseResponse that)) return false;
+      return status == that.status;
+    }
 
-
-/*  @Getter
-  @Setter
-  @XmlAccessorType(XmlAccessType.FIELD)
-  public static class SuccessResponse extends Response {
-    public SuccessResponse() {
-      super(RESPONSE_STATUS.SUCCESS);
+    @Override
+    public int hashCode() {
+      return Objects.hash(status);
     }
   }
-
-  @Getter
-  @Setter
-  @XmlAccessorType(XmlAccessType.FIELD)
-  public static class ErrorResponse extends Response implements DTOInterfaces.MESSAGE {
-    @XmlElement(name = "message", required = true)
-    private String message;
-
-    public ErrorResponse() {
-      super(RESPONSE_STATUS.ERROR);
-    }
-
-    public ErrorResponse(String message) {
-      this();
-      this.message = message;
-    }
-  }*/
 }

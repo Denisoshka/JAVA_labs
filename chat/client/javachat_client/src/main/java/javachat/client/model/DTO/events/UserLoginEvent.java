@@ -1,12 +1,14 @@
 package javachat.client.model.DTO.events;
 
 import javachat.client.model.DTO.DTOInterfaces;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.util.Objects;
 
+@XmlRootElement(name = "event")
+@XmlType(name = "UserLoginEvent")
 public class UserLoginEvent extends EVENT_SECTION.Event implements DTOInterfaces.NAME {
   @XmlElement(name = "name", required = true)
   private String name;
