@@ -14,7 +14,7 @@ module javachat_client.javachat_client {
   requires org.slf4j;
   requires annotations;
   requires java.xml.bind;
-  requires java.activation;
+  requires eclipselink;
 
 
   opens javachat.client to javafx.fxml;
@@ -30,5 +30,4 @@ module javachat_client.javachat_client {
   opens javachat.client.model.request_handler.requests to javafx.fxml;
   opens javachat.client.model.DTO.commands to java.xml.bind;
   opens javachat.client.model.DTO.events to java.xml.bind;
-
 }

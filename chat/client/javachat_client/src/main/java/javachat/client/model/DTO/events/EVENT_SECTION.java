@@ -1,6 +1,7 @@
 package javachat.client.model.DTO.events;
 
 import javachat.client.model.DTO.DTOInterfaces;
+import org.eclipse.persistence.oxm.annotations.XmlDiscriminatorNode;
 
 import javax.xml.bind.annotation.*;
 import java.util.Objects;
@@ -22,8 +23,8 @@ public enum EVENT_SECTION implements DTOInterfaces.TYPE {
   }
 
   @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlRootElement(name = "event")
   @XmlType(name = "BaseEvent")
+  @XmlDiscriminatorNode("@nameAttribute")
   @XmlSeeAlso({MessageEvent.class, UserLoginEvent.class, UserLogoutEvent.class})
   public static class Event implements DTOInterfaces.NAME_ATTRIBUTE {
     @XmlAttribute(name = "name", required = true)

@@ -1,6 +1,7 @@
 package javachat.client.model.DTO.events;
 
 import javachat.client.model.DTO.DTOInterfaces;
+import org.eclipse.persistence.oxm.annotations.XmlDiscriminatorValue;
 
 import javax.xml.bind.annotation.*;
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "event")
 @XmlType(name = "MessageEvent")
+@XmlDiscriminatorValue("message")
 public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
   @XmlElement(name = "from", required = true)
   private String from;

@@ -22,7 +22,7 @@ public class EventsTest {
 
   @Test
   public void testMessageSection() throws JAXBException {
-    JAXBContext eventContext = JAXBContext.newInstance(MessageEvent.class);
+    JAXBContext eventContext = JAXBContext.newInstance(EVENT_SECTION.Event.class);
     Marshaller eventMarshaller = eventContext.createMarshaller();
     Unmarshaller eventUnmarshaller = eventContext.createUnmarshaller();
     eventMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
