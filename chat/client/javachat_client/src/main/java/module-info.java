@@ -13,10 +13,14 @@ module javachat_client.javachat_client {
   requires static lombok;
   requires org.slf4j;
   requires annotations;
-  requires java.xml.bind;
-  requires eclipselink;
+  requires com.fasterxml.jackson.annotation;
+  requires com.fasterxml.jackson.dataformat.xml;
+  requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.databind;
 
 
+  exports javachat.client.model.DTO.events;
+  exports javachat.client.model.DTO.commands;
   opens javachat.client to javafx.fxml;
   exports javachat.client;
   exports javachat.client.view;
@@ -28,6 +32,4 @@ module javachat_client.javachat_client {
   opens javachat.client.model.request_handler to javafx.fxml;
   exports javachat.client.model.request_handler.requests;
   opens javachat.client.model.request_handler.requests to javafx.fxml;
-  opens javachat.client.model.DTO.commands to java.xml.bind;
-  opens javachat.client.model.DTO.events to java.xml.bind;
 }

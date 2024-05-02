@@ -1,21 +1,20 @@
 package javachat.client.model.DTO.TestClass;
 
-import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
 public class TestClass {
-  @XmlRootElement(name = "event")
-  @XmlAccessorType(XmlAccessType.FIELD)
+//  @XmlRootElement(name = "event")
+//  @XmlAccessorType(XmlAccessType.FIELD)
   public class Event {
-    @XmlAttribute
+//    @XmlAttribute
     private String name;
 
-    @XmlElement
+    /*@XmlElement
     @XmlElements({
             @XmlElement(name="name", type=LoginEvent.class),
             @XmlElement(name="text", type=MessageEvent.class),
             @XmlElement(name="name", type=LogoutEvent.class)
-    })
+    })*/
     private EventData data;
 
     // Getters and setters

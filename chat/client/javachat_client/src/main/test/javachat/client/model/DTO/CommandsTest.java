@@ -1,15 +1,14 @@
 package javachat.client.model.DTO;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import javachat.client.model.DTO.commands.*;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.List;
 
 public class CommandsTest {
@@ -30,116 +29,89 @@ public class CommandsTest {
   static String testMessageUnmarshallingSUCCSTR = "<success></success>";
   static String testMessageUnmarshallingERRSTR = "<error><message>ABxyiAVxyi</message></error>";
 
-  @Test
-  public void testListSection() throws JAXBException {
-    JAXBContext commandContext = JAXBContext.newInstance(ListSection.Command.class);
-    Marshaller comandUmarshaller = commandContext.createMarshaller();
-    Unmarshaller comandUnmarshaller = commandContext.createUnmarshaller();
+  static PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+          .allowIfSubType("javachat.client.model.DTO.commands")
+          .build();
+  static XmlMapper xmlMapper = new XmlMapper();
 
-    comandUmarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-    ListSection.Command command = new ListSection.Command();
-    StringWriter writer = new StringWriter();
-    comandUmarshaller.marshal(command, writer);
-    String xmlString = writer.toString();
-    Assert.assertEquals(xmlString, testListMarshallingSTR);
-
-    var ex1 = (ListSection.Command) comandUnmarshaller.unmarshal(new StringReader(xmlString));
-    Assert.assertEquals(ex1, command);
-
-    JAXBContext responseContext = JAXBContext.newInstance(ListSection.Response.class);
-    Unmarshaller responseUnmarshaller = responseContext.createUnmarshaller();
-    ListSection.SuccessResponse unmarshaledSuc = (ListSection.SuccessResponse) responseUnmarshaller.unmarshal(new StringReader(testListUnmarshallingSUCCSTR));
-    ListSection.ErrorResponse unmarshaledErr = (ListSection.ErrorResponse) responseUnmarshaller.unmarshal(new StringReader(testListUnmarshallingERRSTR));
-    var constrErr = new ListSection.ErrorResponse("ABxyiAVxyi");
-    Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.ERROR);
-
-    var constrSuc = new ListSection.SuccessResponse(List.of(new RequestDTO.User("USER_1"), new RequestDTO.User("USER_2")));
-    Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+  @BeforeAll
+  static void initMapper() {
+    xmlMapper.activateDefaultTyping(ptv);
   }
 
   @Test
-  public void testLoginSection() throws JAXBException {
-    JAXBContext commandContext = JAXBContext.newInstance(LoginSection.Command.class);
-    Marshaller comandUmarshaller = commandContext.createMarshaller();
-    Unmarshaller comandUnmarshaller = commandContext.createUnmarshaller();
-
-    comandUmarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-    LoginSection.Command command = new LoginSection.Command("USER_NAME", "PASSWORD");
-    StringWriter writer = new StringWriter();
-    comandUmarshaller.marshal(command, writer);
-    String xmlString = writer.toString();
-    Assert.assertEquals(xmlString, testLoginMarshallingSTR);
-    var ex1 = (LoginSection.Command) comandUnmarshaller.unmarshal(new StringReader(xmlString));
+  public void testListSection() throws JsonProcessingException {
+    ListSection.Command command = new ListSection.Command();
+    String xmlString = xmlMapper.writeValueAsString(command);
+    Assert.assertEquals(xmlString, testListMarshallingSTR);
+    var ex1 = (ListSection.Command) xmlMapper.readValue(xmlString, CommandSection.Command.class);
     Assert.assertEquals(ex1, command);
 
-    JAXBContext responseContext = JAXBContext.newInstance(LoginSection.Response.class);
-    Unmarshaller responseUnmarshaller = responseContext.createUnmarshaller();
-    LoginSection.SuccessResponse unmarshaledSuc = (LoginSection.SuccessResponse) responseUnmarshaller.unmarshal(new StringReader(testLoginUnmarshallingSUCCSTR));
-    LoginSection.ErrorResponse unmarshaledErr = (LoginSection.ErrorResponse) responseUnmarshaller.unmarshal(new StringReader(testLoginUnmarshallingERRSTR));
+    ListSection.ErrorResponse unmarshaledErr = (ListSection.ErrorResponse) xmlMapper.readValue(testListUnmarshallingERRSTR, ListSection.Response.class);
+    var constrErr = new ListSection.ErrorResponse("ABxyiAVxyi");
+    Assert.assertEquals(constrErr, unmarshaledErr);
+    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
+
+    ListSection.SuccessResponse unmarshaledSuc = (ListSection.SuccessResponse) xmlMapper.readValue(testListUnmarshallingSUCCSTR, ListSection.Response.class);
+    var constrSuc = new ListSection.SuccessResponse(List.of(new RequestDTO.User("USER_1"), new RequestDTO.User("USER_2")));
+    Assert.assertEquals(constrSuc, unmarshaledSuc);
+    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
+  }
+
+  @Test
+  public void testLoginSection() throws JsonProcessingException {
+    LoginSection.Command command = new LoginSection.Command("USER_NAME", "PASSWORD");
+    String xmlString = xmlMapper.writeValueAsString(command);
+    Assert.assertEquals(xmlString, testLoginMarshallingSTR);
+    var ex1 = (LoginSection.Command) xmlMapper.readValue(xmlString, CommandSection.Command.class);
+    Assert.assertEquals(ex1, command);
+
+    LoginSection.SuccessResponse unmarshaledSuc = (LoginSection.SuccessResponse) xmlMapper.readValue(testLoginUnmarshallingSUCCSTR, LoginSection.Response.class);
+    LoginSection.ErrorResponse unmarshaledErr = (LoginSection.ErrorResponse) xmlMapper.readValue(testLoginUnmarshallingERRSTR, LoginSection.Response.class);
     var constrErr = new LoginSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
 
     var constrSuc = new LoginSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
   }
 
   @Test
-  public void testLogoutSection() throws JAXBException {
-    JAXBContext commandContext = JAXBContext.newInstance(LogoutSection.Command.class);
-    Marshaller comandUmarshaller = commandContext.createMarshaller();
-    Unmarshaller comandUnmarshaller = commandContext.createUnmarshaller();
-
-    comandUmarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+  public void testLogoutSection() throws JsonProcessingException {
     LogoutSection.Command command = new LogoutSection.Command();
-    StringWriter writer = new StringWriter();
-    comandUmarshaller.marshal(command, writer);
-    String xmlString = writer.toString();
+    String xmlString = xmlMapper.writeValueAsString(command);
     Assert.assertEquals(xmlString, testLogoutMarshallingSTR);
-    var ex1 = (LogoutSection.Command) comandUnmarshaller.unmarshal(new StringReader(xmlString));
+    var ex1 = xmlMapper.readValue(xmlString, CommandSection.Command.class);
     Assert.assertEquals(ex1, command);
 
-    JAXBContext responseContext = JAXBContext.newInstance(LogoutSection.Response.class);
-    Unmarshaller responseUnmarshaller = responseContext.createUnmarshaller();
-    LogoutSection.SuccessResponse unmarshaledSuc = (LogoutSection.SuccessResponse) responseUnmarshaller.unmarshal(new StringReader(testLogoutUnmarshallingSUCCSTR));
-    LogoutSection.ErrorResponse unmarshaledErr = (LogoutSection.ErrorResponse) responseUnmarshaller.unmarshal(new StringReader(testLogoutUnmarshallingERRSTR));
+    LogoutSection.ErrorResponse unmarshaledErr = (LogoutSection.ErrorResponse) xmlMapper.readValue(testLogoutUnmarshallingERRSTR, LogoutSection.Response.class);
     var constrErr = new LogoutSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
 
+    LogoutSection.SuccessResponse unmarshaledSuc = (LogoutSection.SuccessResponse) xmlMapper.readValue(testLogoutUnmarshallingSUCCSTR, LogoutSection.Response.class);
     var constrSuc = new LogoutSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
   }
 
   @Test
-  public void testMessageSection() throws JAXBException {
-    JAXBContext commandContext = JAXBContext.newInstance(MessageSection.Command.class);
-    Marshaller comandUmarshaller = commandContext.createMarshaller();
-    Unmarshaller comandUnmarshaller = commandContext.createUnmarshaller();
-
-    comandUmarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+  public void testMessageSection() throws JsonProcessingException {
     MessageSection.Command command = new MessageSection.Command("MESSAGE");
-    StringWriter writer = new StringWriter();
-    comandUmarshaller.marshal(command, writer);
-    String xmlString = writer.toString();
+    String xmlString = xmlMapper.writeValueAsString(command);
     Assert.assertEquals(xmlString, testMessageMarshallingSTR);
-    var ex1 = (MessageSection.Command) comandUnmarshaller.unmarshal(new StringReader(xmlString));
+    var ex1 = (MessageSection.Command) xmlMapper.readValue(xmlString, CommandSection.Command.class);
     Assert.assertEquals(ex1, command);
 
-    JAXBContext responseContext = JAXBContext.newInstance(MessageSection.Response.class);
-    Unmarshaller responseUnmarshaller = responseContext.createUnmarshaller();
-    MessageSection.SuccessResponse unmarshaledSuc = (MessageSection.SuccessResponse) responseUnmarshaller.unmarshal(new StringReader(testMessageUnmarshallingSUCCSTR));
-    MessageSection.ErrorResponse unmarshaledErr = (MessageSection.ErrorResponse) responseUnmarshaller.unmarshal(new StringReader(testMessageUnmarshallingERRSTR));
+    MessageSection.ErrorResponse unmarshaledErr = (MessageSection.ErrorResponse) xmlMapper.readValue(testMessageUnmarshallingERRSTR, MessageSection.Response.class);
     var constrErr = new MessageSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
 
+    MessageSection.SuccessResponse unmarshaledSuc = (MessageSection.SuccessResponse) xmlMapper.readValue(testMessageUnmarshallingSUCCSTR, MessageSection.Response.class);
     var constrSuc = new MessageSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
   }
 }

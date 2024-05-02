@@ -1,72 +1,67 @@
 package javachat.client.model.DTO;
 
-import javachat.client.model.DTO.events.EVENT_SECTION;
-import javachat.client.model.DTO.events.MessageEvent;
-import javachat.client.model.DTO.events.UserLoginEvent;
-import javachat.client.model.DTO.events.UserLogoutEvent;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import javachat.client.model.DTO.events.Event;
+import javachat.client.model.DTO.events.Message;
+import javachat.client.model.DTO.events.Userlogin;
+import javachat.client.model.DTO.events.Userlogout;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.StringReader;
-import java.io.StringWriter;
+import org.junit.jupiter.api.BeforeAll;
 
 public class EventsTest {
   static String MessageEventSTR = "<event name=\"message\"><from>CHAT_NAME_FROM</from><message>MESSAGE</message></event>";
   static String LoginEventSTR = "<event name=\"userlogin\"><name>USER_NAME</name></event>";
   static String LogoutEventSTR = "<event name=\"userlogout\"><name>USER_NAME</name></event>";
+  static PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+          .allowIfSubType("javachat.client.model.DTO.events")
+          .build();
+  static XmlMapper xmlMapper = new XmlMapper();
 
-
-  @Test
-  public void testMessageSection() throws JAXBException {
-    JAXBContext eventContext = JAXBContext.newInstance(EVENT_SECTION.Event.class);
-    Marshaller eventMarshaller = eventContext.createMarshaller();
-    Unmarshaller eventUnmarshaller = eventContext.createUnmarshaller();
-    eventMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-
-    MessageEvent createdMessageEvent = new MessageEvent("CHAT_NAME_FROM", "MESSAGE");
-    StringWriter writer1 = new StringWriter();
-    eventMarshaller.marshal(createdMessageEvent, writer1);
-    String xmlString1 = writer1.toString();
-    Assert.assertEquals(xmlString1, MessageEventSTR);
-    var unmarshalledMessageEvent = (MessageEvent) eventUnmarshaller.unmarshal(new StringReader(xmlString1));
-    Assert.assertEquals( unmarshalledMessageEvent, createdMessageEvent);
+  @BeforeAll
+  static void initMapper() {
+    xmlMapper.activateDefaultTyping(ptv);
+    xmlMapper.getSerializationConfig().getDefaultVisibilityChecker()
+            .withFieldVisibility(JsonAutoDetect.Visibility.NONE)
+            .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
+            .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+            .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+            .withCreatorVisibility(JsonAutoDetect.Visibility.NONE);
+//    xmlMapper.getSerializationConfig().getDefaultVisibilityChecker().withIsGetterVisibility(JsonAutoDetect.Visibility.NONE);
   }
 
   @Test
-  public void testLoginSection() throws JAXBException {
-    System.out.println(EVENT_SECTION.Event.class);
-    JAXBContext eventContext = JAXBContext.newInstance(EVENT_SECTION.Event.class);
-    Marshaller eventMarshaller = eventContext.createMarshaller();
-    Unmarshaller eventUnmarshaller = eventContext.createUnmarshaller();
-    eventMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+  public void testMessageSection() throws JsonProcessingException {
+    Message createdMessageEvent = new Message("CHAT_NAME_FROM", "MESSAGE");
+    String xmlString1 = xmlMapper.writeValueAsString(createdMessageEvent);
+    Assert.assertEquals(xmlString1, MessageEventSTR);
 
-    UserLoginEvent createdLoginEvent = new UserLoginEvent("USER_NAME");
-    StringWriter writer2 = new StringWriter();
-    eventMarshaller.marshal(createdLoginEvent, writer2);
-    String xmlString2 = writer2.toString();
+    var unmarshalledMessageEvent = xmlMapper.readValue(xmlString1, Event.class);
+    Assert.assertEquals(unmarshalledMessageEvent, createdMessageEvent);
+  }
+
+  @Test
+  public void testLoginSection() throws JsonProcessingException {
+
+    Userlogin createdLoginEvent = new Userlogin("USER_NAME");
+    String xmlString2 = xmlMapper.writeValueAsString(createdLoginEvent);
     Assert.assertEquals(xmlString2, LoginEventSTR);
-    var unmarshalledLoginEvent = eventUnmarshaller.unmarshal(new StringReader(xmlString2));
+
+    var unmarshalledLoginEvent = xmlMapper.readValue(xmlString2, Event.class);
     Assert.assertEquals(unmarshalledLoginEvent, createdLoginEvent);
   }
 
   @Test
-  public void testLogoutSection() throws JAXBException {
-    System.out.println(EVENT_SECTION.Event.class);
-    JAXBContext eventContext = JAXBContext.newInstance(EVENT_SECTION.Event.class);
-    Marshaller eventMarshaller = eventContext.createMarshaller();
-    Unmarshaller eventUnmarshaller = eventContext.createUnmarshaller();
-    eventMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-
-    UserLogoutEvent createdLogoutEvent = new UserLogoutEvent("USER_NAME");
-    StringWriter writer3 = new StringWriter();
-    eventMarshaller.marshal(createdLogoutEvent, writer3);
-    String xmlString3 = writer3.toString();
+  public void testLogoutSection() throws JsonProcessingException {
+    Userlogout createdLogoutEvent = new Userlogout("USER_NAME");
+    String xmlString3 = xmlMapper.writeValueAsString(createdLogoutEvent);
     Assert.assertEquals(xmlString3, LogoutEventSTR);
-    var unmarshalledLogoutEvent = (UserLogoutEvent) eventUnmarshaller.unmarshal(new StringReader(xmlString3));
+
+    var unmarshalledLogoutEvent = xmlMapper.readValue(xmlString3, Event.class);
     Assert.assertEquals(unmarshalledLogoutEvent, createdLogoutEvent);
   }
 }

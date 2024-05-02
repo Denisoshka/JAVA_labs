@@ -1,10 +1,14 @@
 package javachat.client.model.DTO.commands;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import javachat.client.model.DTO.DTOInterfaces;
 import javachat.client.model.DTO.RequestDTO;
 import lombok.EqualsAndHashCode;
 
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,41 +16,41 @@ import java.util.Objects;
 public enum ListSection {
   ;
 
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "listCommand")
-  @XmlRootElement(name = "command")
-  public static class Command extends COMMAND_SECTION.Command {
+  public static class Command extends CommandSection.Command {
     public Command() {
-      super(COMMAND_SECTION.LIST.getType());
+      super(CommandSection.LIST.getType());
     }
   }
 
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "type")
+  @JsonSubTypes({
+          @JsonSubTypes.Type(value = SuccessResponse.class, name = "success"),
+          @JsonSubTypes.Type(value = ErrorResponse.class, name = "error")
+  })
   @EqualsAndHashCode(callSuper = true)
-  @XmlSeeAlso({SuccessResponse.class, ErrorResponse.class})
-  public static class Response extends COMMAND_SECTION.BaseResponse {
+  public static class Response extends CommandSection.BaseResponse {
     public Response() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.UNKNOWN);
+      super(CommandSection.RESPONSE_STATUS.UNKNOWN);
     }
 
-    public Response(COMMAND_SECTION.RESPONSE_STATUS status) {
+    public Response(CommandSection.RESPONSE_STATUS status) {
       super(status);
     }
   }
 
-  @XmlRootElement(name = "success")
-  @XmlAccessorType(XmlAccessType.FIELD)
   public static class SuccessResponse extends Response implements DTOInterfaces.USERS {
-    @XmlElementWrapper(name = "users", required = true)
-    @XmlElement(name = "user")
+    @JacksonXmlElementWrapper(localName = "users")
     private List<RequestDTO.User> users;
 
-    public SuccessResponse(List<RequestDTO.User> users) {
-      super(COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+    @JsonCreator
+    public SuccessResponse(@JsonProperty("users") List<RequestDTO.User> users) {
+      super(CommandSection.RESPONSE_STATUS.SUCCESS);
       this.users = users;
     }
 
+    @JsonCreator
     public SuccessResponse() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSE_STATUS.SUCCESS);
       users = new ArrayList<>();
     }
 
@@ -76,17 +80,15 @@ public enum ListSection {
     }
   }
 
-  @XmlRootElement(name = "error")
-  @XmlAccessorType(XmlAccessType.FIELD)
   public static class ErrorResponse extends Response implements DTOInterfaces.MESSAGE {
-    @XmlElement(name = "message", required = true)
     private String message;
 
     public ErrorResponse() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.ERROR);
+      super(CommandSection.RESPONSE_STATUS.ERROR);
     }
 
-    public ErrorResponse(String message) {
+    @JsonCreator
+    public ErrorResponse(@JsonProperty("message") String message) {
       this();
       this.message = message;
     }

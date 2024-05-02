@@ -1,11 +1,14 @@
 package javachat.client.model.DTO.commands;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import javachat.client.model.DTO.DTOInterfaces;
 
-import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
+public enum CommandSection implements DTOInterfaces.TYPE {
   UNKNOWN("unknown"),
   MESSAGE("message"),
   LOGOUT("logout"),
@@ -13,7 +16,7 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
   LIST("list"),
   ;
 
-  COMMAND_SECTION(String name) {
+  CommandSection(String name) {
     this.type = name;
   }
 
@@ -40,11 +43,16 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
     }
   }
 
-  @XmlAccessorType(XmlAccessType.FIELD)
-  @XmlType(name = "baseCommand")
-  @XmlSeeAlso({MessageSection.class, ListSection.class, LoginSection.class, LoginSection.class})
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "name")
+  @JsonSubTypes({
+          @JsonSubTypes.Type(name = "message", value = MessageSection.Command.class),
+          @JsonSubTypes.Type(name = "login", value = LoginSection.Command.class),
+          @JsonSubTypes.Type(name = "logout", value = LogoutSection.Command.class),
+          @JsonSubTypes.Type(name = "list", value = ListSection.Command.class)
+  })
+  @JacksonXmlRootElement(localName = "event")
   public static class Command implements DTOInterfaces.NAME_ATTRIBUTE {
-    @XmlAttribute(name = "name")
+    @JacksonXmlProperty(localName = "name", isAttribute = true)
     private String nameAttribute;
 
     public Command() {
@@ -59,10 +67,10 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
     }
 
     public String toString() {
-      return "RequestDTO.Commands.Command(name=" + this.getNameAttribute() + ")";
+      return "RequestDTO.Commands.Command(name=" + this.getNameattribute() + ")";
     }
 
-    public String getNameAttribute() {
+    public String getNameattribute() {
       return this.nameAttribute;
     }
 
@@ -80,11 +88,7 @@ public enum COMMAND_SECTION implements DTOInterfaces.TYPE {
   }
 
   public static class BaseResponse implements DTOInterfaces.STATUS {
-
     private RESPONSE_STATUS status;
-
-    public BaseResponse() {
-    }
 
     public BaseResponse(RESPONSE_STATUS status) {
       this.status = status;

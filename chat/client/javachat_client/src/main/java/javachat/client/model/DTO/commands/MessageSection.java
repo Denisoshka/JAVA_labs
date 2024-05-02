@@ -1,28 +1,29 @@
 package javachat.client.model.DTO.commands;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javachat.client.model.DTO.DTOInterfaces;
 import lombok.EqualsAndHashCode;
 
-import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-import static javachat.client.model.DTO.commands.COMMAND_SECTION.MESSAGE;
+import static javachat.client.model.DTO.commands.CommandSection.MESSAGE;
 
 
 public enum MessageSection {
   ;
 
-  @XmlRootElement(name = "command")
-  @XmlAccessorType(XmlAccessType.FIELD)
-  public static final class Command extends COMMAND_SECTION.Command implements DTOInterfaces.MESSAGE {
-    @XmlElement(name = "message", required = true)
+  public static final class Command extends CommandSection.Command implements DTOInterfaces.MESSAGE {
     private String message;
 
-    public Command() {
+    public Command()  {
       super(MESSAGE.getType());
     }
 
-    public Command(String message) {
+    @JsonCreator
+    public Command(@JsonProperty("message") String message) {
       this();
       this.message = message;
     }
@@ -50,36 +51,37 @@ public enum MessageSection {
   }
 
   @EqualsAndHashCode(callSuper = true)
-  @XmlSeeAlso({SuccessResponse.class, ErrorResponse.class})
-  public static class Response extends COMMAND_SECTION.BaseResponse {
+  public static class Response extends CommandSection.BaseResponse {
     public Response() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.UNKNOWN);
+      super(CommandSection.RESPONSE_STATUS.UNKNOWN);
     }
 
-    public Response(COMMAND_SECTION.RESPONSE_STATUS status) {
+    public Response(CommandSection.RESPONSE_STATUS status) {
       super(status);
     }
   }
 
-  @XmlRootElement(name = "success")
   @EqualsAndHashCode(callSuper = true)
-  @XmlAccessorType(XmlAccessType.FIELD)
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "type")
+  @JsonSubTypes({
+          @JsonSubTypes.Type(value = SuccessResponse.class, name = "success"),
+          @JsonSubTypes.Type(value = ErrorResponse.class, name = "error")
+  })
   public static class SuccessResponse extends Response {
     public SuccessResponse() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSE_STATUS.SUCCESS);
     }
   }
 
-  @XmlRootElement(name = "error")
-  @XmlAccessorType(XmlAccessType.FIELD)
   public static class ErrorResponse extends Response implements DTOInterfaces.MESSAGE {
     private String message;
 
     public ErrorResponse() {
-      super(COMMAND_SECTION.RESPONSE_STATUS.ERROR);
+      super(CommandSection.RESPONSE_STATUS.ERROR);
     }
 
-    public ErrorResponse(String message) {
+    @JsonCreator
+    public ErrorResponse(@JsonProperty("message") String message) {
       this();
       this.message = message;
     }

@@ -1,12 +1,12 @@
 package javachat.client.model.DTO;
 
-import javachat.client.model.DTO.commands.COMMAND_SECTION;
+import javachat.client.model.DTO.commands.CommandSection;
 
 import java.util.List;
 
 public interface DTOInterfaces {
   interface NAME_ATTRIBUTE {
-    String getNameAttribute();
+    String getNameattribute();
   }
 
   interface HOSTNAME {
@@ -34,7 +34,7 @@ public interface DTOInterfaces {
   }
 
   interface STATUS {
-    COMMAND_SECTION.RESPONSE_STATUS getStatus();
+    CommandSection.RESPONSE_STATUS getStatus();
   }
 
   interface USERS {

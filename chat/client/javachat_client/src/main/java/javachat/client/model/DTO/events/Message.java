@@ -1,27 +1,27 @@
 package javachat.client.model.DTO.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import javachat.client.model.DTO.DTOInterfaces;
-import org.eclipse.persistence.oxm.annotations.XmlDiscriminatorValue;
 
-import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "event")
-@XmlType(name = "MessageEvent")
-@XmlDiscriminatorValue("message")
-public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
-  @XmlElement(name = "from", required = true)
+public class Message extends Event implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
+  @JacksonXmlProperty(localName = "from")
   private String from;
-  @XmlElement(name = "message", required = true)
+  @JacksonXmlProperty(localName = "message")
   private String message;
 
-  public MessageEvent() {
-    super(EVENT_SECTION.MESSAGE.getType());
+  public Message() {
+    super(Event.EVENTS_TYPES.MESSAGE.getType());
   }
 
-  public MessageEvent(String from, String message) {
+//  @JsonCreator
+  public Message(/*@JsonProperty("from")*/ String from, /*@JsonProperty("message")*/ String message) {
     this();
+//    super(Event.EVENTS_TYPES.MESSAGE.getType());
     this.from = from;
     this.message = message;
   }
@@ -29,7 +29,7 @@ public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.F
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof MessageEvent that)) return false;
+    if (!(o instanceof Message that)) return false;
     if (!super.equals(o)) return false;
     return Objects.equals(from, that.from) && Objects.equals(message, that.message);
   }
@@ -39,7 +39,7 @@ public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.F
     return Objects.hash(super.hashCode(), from, message);
   }
 
-  @Override
+  //  @Override
   public String getFrom() {
     return from;
   }
@@ -48,7 +48,7 @@ public class MessageEvent extends EVENT_SECTION.Event implements DTOInterfaces.F
     this.from = from;
   }
 
-  @Override
+  //  @Override
   public String getMessage() {
     return message;
   }
