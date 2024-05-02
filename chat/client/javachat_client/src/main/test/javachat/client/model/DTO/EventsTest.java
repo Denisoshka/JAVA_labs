@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import javachat.client.model.DTO.events.Event;
-import javachat.client.model.DTO.events.Message;
+import javachat.client.model.DTO.events.MessageEvent;
 import javachat.client.model.DTO.events.Userlogin;
 import javachat.client.model.DTO.events.Userlogout;
 import org.junit.Assert;
@@ -17,6 +17,7 @@ public class EventsTest {
   static String MessageEventSTR = "<event name=\"message\"><from>CHAT_NAME_FROM</from><message>MESSAGE</message></event>";
   static String LoginEventSTR = "<event name=\"userlogin\"><name>USER_NAME</name></event>";
   static String LogoutEventSTR = "<event name=\"userlogout\"><name>USER_NAME</name></event>";
+  static String BaseEvent = "<event name=\"base\"/>";
   static PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
           .allowIfSubType("javachat.client.model.DTO.events")
           .build();
@@ -35,11 +36,24 @@ public class EventsTest {
   }
 
   @Test
+
+  public void testBaseEvent() throws JsonProcessingException {
+    Event event = new Event();
+    String xmlString = xmlMapper.writeValueAsString(event);
+    Assert.assertEquals(xmlString, BaseEvent);
+    var unmarshalledEvent = xmlMapper.readValue(xmlString, Event.class);
+    Assert.assertEquals(unmarshalledEvent, event);
+  }
+
+
+  @Test
   public void testMessageSection() throws JsonProcessingException {
-    Message createdMessageEvent = new Message("CHAT_NAME_FROM", "MESSAGE");
+    MessageEvent createdMessageEvent = new MessageEvent("CHAT_NAME_FROM", "MESSAGE");
+//    createdMessageEvent.setMessage("MESSAGE");
+//    createdMessageEvent.setFrom("CHAT_NAME_FROM");
+
     String xmlString1 = xmlMapper.writeValueAsString(createdMessageEvent);
     Assert.assertEquals(xmlString1, MessageEventSTR);
-
     var unmarshalledMessageEvent = xmlMapper.readValue(xmlString1, Event.class);
     Assert.assertEquals(unmarshalledMessageEvent, createdMessageEvent);
   }

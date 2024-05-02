@@ -1,6 +1,7 @@
 package javachat.client.model.DTO;
 
 import javachat.client.model.DTO.commands.CommandSection;
+import javachat.client.model.DTO.events.Event;
 
 import java.util.List;
 
@@ -34,14 +35,22 @@ public interface DTOInterfaces {
   }
 
   interface STATUS {
-    CommandSection.RESPONSE_STATUS getStatus();
+    CommandSection.RESPONSES getStatus();
   }
 
   interface USERS {
     List<RequestDTO.User> getUsers();
   }
 
-  interface TYPE {
-    String getType();
+  interface EVENT_TYPE {
+    Event.EVENTS getEventType();
+  }
+
+  interface RESPONSE_TYPE {
+    CommandSection.RESPONSES getResponseType();
+  }
+
+  interface COMMAND_TYPE {
+    CommandSection.COMMANDS getCommandType();
   }
 }

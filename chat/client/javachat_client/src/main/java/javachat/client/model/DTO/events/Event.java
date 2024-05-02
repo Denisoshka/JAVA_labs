@@ -1,10 +1,8 @@
 package javachat.client.model.DTO.events;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import javachat.client.model.DTO.DTOInterfaces;
 
@@ -12,22 +10,23 @@ import java.util.Objects;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "name")
 @JsonSubTypes({
-        @JsonSubTypes.Type(name = "message", value = Message.class),
+        @JsonSubTypes.Type(name = "base", value = Event.class),
+        @JsonSubTypes.Type(name = "message", value = MessageEvent.class),
         @JsonSubTypes.Type(name = "userlogin", value = Userlogin.class),
         @JsonSubTypes.Type(name = "userlogout", value = Userlogout.class)
 })
 @JacksonXmlRootElement(localName = "event")
-public class Event implements DTOInterfaces.NAME_ATTRIBUTE {
-  public enum EVENTS_TYPES {
+public class Event  {
+  public enum EVENTS {
+    BASE("base"),
     MESSAGE("message"),
     USER_LOGIN("userlogin"),
-
     USER_LOGOUT("userlogout"),
     ;
 
     private final String type;
 
-    EVENTS_TYPES(String name) {
+    EVENTS(String name) {
       this.type = name;
     }
 
@@ -36,15 +35,16 @@ public class Event implements DTOInterfaces.NAME_ATTRIBUTE {
     }
   }
 
-  @JacksonXmlProperty(localName = "name", isAttribute = true)
-  private String nameattribute;
-
+//  @JacksonXmlProperty(localName = "name", isAttribute = true)
+  @JsonIgnore
+  private EVENTS type;
   public Event() {
+//    this.nameattribute = EVENTS_TYPES.BASE.getType();
   }
 
-//  @JsonCreator
-  public Event(/*@JsonProperty("name")*/ String name) {
-    this.nameattribute = name;
+  //  @JsonCreator
+  public Event(/*@JsonProperty("name")*/ EVENTS name) {
+//    this.nameattribute = name;
   }
 
 
@@ -52,19 +52,19 @@ public class Event implements DTOInterfaces.NAME_ATTRIBUTE {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Event event)) return false;
-    return Objects.equals(nameattribute, event.nameattribute);
+    return Objects.equals(type, event.type);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(nameattribute);
+    return Objects.hash(type);
   }
 
-  public String getNameattribute() {
-    return nameattribute;
+  public EVENTS getType() {
+    return type;
   }
 
-  public void setNameattribute(String nameattribute) {
-    this.nameattribute = nameattribute;
+  public void setNameattribute(EVENTS type) {
+    this.type = type;
   }
 }

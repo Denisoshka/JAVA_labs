@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Objects;
 
-import static javachat.client.model.DTO.commands.CommandSection.MESSAGE;
+import static javachat.client.model.DTO.commands.CommandSection.COMMANDS.MESSAGE;
 
 
 public enum MessageSection {
@@ -19,7 +19,7 @@ public enum MessageSection {
     private String message;
 
     public Command()  {
-      super(MESSAGE.getType());
+      super(MESSAGE);
     }
 
     @JsonCreator
@@ -53,10 +53,10 @@ public enum MessageSection {
   @EqualsAndHashCode(callSuper = true)
   public static class Response extends CommandSection.BaseResponse {
     public Response() {
-      super(CommandSection.RESPONSE_STATUS.UNKNOWN);
+      super(CommandSection.RESPONSES.UNKNOWN);
     }
 
-    public Response(CommandSection.RESPONSE_STATUS status) {
+    public Response(CommandSection.RESPONSES status) {
       super(status);
     }
   }
@@ -69,7 +69,7 @@ public enum MessageSection {
   })
   public static class SuccessResponse extends Response {
     public SuccessResponse() {
-      super(CommandSection.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSES.SUCCESS);
     }
   }
 
@@ -77,7 +77,7 @@ public enum MessageSection {
     private String message;
 
     public ErrorResponse() {
-      super(CommandSection.RESPONSE_STATUS.ERROR);
+      super(CommandSection.RESPONSES.ERROR);
     }
 
     @JsonCreator

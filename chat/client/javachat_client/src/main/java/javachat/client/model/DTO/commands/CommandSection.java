@@ -1,118 +1,114 @@
 package javachat.client.model.DTO.commands;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import javachat.client.model.DTO.DTOInterfaces;
 
 import java.util.Objects;
 
-public enum CommandSection implements DTOInterfaces.TYPE {
-  UNKNOWN("unknown"),
-  MESSAGE("message"),
-  LOGOUT("logout"),
-  LOGIN("login"),
-  LIST("list"),
+public enum CommandSection {
   ;
 
-  CommandSection(String name) {
-    this.type = name;
+  public enum COMMANDS {
+    BASE("base"),
+    MESSAGE("message"),
+    LOGOUT("logout"),
+    LOGIN("login"),
+    LIST("list"),
+    ;
+
+    COMMANDS(String name) {
+      this.type = name;
+    }
+
+    private final String type;
+
+    public String getType() {
+      return this.type;
+    }
+
   }
 
-  private final String type;
-
-  public String getType() {
-    return this.type;
-  }
-
-  public enum RESPONSE_STATUS {
+  public enum RESPONSES {
     UNKNOWN("unknown"),
     SUCCESS("success"),
     ERROR("error"),
     ;
 
-    private final String status;
+    private final String type;
 
-    RESPONSE_STATUS(String status) {
-      this.status = status;
+    RESPONSES(String status) {
+      this.type = status;
     }
 
-    public String getStatus() {
-      return status;
+    public String getType() {
+      return type;
     }
   }
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "name")
   @JsonSubTypes({
+          @JsonSubTypes.Type(name = "base", value = Command.class),
           @JsonSubTypes.Type(name = "message", value = MessageSection.Command.class),
           @JsonSubTypes.Type(name = "login", value = LoginSection.Command.class),
           @JsonSubTypes.Type(name = "logout", value = LogoutSection.Command.class),
           @JsonSubTypes.Type(name = "list", value = ListSection.Command.class)
   })
-  @JacksonXmlRootElement(localName = "event")
-  public static class Command implements DTOInterfaces.NAME_ATTRIBUTE {
-    @JacksonXmlProperty(localName = "name", isAttribute = true)
-    private String nameAttribute;
+  @JacksonXmlRootElement(localName = "command")
+  public static class Command implements DTOInterfaces.COMMAND_TYPE {
+    @JsonIgnore
+    COMMANDS commandType;
 
-    public Command() {
+    public Command(COMMANDS type) {
+      this.commandType = type;
     }
 
-    public Command(String name) {
-      this.nameAttribute = name;
-    }
-
-    public void setNameAttribute(String name) {
-      this.nameAttribute = name;
-    }
-
-    public String toString() {
-      return "RequestDTO.Commands.Command(name=" + this.getNameattribute() + ")";
-    }
-
-    public String getNameattribute() {
-      return this.nameAttribute;
-    }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Command that)) return false;
-      return Objects.equals(nameAttribute, that.nameAttribute);
+      return Objects.equals(commandType, that.commandType);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(nameAttribute);
+      return Objects.hash(commandType);
+    }
+
+    public COMMANDS getCommandType() {
+      return commandType;
+    }
+
+    public void setCommandType(COMMANDS commandType) {
+      this.commandType = commandType;
     }
   }
 
-  public static class BaseResponse implements DTOInterfaces.STATUS {
-    private RESPONSE_STATUS status;
+  public static class BaseResponse implements DTOInterfaces.RESPONSE_TYPE {
+    private RESPONSES responseStatus;
 
-    public BaseResponse(RESPONSE_STATUS status) {
-      this.status = status;
+    public BaseResponse(RESPONSES responseStatus) {
+      this.responseStatus = responseStatus;
     }
 
     @Override
-    public RESPONSE_STATUS getStatus() {
-      return status;
-    }
-
-    public void setStatus(RESPONSE_STATUS status) {
-      this.status = status;
+    public RESPONSES getResponseType() {
+      return responseStatus;
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof BaseResponse that)) return false;
-      return status == that.status;
+      return responseStatus == that.responseStatus;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(status);
+      return Objects.hash(responseStatus);
     }
   }
 }

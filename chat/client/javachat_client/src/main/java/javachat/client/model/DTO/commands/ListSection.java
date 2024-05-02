@@ -18,7 +18,7 @@ public enum ListSection {
 
   public static class Command extends CommandSection.Command {
     public Command() {
-      super(CommandSection.LIST.getType());
+      super(CommandSection.COMMANDS.LIST);
     }
   }
 
@@ -30,10 +30,10 @@ public enum ListSection {
   @EqualsAndHashCode(callSuper = true)
   public static class Response extends CommandSection.BaseResponse {
     public Response() {
-      super(CommandSection.RESPONSE_STATUS.UNKNOWN);
+      super(CommandSection.RESPONSES.UNKNOWN);
     }
 
-    public Response(CommandSection.RESPONSE_STATUS status) {
+    public Response(CommandSection.RESPONSES status) {
       super(status);
     }
   }
@@ -44,13 +44,13 @@ public enum ListSection {
 
     @JsonCreator
     public SuccessResponse(@JsonProperty("users") List<RequestDTO.User> users) {
-      super(CommandSection.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSES.SUCCESS);
       this.users = users;
     }
 
     @JsonCreator
     public SuccessResponse() {
-      super(CommandSection.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSES.SUCCESS);
       users = new ArrayList<>();
     }
 
@@ -84,7 +84,7 @@ public enum ListSection {
     private String message;
 
     public ErrorResponse() {
-      super(CommandSection.RESPONSE_STATUS.ERROR);
+      super(CommandSection.RESPONSES.ERROR);
     }
 
     @JsonCreator

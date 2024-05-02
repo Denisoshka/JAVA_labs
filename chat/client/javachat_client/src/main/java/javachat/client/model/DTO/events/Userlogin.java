@@ -1,18 +1,13 @@
 package javachat.client.model.DTO.events;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import javachat.client.model.DTO.DTOInterfaces;
 
 import java.util.Objects;
 
 public class Userlogin extends Event implements DTOInterfaces.NAME {
-  @JacksonXmlProperty
   private String name;
-
   public Userlogin() {
-    super(EVENTS_TYPES.USER_LOGIN.getType());
+    super(EVENTS.USER_LOGIN);
   }
 
   public Userlogin(String name) {

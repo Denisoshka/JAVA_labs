@@ -50,12 +50,12 @@ public class CommandsTest {
     ListSection.ErrorResponse unmarshaledErr = (ListSection.ErrorResponse) xmlMapper.readValue(testListUnmarshallingERRSTR, ListSection.Response.class);
     var constrErr = new ListSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getResponseType(), CommandSection.RESPONSES.ERROR);
 
     ListSection.SuccessResponse unmarshaledSuc = (ListSection.SuccessResponse) xmlMapper.readValue(testListUnmarshallingSUCCSTR, ListSection.Response.class);
     var constrSuc = new ListSection.SuccessResponse(List.of(new RequestDTO.User("USER_1"), new RequestDTO.User("USER_2")));
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getResponseType(), CommandSection.RESPONSES.SUCCESS);
   }
 
   @Test
@@ -70,11 +70,11 @@ public class CommandsTest {
     LoginSection.ErrorResponse unmarshaledErr = (LoginSection.ErrorResponse) xmlMapper.readValue(testLoginUnmarshallingERRSTR, LoginSection.Response.class);
     var constrErr = new LoginSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getResponseType(), CommandSection.RESPONSES.ERROR);
 
     var constrSuc = new LoginSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getResponseType(), CommandSection.RESPONSES.SUCCESS);
   }
 
   @Test
@@ -88,12 +88,12 @@ public class CommandsTest {
     LogoutSection.ErrorResponse unmarshaledErr = (LogoutSection.ErrorResponse) xmlMapper.readValue(testLogoutUnmarshallingERRSTR, LogoutSection.Response.class);
     var constrErr = new LogoutSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getResponseType(), CommandSection.RESPONSES.ERROR);
 
     LogoutSection.SuccessResponse unmarshaledSuc = (LogoutSection.SuccessResponse) xmlMapper.readValue(testLogoutUnmarshallingSUCCSTR, LogoutSection.Response.class);
     var constrSuc = new LogoutSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getResponseType(), CommandSection.RESPONSES.SUCCESS);
   }
 
   @Test
@@ -107,11 +107,11 @@ public class CommandsTest {
     MessageSection.ErrorResponse unmarshaledErr = (MessageSection.ErrorResponse) xmlMapper.readValue(testMessageUnmarshallingERRSTR, MessageSection.Response.class);
     var constrErr = new MessageSection.ErrorResponse("ABxyiAVxyi");
     Assert.assertEquals(constrErr, unmarshaledErr);
-    Assert.assertEquals(constrErr.getStatus(), CommandSection.RESPONSE_STATUS.ERROR);
+    Assert.assertEquals(constrErr.getResponseType(), CommandSection.RESPONSES.ERROR);
 
     MessageSection.SuccessResponse unmarshaledSuc = (MessageSection.SuccessResponse) xmlMapper.readValue(testMessageUnmarshallingSUCCSTR, MessageSection.Response.class);
     var constrSuc = new MessageSection.SuccessResponse();
     Assert.assertEquals(constrSuc, unmarshaledSuc);
-    Assert.assertEquals(constrSuc.getStatus(), CommandSection.RESPONSE_STATUS.SUCCESS);
+    Assert.assertEquals(constrSuc.getResponseType(), CommandSection.RESPONSES.SUCCESS);
   }
 }

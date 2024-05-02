@@ -14,7 +14,7 @@ public enum LogoutSection {
 
   public static class Command extends CommandSection.Command {
     public Command() {
-      super(CommandSection.LOGOUT.getType());
+      super(CommandSection.COMMANDS.LOGOUT);
     }
   }
 
@@ -26,17 +26,17 @@ public enum LogoutSection {
   })
   public static class Response extends CommandSection.BaseResponse {
     public Response() {
-      super(CommandSection.RESPONSE_STATUS.UNKNOWN);
+      super(CommandSection.RESPONSES.UNKNOWN);
     }
 
-    public Response(CommandSection.RESPONSE_STATUS status) {
+    public Response(CommandSection.RESPONSES status) {
       super(status);
     }
   }
 
   public static class SuccessResponse extends Response {
     public SuccessResponse() {
-      super(CommandSection.RESPONSE_STATUS.SUCCESS);
+      super(CommandSection.RESPONSES.SUCCESS);
     }
   }
 
@@ -44,7 +44,7 @@ public enum LogoutSection {
     private String message;
 
     public ErrorResponse() {
-      super(CommandSection.RESPONSE_STATUS.ERROR);
+      super(CommandSection.RESPONSES.ERROR);
     }
 
     @JsonCreator
