@@ -1,13 +1,18 @@
 package javachat.client.model.DTO;
 
-import javachat.client.model.DTO.commands.CommandSection;
-import javachat.client.model.DTO.events.Event;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 public interface DTOInterfaces {
   interface NAME_ATTRIBUTE {
-    String getNameattribute();
+    String getNameAttribute();
   }
 
   interface HOSTNAME {
@@ -34,23 +39,41 @@ public interface DTOInterfaces {
     String getFrom();
   }
 
-  interface STATUS {
-    CommandSection.RESPONSES getStatus();
+  interface USERS {
+    List<XyiDTO.User> getUsers();
   }
 
-  interface USERS {
-    List<RequestDTO.User> getUsers();
+  interface DTO_TYPE {
+    RequestDTO.DTO_TYPE getDTOType();
   }
 
   interface EVENT_TYPE {
-    Event.EVENTS getEventType();
+    RequestDTO.BaseEvent.EVENT_TYPE getEventType();
   }
 
   interface RESPONSE_TYPE {
-    CommandSection.RESPONSES getResponseType();
+    RequestDTO.BaseResponse.RESPONSE_TYPE getResponseType();
   }
 
   interface COMMAND_TYPE {
-    CommandSection.COMMANDS getCommandType();
+    RequestDTO.BaseCommand.COMMAND_TYPE getCommandType();
+  }
+
+  interface DTOConverterInterface {
+    default RequestDTO.DTO_TYPE getDTOType(Node root) {
+      return RequestDTO.DTO_TYPE.valueOf(root.getNodeName());
+    }
+
+    default String getDTOName(Node root) {
+      return root.getAttributes().getNamedItem("name").getNodeValue();
+    }
+
+    default Node getXMLTree(DocumentBuilder builder, String xmlString) throws IOException, SAXException {
+      return builder.parse(new InputSource(new StringReader(xmlString)));
+    }
+
+    String serialize(RequestDTO dto) throws JAXBException;
+
+    RequestDTO deserialize(Node root) throws JAXBException;
   }
 }

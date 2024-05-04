@@ -13,14 +13,16 @@ module javachat_client.javachat_client {
   requires static lombok;
   requires org.slf4j;
   requires annotations;
-  requires com.fasterxml.jackson.annotation;
-  requires com.fasterxml.jackson.dataformat.xml;
+//  requires com.fasterxml.jackson.annotation;
+//  requires com.fasterxml.jackson.dataformat.xml;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
+  requires java.xml.bind;
 
-
-  exports javachat.client.model.DTO.events;
-  exports javachat.client.model.DTO.commands;
+  opens javachat.client.model.DTO.subtypes to java.xml.bind;
+  opens javachat.client.model.DTO to java.xml.bind;
+//  exports javachat.client.model.DTO.events;
+//  exports javachat.client.model.DTO.commands;
   opens javachat.client to javafx.fxml;
   exports javachat.client;
   exports javachat.client.view;
