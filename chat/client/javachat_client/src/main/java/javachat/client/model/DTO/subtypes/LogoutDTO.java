@@ -22,7 +22,7 @@ public enum LogoutDTO {
   @XmlRootElement(name = "command")
   public static class Command extends RequestDTO.BaseCommand {
     public Command() {
-      super(COMMAND_TYPE.LOGOUT);
+      super(DTO_SECTION.LOGOUT);
     }
   }
 
@@ -34,7 +34,7 @@ public enum LogoutDTO {
     String name;
 
     Event() {
-      super(EVENT_TYPE.USER_LOGOUT);
+      super(EVENT_TYPE.USER_LOGOUT, DTO_SECTION.LOGOUT);
     }
 
     public Event(String name) {
@@ -68,16 +68,20 @@ public enum LogoutDTO {
 
   @XmlRootElement(name = "success")
   public static class Success extends RequestDTO.BaseSuccessResponse {
+    public Success() {
+      super(DTO_SECTION.LOGOUT);
+    }
   }
 
   @XmlType(name = "logouterror")
   @XmlRootElement(name = "error")
   public static class Error extends RequestDTO.BaseErrorResponse {
     public Error() {
+      super(DTO_SECTION.LOGOUT);
     }
 
     public Error(String message) {
-      super(message);
+      super(DTO_SECTION.LOGOUT, message);
     }
   }
 }

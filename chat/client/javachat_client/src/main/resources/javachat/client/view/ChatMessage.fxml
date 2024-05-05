@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="javachat.client.view.MessagesView.TextMessage"
+         type="VBox"
+         spacing="10"
+         style="-fx-padding: 5px;
+                -fx-border-color: black;
+                -fx-border-width: 1px;">
+    <Label fx:id="username"/>
+    <Label fx:id="messageText"/>
+</fx:root>
+
+

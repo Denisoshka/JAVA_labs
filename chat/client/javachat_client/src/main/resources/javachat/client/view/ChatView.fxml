@@ -10,11 +10,14 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="javachat.client.view.ChatSessionView"
            dividerPositions="0.3094736842105263" prefHeight="410.0" prefWidth="540.0">
-    <VBox prefHeight="428.0" prefWidth="180.0" spacing="10" AnchorPane.leftAnchor="10" AnchorPane.topAnchor="50">
+    <VBox prefHeight="410.0" prefWidth="180.0" spacing="10" AnchorPane.leftAnchor="10" AnchorPane.topAnchor="50">
         <padding>
             <Insets bottom="1" left="1" right="1" top="1"/>
         </padding>
         <RegistrationBlock fx:id="registrationBlock"/>
         <ConnectedUsers fx:id="connectedUsers"/>
+    </VBox>
+
+    <VBox>
     </VBox>
 </SplitPane>

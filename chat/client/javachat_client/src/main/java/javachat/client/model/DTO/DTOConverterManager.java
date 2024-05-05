@@ -4,8 +4,9 @@ import javachat.client.model.DTO.exceptions.UnableToCreateXMLContextManager;
 import javachat.client.model.DTO.exceptions.UnableToDeserialize;
 import javachat.client.model.DTO.exceptions.UnableToSerialize;
 import javachat.client.model.DTO.exceptions.UnsupportedDTOType;
-import javachat.client.model.DTO.interfaces.DTOConverterInterface;
-import javachat.client.model.DTO.interfaces.XMLConverterManageInterface;
+import javachat.client.model.DTO.interfaces.DTOConverter;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
+import javachat.client.model.DTO.interfaces.XMLDTOConverterManage;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,15 +15,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-public class XMLConverterManager implements DTOConverterInterface, XMLConverterManageInterface {
-  private final Map<RequestDTO.DTO_TYPE, RequestDTO.DTOConverter> converters;
+public class DTOConverterManager implements DTOConverter, XMLDTOConverterManage {
+  private final Map<RequestDTO.DTO_SECTION, RequestDTO.DTOConverter> converters;
 
-  public XMLConverterManager(Properties properties) {
+  public DTOConverterManager(Properties properties) {
     this.converters = new HashMap<>(properties.size());
     try {
       for (String property : properties.stringPropertyNames()) {
         converters.put(
-                RequestDTO.DTO_TYPE.valueOf(property),
+                RequestDTO.DTO_SECTION.valueOf(property),
                 (RequestDTO.DTOConverter) Class.forName(property).getDeclaredConstructor().newInstance()
         );
       }
@@ -35,11 +36,11 @@ public class XMLConverterManager implements DTOConverterInterface, XMLConverterM
 
   @Override
   public String serialize(RequestDTO dto) throws UnableToSerialize {
-    var converter = converters.get(dto.getDTOType());
+    var converter = converters.get(dto.getCommandType());
     if (converter == null) {
       throw new UnsupportedDTOType(dto.getDTOType().toString());
     }
-    return converters.get(dto.getDTOType()).serialize(dto);
+    return converter.serialize(dto);
   }
 
   @Override
@@ -50,5 +51,10 @@ public class XMLConverterManager implements DTOConverterInterface, XMLConverterM
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new UnsupportedDTOType(e.getMessage());
     }
+  }
+
+  @Override
+  public RequestDTO.DTOConverter getConverter(RequestDTO.DTO_SECTION section) {
+    return converters.get(section);
   }
 }

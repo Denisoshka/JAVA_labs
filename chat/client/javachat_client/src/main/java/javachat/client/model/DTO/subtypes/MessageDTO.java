@@ -25,7 +25,7 @@ public enum MessageDTO {
     private String message;
 
     public Command() {
-      super(COMMAND_TYPE.MESSAGE);
+      super(DTO_SECTION.MESSAGE);
     }
 
     public Command(String message) {
@@ -63,7 +63,7 @@ public enum MessageDTO {
     private String message;
 
     Event() {
-      super(EVENT_TYPE.MESSAGE);
+      super(EVENT_TYPE.MESSAGE, DTO_SECTION.MESSAGE);
     }
 
     public Event(String from, String message) {
@@ -107,15 +107,19 @@ public enum MessageDTO {
 
   @XmlRootElement(name = "success")
   public static class Success extends RequestDTO.BaseSuccessResponse {
+    public Success() {
+      super(DTO_SECTION.MESSAGE);
+    }
   }
 
   @XmlRootElement(name = "error")
   public static class Error extends RequestDTO.BaseErrorResponse {
     public Error() {
+      super(DTO_SECTION.MESSAGE);
     }
 
     public Error(String message) {
-      super(message);
+      super(DTO_SECTION.MESSAGE, message);
     }
   }
 }

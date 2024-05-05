@@ -50,7 +50,7 @@ public interface DTOInterfaces {
     RequestDTO.BaseResponse.RESPONSE_TYPE getResponseType();
   }
 
-  interface COMMAND_TYPE {
-    RequestDTO.BaseCommand.COMMAND_TYPE getCommandType();
+  interface DTO_SECTION {
+    RequestDTO.DTO_SECTION getCommandType();
   }
 }

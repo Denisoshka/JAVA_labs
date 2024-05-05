@@ -1,8 +1,8 @@
-package javachat.client.model.IOProcessor;
+package javachat.client.model.IOProcessing;
 
 import java.io.IOException;
 
-public interface IOProcessorInterface {
+public interface IOProcessor {
   byte[] receiveMessage() throws IOException;
 
   void sendMessage(String xml) throws IOException;

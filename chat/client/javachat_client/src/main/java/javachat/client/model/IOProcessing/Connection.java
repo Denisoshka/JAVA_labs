@@ -1,6 +1,5 @@
-package javachat.client.model.main_context;
+package javachat.client.model.IOProcessing;
 
-import javachat.client.model.IOProcessor.SessionIOProcessor;
 import org.slf4j.Logger;
 
 import java.io.DataInputStream;
@@ -13,9 +12,8 @@ import java.util.Objects;
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
   private final Socket socket;
-  private boolean expired;
-  private DataInputStream receiveStream = null;
-  private DataOutputStream sendStream = null;
+  private SessionIOProcessor ioProcessor;
+  private volatile boolean expired;
 
   public Connection(String ipaddr, int port) throws IOException {
     this.socket = new Socket(ipaddr, port);
@@ -25,7 +23,7 @@ public class Connection implements Runnable, AutoCloseable {
   public void run() {
     try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
          DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
-      SessionIOProcessor ioProcessor = new SessionIOProcessor(receiveStream, sendStream);
+      ioProcessor = new SessionIOProcessor(receiveStream, sendStream);
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
 
@@ -54,8 +52,6 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void close() throws IOException {
-    receiveStream = null;
-    sendStream = null;
     socket.close();
   }
 
@@ -67,12 +63,16 @@ public class Connection implements Runnable, AutoCloseable {
     return expired;
   }
 
-  public DataInputStream getReceiveStream() {
-    return receiveStream;
-  }
+//  public DataInputStream getReceiveStream() {
+//    return receiveStream;
+//  }
 
-  public DataOutputStream getSendStream() {
-    return sendStream;
+//  public DataOutputStream getSendStream() {
+//    return sendStream;
+//  }
+
+  public SessionIOProcessor getIoProcessor() {
+    return ioProcessor;
   }
 }
 

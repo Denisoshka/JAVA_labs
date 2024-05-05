@@ -1,8 +1,8 @@
 package javachat.client.model.DTO.subtypes;
 
 import javachat.client.model.DTO.RequestDTO;
-import javachat.client.model.DTO.interfaces.DTOInterfaces;
 import javachat.client.model.DTO.XyiDTO;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,7 +21,7 @@ public enum ListDTO {
   @XmlRootElement(name = "command")
   public static class Command extends RequestDTO.BaseCommand {
     public Command() {
-      super(COMMAND_TYPE.LIST);
+      super(DTO_SECTION.LIST);
     }
   }
 
@@ -31,9 +31,11 @@ public enum ListDTO {
     private List<XyiDTO.User> users;
 
     public Success() {
+      super(DTO_SECTION.LIST);
     }
 
     public Success(List<XyiDTO.User> users) {
+      super(DTO_SECTION.LIST);
       this.users = users;
     }
 
@@ -52,10 +54,11 @@ public enum ListDTO {
   @XmlRootElement(name = "error")
   public static class Error extends RequestDTO.BaseErrorResponse {
     public Error() {
+      super(DTO_SECTION.LIST);
     }
 
     public Error(String message) {
-      super(message);
+      super(DTO_SECTION.LIST, message);
     }
   }
 }

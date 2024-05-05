@@ -11,7 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-public interface DTOConverterInterface {
+public interface DTOConverter {
     default Node getXMLTree(DocumentBuilder builder, byte[] xml) throws IOException, SAXException {
     return builder.parse(new InputSource(new ByteArrayInputStream(xml)));
   }

@@ -24,7 +24,7 @@ public enum LoginDTO {
     private String password;
 
     public Command() {
-      super(COMMAND_TYPE.LOGIN);
+      super(DTO_SECTION.LOGIN);
     }
 
     public Command(String name, String password) {
@@ -72,7 +72,7 @@ public enum LoginDTO {
     private String name;
 
     Event() {
-      super(EVENT_TYPE.USER_LOGIN);
+      super(EVENT_TYPE.USER_LOGIN, DTO_SECTION.LOGIN);
     }
 
     public Event(String name) {
@@ -105,16 +105,19 @@ public enum LoginDTO {
 
   @XmlRootElement(name = "success")
   public static class Success extends RequestDTO.BaseSuccessResponse {
+    public Success() {
+      super(DTO_SECTION.LOGIN);
+    }
   }
 
   @XmlRootElement(name = "error")
   public static class Error extends RequestDTO.BaseErrorResponse {
     public Error() {
-      super();
+      super(DTO_SECTION.LOGIN);
     }
 
     public Error(String message) {
-      super(message);
+      super(DTO_SECTION.LOGIN, message);
     }
   }
 }

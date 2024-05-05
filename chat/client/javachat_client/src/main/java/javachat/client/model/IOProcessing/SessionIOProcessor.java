@@ -1,11 +1,11 @@
-package javachat.client.model.IOProcessor;
+package javachat.client.model.IOProcessing;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SessionIOProcessor implements IOProcessorInterface {
+public class SessionIOProcessor implements IOProcessor {
   private final ReentrantLock readLock = new ReentrantLock();
   private final ReentrantLock writeLock = new ReentrantLock();
   private final DataInputStream inputStream;

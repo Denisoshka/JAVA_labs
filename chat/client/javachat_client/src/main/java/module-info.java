@@ -28,14 +28,9 @@ module javachat_client.javachat_client {
   exports javachat.client.view;
   exports javachat.client.exception;
   opens javachat.client.view to javafx.fxml;
-  exports javachat.client.model;
   opens javachat.client.model to javafx.fxml;
-  exports javachat.client.model.request_handler;
-  opens javachat.client.model.request_handler to javafx.fxml;
-  exports javachat.client.model.request_handler.requests;
-  opens javachat.client.model.request_handler.requests to javafx.fxml;
-  exports javachat.client.model.IOProcessor;
-  opens javachat.client.model.IOProcessor to javafx.fxml;
+  exports javachat.client.model.IOProcessing;
+  opens javachat.client.model.IOProcessing to javafx.fxml;
   opens javachat.client.model.DTO.exceptions to java.xml.bind;
   opens javachat.client.model.DTO.interfaces to java.xml.bind;
   exports javachat.client.model.main_context;

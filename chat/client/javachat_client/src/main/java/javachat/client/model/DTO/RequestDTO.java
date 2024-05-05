@@ -2,7 +2,6 @@ package javachat.client.model.DTO;
 
 import javachat.client.model.DTO.exceptions.UnableToDeserialize;
 import javachat.client.model.DTO.exceptions.UnableToSerialize;
-import javachat.client.model.DTO.interfaces.DTOConverterInterface;
 import javachat.client.model.DTO.interfaces.DTOInterfaces;
 import org.w3c.dom.Node;
 
@@ -15,31 +14,8 @@ import javax.xml.bind.annotation.XmlElement;
 import java.io.StringWriter;
 import java.util.Objects;
 
-public class RequestDTO implements DTOInterfaces.DTO_TYPE {
-  public enum DTO_TYPE {
-    COMMAND("command"),
-    EVENT("event"),
-    RESPONSE("response"),
-    ;
-    final String DTOName;
-
-    DTO_TYPE(String DTOName) {
-      this.DTOName = DTOName;
-    }
-  }
-
-  final DTO_TYPE DTOName;
-
-  public RequestDTO(DTO_TYPE DTOName) {
-    this.DTOName = DTOName;
-  }
-
-  @Override
-  public DTO_TYPE getDTOType() {
-    return DTOName;
-  }
-
-  public static class DTOConverter implements DTOConverterInterface {
+public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SECTION {
+  public static class DTOConverter implements javachat.client.model.DTO.interfaces.DTOConverter {
     JAXBContext context;
     Unmarshaller unmarshaller;
     Marshaller marshaller;
@@ -54,9 +30,9 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     @Override
     public String serialize(RequestDTO dto) throws UnableToSerialize {
       try {
-        StringWriter writer1 = new StringWriter();
-        marshaller.marshal(dto, writer1);
-        return writer1.toString();
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(dto, writer);
+        return writer.toString();
       } catch (JAXBException e) {
         throw new UnableToSerialize(e);
       }
@@ -72,39 +48,61 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     }
   }
 
-  //  @XmlRootElement(name = "command")
-  public static class BaseCommand extends RequestDTO implements DTOInterfaces.COMMAND_TYPE, DTOInterfaces.NAME_ATTRIBUTE {
-    public enum COMMAND_TYPE {
-      MESSAGE("message"),
-      LOGOUT("logout"),
-      LOGIN("login"),
-      LIST("list"),
-      ;
+  public enum DTO_TYPE {
+    COMMAND("command"),
+    EVENT("event"),
+    RESPONSE("response"),
+    ;
+    final String DTOName;
 
-      COMMAND_TYPE(String COMMANDName) {
-        this.COMMANDName = COMMANDName;
-      }
+    DTO_TYPE(String DTOName) {
+      this.DTOName = DTOName;
+    }
+  }
 
-      private final String COMMANDName;
+  public enum DTO_SECTION {
+    MESSAGE("message"),
+    LOGOUT("logout"),
+    LOGIN("login"),
+    LIST("list"),
+    ;
 
-      public String getCOMMANDName() {
-        return this.COMMANDName;
-      }
+    DTO_SECTION(String COMMANDName) {
+      this.COMMANDName = COMMANDName;
     }
 
-    private final COMMAND_TYPE commandType;
+    private final String COMMANDName;
 
+    public String getCOMMANDName() {
+      return this.COMMANDName;
+    }
+  }
+
+  final DTO_TYPE DTOType;
+  final DTO_SECTION DTOSection;
+
+  public RequestDTO(DTO_TYPE DTOType, DTO_SECTION DTOSection) {
+    this.DTOSection = DTOSection;
+    this.DTOType = DTOType;
+  }
+
+  @Override
+  public DTO_TYPE getDTOType() {
+    return DTOType;
+  }
+
+  @Override
+  public DTO_SECTION getCommandType() {
+    return DTOSection;
+  }
+
+  //  @XmlRootElement(name = "command")
+  public static class BaseCommand extends RequestDTO implements DTOInterfaces.NAME_ATTRIBUTE {
     private String nameAttribute;
 
-    public BaseCommand(COMMAND_TYPE commandType) {
-      super(DTO_TYPE.COMMAND);
-      this.commandType = commandType;
+    public BaseCommand(DTO_SECTION commandType) {
+      super(DTO_TYPE.COMMAND, commandType);
       this.nameAttribute = commandType.getCOMMANDName();
-    }
-
-    @Override
-    public COMMAND_TYPE getCommandType() {
-      return commandType;
     }
 
     @Override
@@ -121,12 +119,12 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof BaseCommand that)) return false;
-      return commandType == that.commandType;
+      return Objects.equals(nameAttribute, that.nameAttribute);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(commandType);
+      return Objects.hash(nameAttribute);
     }
   }
 
@@ -151,10 +149,10 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     final EVENT_TYPE eventType;
     private final String nameAttribute;
 
-    public BaseEvent(EVENT_TYPE eventType) {
-      super(DTO_TYPE.EVENT);
-      this.eventType = eventType;
-      this.nameAttribute = eventType.getEVENTName();
+    public BaseEvent(EVENT_TYPE DTOType, DTO_SECTION DTOSection) {
+      super(DTO_TYPE.EVENT, DTOSection);
+      this.eventType = DTOType;
+      this.nameAttribute = DTOType.getEVENTName();
     }
 
     @Override
@@ -166,6 +164,18 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     @XmlAttribute(name = "name")
     public String getNameAttribute() {
       return nameAttribute;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof BaseEvent baseEvent)) return false;
+      return eventType == baseEvent.eventType && Objects.equals(nameAttribute, baseEvent.nameAttribute);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(eventType, nameAttribute);
     }
   }
 
@@ -189,8 +199,8 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
 
     private final RESPONSE_TYPE responseType;
 
-    public BaseResponse(RESPONSE_TYPE responseType) {
-      super(DTO_TYPE.RESPONSE);
+    public BaseResponse(DTO_SECTION DTOSection, RESPONSE_TYPE responseType) {
+      super(DTO_TYPE.RESPONSE, DTOSection);
       this.responseType = responseType;
     }
 
@@ -214,8 +224,8 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
 
   //  @XmlType(name = "basesuccessresponse")
   public static class BaseSuccessResponse extends BaseResponse {
-    public BaseSuccessResponse() {
-      super(RESPONSE_TYPE.SUCCESS);
+    public BaseSuccessResponse(DTO_SECTION DTOSection) {
+      super(DTOSection, RESPONSE_TYPE.SUCCESS);
     }
   }
 
@@ -223,12 +233,12 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
   public static class BaseErrorResponse extends BaseResponse implements DTOInterfaces.MESSAGE {
     String message;
 
-    public BaseErrorResponse() {
-      super(RESPONSE_TYPE.ERROR);
+    public BaseErrorResponse(DTO_SECTION DTOSection) {
+      super(DTOSection, RESPONSE_TYPE.ERROR);
     }
 
-    public BaseErrorResponse(String message) {
-      super(RESPONSE_TYPE.ERROR);
+    public BaseErrorResponse(DTO_SECTION DTOSection, String message) {
+      super(DTOSection, RESPONSE_TYPE.ERROR);
       this.message = message;
     }
 
