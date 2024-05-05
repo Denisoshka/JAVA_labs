@@ -1,7 +1,7 @@
 package javachat.client.model.DTO.subtypes;
 
 import javachat.client.model.DTO.RequestDTO;
-import javachat.client.model.DTO.DTOInterfaces;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

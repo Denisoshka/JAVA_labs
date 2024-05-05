@@ -1,7 +1,7 @@
 package javachat.client.model.DTO.subtypes;
 
 import javachat.client.model.DTO.RequestDTO;
-import javachat.client.model.DTO.DTOInterfaces;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 import javachat.client.model.DTO.XyiDTO;
 
 import javax.xml.bind.JAXBContext;
@@ -14,7 +14,7 @@ public enum ListDTO {
 
   public static class ListDTOConverter extends RequestDTO.DTOConverter {
     public ListDTOConverter() throws JAXBException {
-      super(JAXBContext.newInstance(Command.class, Error.class, Success.class, XyiDTO.User.class));
+      super(JAXBContext.newInstance(Command.class, Error.class, Success.class/*, XyiDTO.User.class*/));
     }
   }
 

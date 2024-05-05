@@ -26,12 +26,10 @@ public class DTOTest {
   static String ListSuccessSTR = "<success><users><user><name>USER_1</name></user><user><name>USER_2</name></user></users></success>";
   static String ListErrorSTR = "<error><message>XYI</message></error>";
 
-
   static String LoginEventSTR = "<event name=\"userlogin\"><name>USER_NAME</name></event>";
   static String LoginCommandSTR = "<command name=\"login\"><name>USER_NAME</name><password>PASSWORD</password></command>";
   static String LoginSuccessSTR = "<success/>";
   static String LoginErrorSTR = "<error><message>XYI</message></error>";
-
 
   static String LogoutEventSTR = "<event name=\"userlogout\"><name>USER_NAME</name></event>";
   static String LogoutCommandSTR = "<command name=\"logout\"/>";
@@ -50,7 +48,6 @@ public class DTOTest {
   static MessageDTO.MessageDTOConverter messageDTOConverter;
   static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
   static LoginDTO.LoginDTOConverter loginDTOConverter;
-
 
   @Before
   public void prepare() throws ParserConfigurationException, JAXBException {
@@ -155,16 +152,11 @@ public class DTOTest {
                     new ListDTO.Success(List.of(new XyiDTO.User("USER_1"), new XyiDTO.User("USER_2"))),
                     ListSuccessSTR,
                     listConverter
-            ),Arguments.of(
+            ), Arguments.of(
                     new ListDTO.Error("XYI"),
                     ListErrorSTR,
                     listConverter
             )
     );
   }
-
-  /*public void CommandDTOTest(BaseDTO.BaseCommand commandto, String commandXML, BaseDTO.DTOConverter converter) throws ParserConfigurationException {
-    DocumentBuilder builder = Objects.requireNonNull(factory.newDocumentBuilder());
-    String xmlEvent = converter.serialize(
-  }*/
 }

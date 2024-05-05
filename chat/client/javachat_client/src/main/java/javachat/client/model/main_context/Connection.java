@@ -1,6 +1,6 @@
-package javachat.client.model;
+package javachat.client.model.main_context;
 
-import javachat.client.model.request_handler.IOHandler;
+import javachat.client.model.IOProcessor.SessionIOProcessor;
 import org.slf4j.Logger;
 
 import java.io.DataInputStream;
@@ -8,32 +8,24 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
-  private final ReentrantLock writeLock = new ReentrantLock();
-  private final ReentrantLock readLock = new ReentrantLock();
-  private final ChatSessionExecutor contextExecutor;
-  private final IOHandler handler;
   private final Socket socket;
   private boolean expired;
   private DataInputStream receiveStream = null;
   private DataOutputStream sendStream = null;
 
-  public Connection(String ipaddr, String port, ChatSessionExecutor executor, IOHandler handler) throws IOException {
-    this.socket = new Socket(ipaddr, Integer.parseInt(port));
-    this.contextExecutor = executor;
-    this.handler = handler;
+  public Connection(String ipaddr, int port) throws IOException {
+    this.socket = new Socket(ipaddr, port);
   }
 
   @Override
   public void run() {
     try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
          DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
-      this.receiveStream = receiveStream;
-      this.sendStream = sendStream;
+      SessionIOProcessor ioProcessor = new SessionIOProcessor(receiveStream, sendStream);
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
 

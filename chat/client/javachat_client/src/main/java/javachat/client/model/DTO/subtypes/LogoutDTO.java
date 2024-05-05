@@ -1,14 +1,16 @@
 package javachat.client.model.DTO.subtypes;
 
 import javachat.client.model.DTO.RequestDTO;
-import javachat.client.model.DTO.DTOInterfaces;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-public enum LogoutDTO {;
+public enum LogoutDTO {
+  ;
+
   public static class LogoutDTOConverter extends RequestDTO.DTOConverter {
     public LogoutDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));

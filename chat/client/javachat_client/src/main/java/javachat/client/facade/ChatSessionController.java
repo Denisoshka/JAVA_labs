@@ -1,6 +1,6 @@
 package javachat.client.facade;
 
-import javachat.client.model.ChatSessionExecutor;
+import javachat.client.model.main_context.ChatSessionExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 

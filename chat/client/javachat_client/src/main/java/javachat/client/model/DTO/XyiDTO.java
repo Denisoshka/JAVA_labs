@@ -1,6 +1,6 @@
 package javachat.client.model.DTO;
 
-import lombok.Getter;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,8 +8,6 @@ import java.util.Objects;
 
 
 public class XyiDTO {
-
-  @Getter
   public static class LoginData implements DTOInterfaces.NAME,
           DTOInterfaces.HOSTNAME,
           DTOInterfaces.PASSWORD,
@@ -24,6 +22,22 @@ public class XyiDTO {
       this.hostname = hostname;
       this.password = password;
       this.port = port;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+
+    public String getHostname() {
+      return this.hostname;
+    }
+
+    public String getPassword() {
+      return this.password;
+    }
+
+    public int getPort() {
+      return this.port;
     }
   }
 

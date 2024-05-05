@@ -1,5 +1,9 @@
 package javachat.client.model.DTO;
 
+import javachat.client.model.DTO.exceptions.UnableToDeserialize;
+import javachat.client.model.DTO.exceptions.UnableToSerialize;
+import javachat.client.model.DTO.interfaces.DTOConverterInterface;
+import javachat.client.model.DTO.interfaces.DTOInterfaces;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
@@ -35,7 +39,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     return DTOName;
   }
 
-  public static class DTOConverter implements DTOInterfaces.DTOConverterInterface {
+  public static class DTOConverter implements DTOConverterInterface {
     JAXBContext context;
     Unmarshaller unmarshaller;
     Marshaller marshaller;
@@ -48,19 +52,27 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     }
 
     @Override
-    public String serialize(RequestDTO dto) throws JAXBException {
-      StringWriter writer1 = new StringWriter();
-      marshaller.marshal(dto, writer1);
-      return writer1.toString();
+    public String serialize(RequestDTO dto) throws UnableToSerialize {
+      try {
+        StringWriter writer1 = new StringWriter();
+        marshaller.marshal(dto, writer1);
+        return writer1.toString();
+      } catch (JAXBException e) {
+        throw new UnableToSerialize(e);
+      }
     }
 
     @Override
-    public RequestDTO deserialize(Node root) throws JAXBException {
-      return (RequestDTO) unmarshaller.unmarshal(root);
+    public RequestDTO deserialize(Node root) throws UnableToDeserialize {
+      try {
+        return (RequestDTO) unmarshaller.unmarshal(root);
+      } catch (JAXBException e) {
+        throw new UnableToDeserialize(e);
+      }
     }
   }
 
-//  @XmlRootElement(name = "command")
+  //  @XmlRootElement(name = "command")
   public static class BaseCommand extends RequestDTO implements DTOInterfaces.COMMAND_TYPE, DTOInterfaces.NAME_ATTRIBUTE {
     public enum COMMAND_TYPE {
       MESSAGE("message"),
@@ -157,7 +169,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     }
   }
 
-//  @XmlType(name = "baseresponse")
+  //  @XmlType(name = "baseresponse")
   public static class BaseResponse extends RequestDTO implements DTOInterfaces.RESPONSE_TYPE {
     public enum RESPONSE_TYPE {
       SUCCESS("success"),
@@ -200,14 +212,14 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE {
     }
   }
 
-//  @XmlType(name = "basesuccessresponse")
+  //  @XmlType(name = "basesuccessresponse")
   public static class BaseSuccessResponse extends BaseResponse {
     public BaseSuccessResponse() {
       super(RESPONSE_TYPE.SUCCESS);
     }
   }
 
-//  @XmlType(name = "baseerrorresponse")
+  //  @XmlType(name = "baseerrorresponse")
   public static class BaseErrorResponse extends BaseResponse implements DTOInterfaces.MESSAGE {
     String message;
 
