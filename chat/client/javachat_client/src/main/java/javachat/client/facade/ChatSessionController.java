@@ -1,7 +1,7 @@
 package javachat.client.facade;
 
-import javachat.client.model.DTO.XyiDTO;
-import javachat.client.model.DTO.subtypes.LoginDTO;
+import javachat.client.model.dto.DataDTO;
+import javachat.client.model.dto.subtypes.LoginDTO;
 import javachat.client.model.main_context.ChatSessionExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
@@ -28,11 +28,11 @@ public class ChatSessionController {
     return password;
   }
 
-  public void showUsers(List<XyiDTO.User> users) {
+  public void showUsers(List<DataDTO.User> users) {
 
   }
 
   public void addUser(LoginDTO.Event event){
-    event.getName()
+    event.getName();
   }
 }

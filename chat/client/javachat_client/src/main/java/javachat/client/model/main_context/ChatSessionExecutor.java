@@ -1,10 +1,10 @@
 package javachat.client.model.main_context;
 
 import javachat.client.facade.ChatSessionController;
-import javachat.client.model.DTO.DTOConverterManager;
-import javachat.client.model.DTO.RequestDTO;
-import javachat.client.model.IOProcessing.Connection;
-import javachat.client.model.IOProcessing.IOProcessor;
+import javachat.client.model.dto.DTOConverterManager;
+import javachat.client.model.dto.RequestDTO;
+import javachat.client.model.io_processing.Connection;
+import javachat.client.model.io_processing.IOProcessor;
 import org.slf4j.Logger;
 
 import java.io.IOException;

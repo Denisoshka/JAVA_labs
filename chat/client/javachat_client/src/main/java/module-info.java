@@ -19,8 +19,8 @@ module javachat_client.javachat_client {
   requires com.fasterxml.jackson.databind;
   requires java.xml.bind;
 
-  opens javachat.client.model.DTO.subtypes to java.xml.bind;
-  opens javachat.client.model.DTO to java.xml.bind;
+  opens javachat.client.model.dto.subtypes to java.xml.bind;
+  opens javachat.client.model.dto to java.xml.bind;
 //  exports javachat.client.model.DTO.events;
 //  exports javachat.client.model.DTO.commands;
   opens javachat.client to javafx.fxml;
@@ -29,10 +29,10 @@ module javachat_client.javachat_client {
   exports javachat.client.exception;
   opens javachat.client.view to javafx.fxml;
   opens javachat.client.model to javafx.fxml;
-  exports javachat.client.model.IOProcessing;
-  opens javachat.client.model.IOProcessing to javafx.fxml;
-  opens javachat.client.model.DTO.exceptions to java.xml.bind;
-  opens javachat.client.model.DTO.interfaces to java.xml.bind;
+  exports javachat.client.model.io_processing;
+  opens javachat.client.model.io_processing to javafx.fxml;
+  opens javachat.client.model.dto.exceptions to java.xml.bind;
+  opens javachat.client.model.dto.interfaces to java.xml.bind;
   exports javachat.client.model.main_context;
   opens javachat.client.model.main_context to javafx.fxml;
 }

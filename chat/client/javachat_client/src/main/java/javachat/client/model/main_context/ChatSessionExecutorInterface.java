@@ -1,6 +1,6 @@
 package javachat.client.model.main_context;
 
-import javachat.client.model.DTO.RequestDTO;
+import javachat.client.model.dto.RequestDTO;
 import org.slf4j.Logger;
 
 import java.util.concurrent.BlockingQueue;

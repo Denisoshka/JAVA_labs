@@ -13,7 +13,7 @@ public class MessagesView {
     @FXML
     private Label messageText;
     TextMessage(String user, String message) {
-      FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatMessage.fxml"))
+      FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ChatMessage.fxml"));
       this.username.setText(user);
       this.messageText.setText(message);
       fxmlLoader.setRoot(this);

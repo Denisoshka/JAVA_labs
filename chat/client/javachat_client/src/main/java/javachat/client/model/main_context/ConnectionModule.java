@@ -1,6 +1,6 @@
 package javachat.client.model.main_context;
 
-import javachat.client.model.IOProcessing.IOProcessor;
+import javachat.client.model.io_processing.IOProcessor;
 
 import java.io.IOException;
 
