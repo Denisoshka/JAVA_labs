@@ -6,5 +6,6 @@
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="javachat.client.view.ConnectedUsers">
     <ListView fx:id="connectedUsers">
+
     </ListView>
 </fx:root>
