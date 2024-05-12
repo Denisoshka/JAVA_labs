@@ -24,7 +24,7 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
   @FXML
   private Button logout;
 
-  ChatSessionController controller;
+  ChatSessionController chatSessionController;
 
   public RegistrationBlock() {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("RegistrationBlock.fxml"));
@@ -39,17 +39,17 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
 
   @FXML
   public void performLogin() {
-    controller.loginCommand(userLogin.getText(), userPassword.getText(), chatName.getText(), Integer.parseInt(port.getText()));
+    chatSessionController.loginCommand(userLogin.getText(), userPassword.getText(), chatName.getText(), Integer.parseInt(port.getText()));
   }
 
   @FXML
   public void performLogout() {
-    controller.logoutCommand();
+    chatSessionController.logoutCommand();
   }
 
   @Override
-  public void setController(ChatSessionController controller) {
-    this.controller = controller;
+  public void setChatSessionController(ChatSessionController chatSessionController) {
+    this.chatSessionController = chatSessionController;
   }
 
   public TextField getChatName() {

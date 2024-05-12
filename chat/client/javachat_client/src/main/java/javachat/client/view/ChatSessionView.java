@@ -1,21 +1,26 @@
 package javachat.client.view;
 
 import javachat.client.facade.ChatSessionController;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
-public class ChatSessionView extends Pane implements ControllerIntroduce {
-  public ChatSession chatSession;
-  public RegistrationBlock registrationBlock;
-  public ConnectedUsers connectedUsers;
-  ChatSessionController chatSessionController;
+public class ChatSessionView extends Pane {
+  @FXML
+  private ChatSession chatSession;
+
+  @FXML
+  private RegistrationBlock registrationBlock;
+  @FXML
+  private ConnectedUsers connectedUsers;
+  private ChatSessionController chatSessionController;
 
   public ChatSessionView() {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ChatView.fxml"));
     fxmlloader.setRoot(this);
-    fxmlloader.setController(this);
+//    fxmlloader.setController(this);
     try {
       fxmlloader.load();
     } catch (IOException exception) {
@@ -23,9 +28,8 @@ public class ChatSessionView extends Pane implements ControllerIntroduce {
     }
   }
 
-  @Override
-  public void setController(ChatSessionController controller) {
-    this.chatSessionController = controller;
+  public ChatSession getChatSession() {
+    return chatSession;
   }
 /*
   public void onNewUserLogout(String user) {

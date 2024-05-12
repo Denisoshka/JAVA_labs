@@ -14,7 +14,7 @@ import javafx.scene.text.TextFlow;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class ChatSession extends HBox {
+public class ChatSession extends HBox implements ControllerIntroduce {
   private static final int OTHERS_COLUMN_INDEX = 0;
   private static final int EVENT_COLUMN_INDEX = 1;
   private static final int USER_COLUMN_INDEX = 2;
@@ -28,7 +28,7 @@ public class ChatSession extends HBox {
   @FXML
   private GridPane chatGridPane;
 
-  private ChatSessionController controller;
+  private ChatSessionController chatSessionController;
 
   public enum ChatEventType {
     SEND,
@@ -37,9 +37,14 @@ public class ChatSession extends HBox {
     ;
   }
 
+  @Override
+  public void setChatSessionController(ChatSessionController chatSessionController) {
+    this.chatSessionController = chatSessionController;
+  }
+
   @FXML
-  private void sendMessage(){
-    controller.messageCommand(messageTextField.getText());
+  private void sendMessage() {
+    chatSessionController.messageCommand(messageTextField.getText());
     messageTextField.clear();
   }
 

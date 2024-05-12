@@ -11,6 +11,7 @@ import javachat.client.model.dto.subtypes.LogoutDTO;
 import javachat.client.model.dto.subtypes.MessageDTO;
 import javachat.client.model.main_context.ChatSessionExecutor;
 import javachat.client.view.ChatSession;
+import javachat.client.view.ChatSessionView;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
@@ -27,14 +28,15 @@ public class ChatSessionController {
   private LoginModule loginModule;
   private LogoutModule logoutModule;
 
-  public void setChatSessionExecutorDensities(ChatSessionExecutor chatSessionExecutor) {
+  public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
     logoutModule = (LogoutModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGOUT);
     loginModule = (LoginModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGIN);
   }
 
-  public void setChatSessionDensities(ChatSession chatSession) {
-    this.chatSession = chatSession;
+
+  public void setChatSessionViewDependence(ChatSessionView chatSessionView) {
+    this.chatSession = chatSessionView.getChatSession();
   }
 
   private ChatSessionExecutor chatSessionExecutor;
@@ -125,4 +127,5 @@ public class ChatSessionController {
             )
     );
   }
+
 }

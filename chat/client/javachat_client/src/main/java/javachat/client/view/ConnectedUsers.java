@@ -15,7 +15,7 @@ public class ConnectedUsers extends VBox implements ControllerIntroduce {
   @FXML
   private ListView<String> connectedUsers;
   private ObservableList<String> users = FXCollections.observableArrayList();
-//  ChatSessionController controller;
+//  ChatSessionController chatSessionController;
 
   public ConnectedUsers() {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ConnectedUsers.fxml"));
@@ -31,8 +31,8 @@ public class ConnectedUsers extends VBox implements ControllerIntroduce {
   }
 
   @Override
-  public void setController(ChatSessionController controller) {
-//    this.controller = controller;
+  public void setChatSessionController(ChatSessionController chatSessionController) {
+//    this.chatSessionController = chatSessionController;
   }
 
   public void showUsers(List<String> newUsers) {

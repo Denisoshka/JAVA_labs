@@ -1,17 +1,26 @@
 package javachat.client;
 
+import javachat.client.facade.ChatSessionController;
+import javachat.client.model.main_context.ChatSessionExecutor;
+import javachat.client.view.ChatSessionView;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class ClientApplication extends Application {
+
   @Override
   public void start(Stage stage) throws IOException {
-    FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("ChatView.fxml"));
-    Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+    ChatSessionController chatSessionController = new ChatSessionController();
+    ChatSessionView chatSessionView = new ChatSessionView();
+    ChatSessionExecutor chatSessionExecutor = new ChatSessionExecutor(chatSessionController);
+
+    chatSessionController.setChatSessionExecutorDependence(chatSessionExecutor);
+    chatSessionController.setChatSessionViewDependence(chatSessionView);
+
+    Scene scene = new Scene(chatSessionView);
     stage.setScene(scene);
     stage.show();
   }
