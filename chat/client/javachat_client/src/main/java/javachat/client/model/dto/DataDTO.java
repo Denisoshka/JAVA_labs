@@ -17,7 +17,7 @@ public class DataDTO {
     String password;
     int port;
 
-    LoginData(String name, String hostname, String password, int port) {
+    public LoginData(String name, String hostname, String password, int port) {
       this.name = name;
       this.hostname = hostname;
       this.password = password;

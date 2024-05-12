@@ -4,10 +4,10 @@ import javachat.client.model.dto.RequestDTO;
 
 import java.util.List;
 
-public interface ChatCommand {
-  void commandAction(RequestDTO.BaseCommand command, List<Object> args) throws InterruptedException;
+public interface ChatModule {
+  void commandAction(RequestDTO.BaseCommand command, List<Object> args);
 
-  void responseActon();
+  void responseActon(RequestDTO.BaseCommand command);
 
   void eventAction(RequestDTO.BaseEvent event);
 }

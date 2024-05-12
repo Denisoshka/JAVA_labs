@@ -1,6 +1,7 @@
 package javachat.client.model.main_context;
 
 import javachat.client.facade.ChatSessionController;
+import javachat.client.model.chat_modules.command.ChatModule;
 import javachat.client.model.dto.DTOConverterManager;
 import javachat.client.model.dto.RequestDTO;
 import javachat.client.model.io_processing.Connection;
@@ -73,10 +74,14 @@ public class ChatSessionExecutor implements ChatSessionExecutorInterface, Connec
     return controller;
   }
 
-
   @Override
   public BlockingQueue<RequestDTO> getModuleExchanger() {
     return moduleExchanger;
+  }
+
+  @Override
+  public ChatModule getChatModule() {
+    return null;
   }
 
   public DTOConverterManager getXMLDTOConverterManager() {

@@ -7,6 +7,7 @@
          fx:controller="javachat.client.view.RegistrationBlock"
          prefHeight="60.0" prefWidth="180.0" type="VBox">
     <TextField fx:id="chatName" prefWidth="Infinity"/>
+    <TextField fx:id="port" prefWidth="Infinity"/>
     <TextField fx:id="userLogin" prefWidth="Infinity"/>
     <PasswordField fx:id="userPassword" prefWidth="Infinity"/>
     <Button fx:id="login" onAction="#performLogin" prefWidth="Infinity"/>

@@ -5,7 +5,7 @@ import javachat.client.model.dto.exceptions.UnableToDeserialize;
 import javachat.client.model.dto.exceptions.UnableToSerialize;
 import javachat.client.model.dto.exceptions.UnsupportedDTOType;
 import javachat.client.model.dto.interfaces.DTOConverter;
-import javachat.client.model.dto.interfaces.XMLDTOConverterManage;
+import javachat.client.model.dto.interfaces.XMLDTOConverterManager;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-public class DTOConverterManager implements DTOConverter, XMLDTOConverterManage {
+public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager {
   private final Map<RequestDTO.DTO_SECTION, RequestDTO.DTOConverter> converters;
 
   public DTOConverterManager(Properties properties) {

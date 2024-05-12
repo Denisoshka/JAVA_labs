@@ -14,6 +14,8 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
   @FXML
   private TextField chatName;
   @FXML
+  private TextField port;
+  @FXML
   private TextField userLogin;
   @FXML
   private PasswordField userPassword;
@@ -37,12 +39,12 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
 
   @FXML
   public void performLogin() {
-//    controller.login(null, null, null, null);
+    controller.loginCommand(userLogin.getText(), userPassword.getText(), chatName.getText(), Integer.parseInt(port.getText()));
   }
 
   @FXML
   public void performLogout() {
-
+    controller.logoutCommand();
   }
 
   @Override
