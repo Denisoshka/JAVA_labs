@@ -1,4 +1,4 @@
-package javachat.client.model.chat_modules.command;
+package javachat.client.model.chat_modules.interfaces;
 
 import javachat.client.model.dto.RequestDTO;
 

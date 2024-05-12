@@ -1,6 +1,7 @@
-package javachat.client.model.chat_modules.command;
+package javachat.client.model.chat_modules.submodules;
 
 import javachat.client.facade.ChatSessionController;
+import javachat.client.model.chat_modules.interfaces.ChatModule;
 import javachat.client.model.dto.DataDTO;
 import javachat.client.model.dto.RequestDTO;
 import javachat.client.model.dto.exceptions.UnableToSerialize;
@@ -20,9 +21,9 @@ public class LoginModule implements ChatModule {
 
   private DataDTO.LoginData loginData;
 
-  LoginModule(ChatSessionExecutor chatSessionExecutor) {
+  public LoginModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
-    this.chatSessionController = chatSessionExecutor.getController();
+    this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLogger = chatSessionExecutor.getDefaultLogger();
   }

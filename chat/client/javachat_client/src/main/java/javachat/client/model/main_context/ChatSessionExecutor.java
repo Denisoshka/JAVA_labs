@@ -1,7 +1,9 @@
 package javachat.client.model.main_context;
 
 import javachat.client.facade.ChatSessionController;
-import javachat.client.model.chat_modules.command.ChatModule;
+import javachat.client.model.chat_modules.ChatModuleManager;
+import javachat.client.model.chat_modules.interfaces.AbstractChatModuleManager;
+import javachat.client.model.chat_modules.interfaces.ChatModule;
 import javachat.client.model.dto.DTOConverterManager;
 import javachat.client.model.dto.RequestDTO;
 import javachat.client.model.io_processing.Connection;
@@ -15,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 
-public class ChatSessionExecutor implements ChatSessionExecutorInterface, ConnectionModule {
+public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule {
   private final Logger defaultLogger = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class.getName());
   private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
 
@@ -23,21 +25,23 @@ public class ChatSessionExecutor implements ChatSessionExecutorInterface, Connec
   private final ExecutorService responseExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
 
-
   private final DTOConverterManager XMLDTOConverterManager;
+  private final ChatModuleManager chatModuleManager;
 
-  private final ChatSessionController controller;
+
+  private final ChatSessionController chatSessionController;
   private final BlockingQueue<RequestDTO> moduleExchanger = new SynchronousQueue<>(true);
 
   private Connection connection;
 
-  public ChatSessionExecutor(ChatSessionController controller) throws IOException {
-    this.controller = controller;
+  public ChatSessionExecutor(ChatSessionController chatSessionController) throws IOException {
+    this.chatSessionController = chatSessionController;
     Properties properties = new Properties();
     try (var input = getClass().getResourceAsStream("xml_converter_manager.properties")) {
       properties.load(input);
       this.XMLDTOConverterManager = new DTOConverterManager(properties);
     }
+    this.chatModuleManager = new ChatModuleManager(null, this);
   }
 
   @Override
@@ -70,8 +74,8 @@ public class ChatSessionExecutor implements ChatSessionExecutorInterface, Connec
   }
 
 
-  public ChatSessionController getController() {
-    return controller;
+  public ChatSessionController getChatSessionController() {
+    return chatSessionController;
   }
 
   @Override
@@ -79,12 +83,12 @@ public class ChatSessionExecutor implements ChatSessionExecutorInterface, Connec
     return moduleExchanger;
   }
 
-  @Override
-  public ChatModule getChatModule() {
-    return null;
-  }
-
   public DTOConverterManager getXMLDTOConverterManager() {
     return XMLDTOConverterManager;
+  }
+
+  @Override
+  public ChatModule getChatModule(RequestDTO.DTO_SECTION moduleSection) {
+    return chatModuleManager.getChatModule(moduleSection);
   }
 }

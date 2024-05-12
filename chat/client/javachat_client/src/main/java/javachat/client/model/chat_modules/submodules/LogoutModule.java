@@ -1,6 +1,7 @@
-package javachat.client.model.chat_modules.command;
+package javachat.client.model.chat_modules.submodules;
 
 import javachat.client.facade.ChatSessionController;
+import javachat.client.model.chat_modules.interfaces.ChatModule;
 import javachat.client.model.dto.RequestDTO;
 import javachat.client.model.dto.subtypes.LogoutDTO;
 import javachat.client.model.main_context.ChatSessionExecutor;
@@ -19,7 +20,7 @@ public class LogoutModule implements ChatModule {
 
   public LogoutModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
-    this.chatSessionController = chatSessionExecutor.getController();
+    this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
   }

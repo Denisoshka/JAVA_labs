@@ -1,8 +1,8 @@
 package javachat.client.facade;
 
-import javachat.client.model.chat_modules.command.LoginModule;
-import javachat.client.model.chat_modules.command.LogoutModule;
-import javachat.client.model.chat_modules.command.MessageModule;
+import javachat.client.model.chat_modules.submodules.LoginModule;
+import javachat.client.model.chat_modules.submodules.LogoutModule;
+import javachat.client.model.chat_modules.submodules.MessageModule;
 import javachat.client.model.dto.DataDTO;
 import javachat.client.model.dto.RequestDTO;
 import javachat.client.model.dto.subtypes.ListDTO;
@@ -22,14 +22,19 @@ public class ChatSessionController {
   private static final String USER_LOGOUT = "userlogout";
   private static final String USER_MESSAGE = "message";
 
-  ChatSession chatSession;
+  private ChatSession chatSession;
+  private MessageModule messageModule;
+  private LoginModule loginModule;
+  private LogoutModule logoutModule;
 
-  private final MessageModule messageModule;
-  private final LoginModule loginModule;
-  private final LogoutModule logoutModule;
+  public void setChatSessionExecutorDensities(ChatSessionExecutor chatSessionExecutor) {
+    messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
+    logoutModule = (LogoutModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGOUT);
+    loginModule = (LoginModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGIN);
+  }
 
-  public ChatSessionController() {
-
+  public void setChatSessionDensities(ChatSession chatSession) {
+    this.chatSession = chatSession;
   }
 
   private ChatSessionExecutor chatSessionExecutor;
@@ -119,9 +124,5 @@ public class ChatSessionController {
                     ZonedDateTime.now()
             )
     );
-  }
-
-  public void setChatSessionExecutor(ChatSessionExecutor chatSessionExecutor) {
-    this.chatSessionExecutor = chatSessionExecutor;
   }
 }
