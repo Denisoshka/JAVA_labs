@@ -1,4 +1,4 @@
-module javachat_client.javachat_client {
+module client {
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.web;
@@ -13,25 +13,18 @@ module javachat_client.javachat_client {
   requires static lombok;
   requires org.slf4j;
   requires annotations;
-//  requires com.fasterxml.jackson.annotation;
-//  requires com.fasterxml.jackson.dataformat.xml;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires java.xml.bind;
+  requires core;
 
-  opens javachat.client.model.dto.subtypes to java.xml.bind;
-  opens javachat.client.model.dto to java.xml.bind;
-  opens javachat.client to javafx.fxml;
-  exports javachat.client;
-  exports javachat.client.view;
-  exports javachat.client.exception;
-  opens client.client.view to javafx.fxml;
-  exports javachat.client.model.io_processing;
-  opens javachat.client.model.io_processing to javafx.fxml;
-  opens javachat.client.model.dto.exceptions to java.xml.bind;
-  opens javachat.client.model.dto.interfaces to java.xml.bind;
-  exports javachat.client.model.main_context;
-  opens javachat.client.model.main_context to javafx.fxml;
-  exports javachat.client.model.main_context.interfaces;
-  opens javachat.client.model.main_context.interfaces to javafx.fxml;
+  exports client.view;
+  exports client.exception;
+  opens client.view to javafx.fxml;
+  exports client.model.io_processing;
+  opens client.model.io_processing to javafx.fxml;
+  exports client.model.main_context;
+  opens client.model.main_context to javafx.fxml;
+  exports client.model.main_context.interfaces;
+  opens client.model.main_context.interfaces to javafx.fxml;
 }

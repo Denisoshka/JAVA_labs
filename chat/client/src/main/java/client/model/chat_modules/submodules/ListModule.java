@@ -2,8 +2,8 @@ package client.model.chat_modules.submodules;
 
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
-import client.model.dto.RequestDTO;
-import client.model.dto.subtypes.ListDTO;
+import dto.RequestDTO;
+import dto.subtypes.ListDTO;
 import client.model.main_context.ChatSessionExecutor;
 import org.slf4j.Logger;
 

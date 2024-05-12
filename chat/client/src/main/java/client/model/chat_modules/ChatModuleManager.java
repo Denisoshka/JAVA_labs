@@ -1,13 +1,13 @@
 package client.model.chat_modules;
 
-import javachat.client.model.chat_modules.interfaces.AbstractChatModuleManager;
-import javachat.client.model.chat_modules.interfaces.ChatModule;
-import javachat.client.model.chat_modules.submodules.ListModule;
-import javachat.client.model.chat_modules.submodules.LoginModule;
-import javachat.client.model.chat_modules.submodules.LogoutModule;
-import javachat.client.model.chat_modules.submodules.MessageModule;
-import javachat.client.model.dto.RequestDTO;
-import javachat.client.model.main_context.ChatSessionExecutor;
+import client.model.chat_modules.interfaces.AbstractChatModuleManager;
+import client.model.chat_modules.interfaces.ChatModule;
+import client.model.chat_modules.submodules.ListModule;
+import client.model.chat_modules.submodules.LoginModule;
+import client.model.chat_modules.submodules.LogoutModule;
+import client.model.chat_modules.submodules.MessageModule;
+import dto.RequestDTO;
+import client.model.main_context.ChatSessionExecutor;
 
 import java.util.HashMap;
 import java.util.Properties;

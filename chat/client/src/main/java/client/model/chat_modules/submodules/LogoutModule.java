@@ -1,10 +1,10 @@
 package client.model.chat_modules.submodules;
 
-import javachat.client.facade.ChatSessionController;
-import javachat.client.model.chat_modules.interfaces.ChatModule;
-import javachat.client.model.dto.RequestDTO;
-import javachat.client.model.dto.subtypes.LogoutDTO;
-import javachat.client.model.main_context.ChatSessionExecutor;
+import client.facade.ChatSessionController;
+import client.model.chat_modules.interfaces.ChatModule;
+import client.model.main_context.ChatSessionExecutor;
+import dto.RequestDTO;
+import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
 
 import java.io.IOException;

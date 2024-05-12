@@ -2,10 +2,10 @@ package client.model.chat_modules.submodules;
 
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
-import client.model.dto.DataDTO;
-import client.model.dto.RequestDTO;
-import client.model.dto.exceptions.UnableToSerialize;
-import client.model.dto.subtypes.LoginDTO;
+import dto.DataDTO;
+import dto.RequestDTO;
+import dto.exceptions.UnableToSerialize;
+import dto.subtypes.LoginDTO;
 import client.model.main_context.ChatSessionExecutor;
 import org.slf4j.Logger;
 

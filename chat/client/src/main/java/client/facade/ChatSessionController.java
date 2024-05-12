@@ -1,17 +1,17 @@
 package client.facade;
 
-import javachat.client.model.chat_modules.submodules.LoginModule;
-import javachat.client.model.chat_modules.submodules.LogoutModule;
-import javachat.client.model.chat_modules.submodules.MessageModule;
-import javachat.client.model.dto.DataDTO;
-import javachat.client.model.dto.RequestDTO;
-import javachat.client.model.dto.subtypes.ListDTO;
-import javachat.client.model.dto.subtypes.LoginDTO;
-import javachat.client.model.dto.subtypes.LogoutDTO;
-import javachat.client.model.dto.subtypes.MessageDTO;
-import javachat.client.model.main_context.ChatSessionExecutor;
-import javachat.client.view.ChatSession;
-import javachat.client.view.ChatSessionView;
+import client.model.chat_modules.submodules.LoginModule;
+import client.model.chat_modules.submodules.LogoutModule;
+import client.model.chat_modules.submodules.MessageModule;
+import client.model.main_context.ChatSessionExecutor;
+import client.view.ChatSession;
+import client.view.ChatSessionView;
+import dto.DataDTO;
+import dto.RequestDTO;
+import dto.subtypes.ListDTO;
+import dto.subtypes.LoginDTO;
+import dto.subtypes.LogoutDTO;
+import dto.subtypes.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;

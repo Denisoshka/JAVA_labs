@@ -1,15 +1,16 @@
 package client.model.main_context;
 
-import javachat.client.facade.ChatSessionController;
-import javachat.client.model.chat_modules.ChatModuleManager;
-import javachat.client.model.chat_modules.interfaces.AbstractChatModuleManager;
-import javachat.client.model.chat_modules.interfaces.ChatModule;
-import javachat.client.model.dto.DTOConverterManager;
-import javachat.client.model.dto.RequestDTO;
-import javachat.client.model.io_processing.Connection;
-import javachat.client.model.io_processing.IOProcessor;
-import javachat.client.model.main_context.interfaces.AbstractChatSessionExecutor;
-import javachat.client.model.main_context.interfaces.ConnectionModule;
+import client.facade.ChatSessionController;
+import client.model.chat_modules.ChatModuleManager;
+import client.model.chat_modules.interfaces.AbstractChatModuleManager;
+import client.model.chat_modules.interfaces.ChatModule;
+
+import dto.DTOConverterManager;
+import dto.RequestDTO;
+import client.model.io_processing.Connection;
+import client.model.io_processing.IOProcessor;
+import client.model.main_context.interfaces.AbstractChatSessionExecutor;
+import client.model.main_context.interfaces.ConnectionModule;
 import org.slf4j.Logger;
 
 import java.io.IOException;

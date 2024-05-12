@@ -1,6 +1,6 @@
 package client.model.chat_modules.interfaces;
 
-import client.model.dto.RequestDTO;
+import dto.RequestDTO;
 
 import java.util.List;
 
