@@ -1,8 +1,8 @@
 package server.model.server_sections;
 
-import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LogoutDTO;
+import org.w3c.dom.Node;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -19,13 +19,11 @@ public class LogoutSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, RequestDTO message) {
+  public void perform(ServerConnection connection, Node message) throws IOException {
     try {
       connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
     } catch (UnableToSerialize e) {
       Server.getLog().warn(e.getMessage());
-    } catch (IOException e) {
-      server.submitExpiredConnection(connection);
     }
   }
 }

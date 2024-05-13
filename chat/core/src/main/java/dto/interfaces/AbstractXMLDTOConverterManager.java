@@ -16,6 +16,20 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
     }
   }
 
+  /**
+   * return {@code RequestDTO.DTO_SECTION} which specified in root node if {@code RequestDTO.DTO_SECTION} exists, else {@code null}
+   */
+  default RequestDTO.DTO_SECTION getDTOSection(Node root) {
+    try {
+      return RequestDTO.DTO_SECTION.valueOf(
+              root.getAttributes().getNamedItem("name").getNodeValue()
+      );
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+
   Node getXMLTree(byte[] data) throws UnableToDeserialize;
 
   default String getDTOName(Node root) {

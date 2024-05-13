@@ -1,9 +1,10 @@
 package server.model.server_sections.interfaces;
 
-import dto.RequestDTO;
-import server.exceptions.IOServerException;
+import org.w3c.dom.Node;
 import server.model.io_processing.ServerConnection;
 
+import java.io.IOException;
+
 public interface AbstractSection {
-  void perform(ServerConnection connection, RequestDTO dto) throws IOServerException;
+  void perform(ServerConnection connection, Node dto) throws IOException;
 }

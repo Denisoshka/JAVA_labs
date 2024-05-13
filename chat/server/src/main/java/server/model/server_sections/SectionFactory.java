@@ -11,10 +11,10 @@ import server.model.server_sections.interfaces.CommandSupplier;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommandFactory implements CommandSupplier {
+public class SectionFactory implements CommandSupplier {
   private final Map<RequestDTO.DTO_SECTION, AbstractSection> commands;
 
-  public CommandFactory(Server server) {
+  public SectionFactory(Server server) {
     var manager = server.getConverterManager();
     this.commands = new HashMap<>(3);
     this.commands.put(

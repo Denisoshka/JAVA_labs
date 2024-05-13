@@ -1,9 +1,8 @@
 package server.model.server_sections;
 
-import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.MessageDTO;
-import server.exceptions.IOServerException;
+import org.w3c.dom.Node;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -20,10 +19,10 @@ public class MessageSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, RequestDTO dto) throws IOServerException {
-    var messageDTO = (MessageDTO.Command) dto;
+  public void perform(ServerConnection connection, Node dto) throws IOException {
     try {
-      var msgEvent = converter.serialize(new MessageDTO.Event(
+      MessageDTO.Command messageDTO = (MessageDTO.Command) converter.deserialize(dto);
+      byte[] msg = converter.serialize(new MessageDTO.Event(
               connection.getConnectionName(),
               messageDTO.getMessage()
       )).getBytes();
@@ -31,18 +30,15 @@ public class MessageSection implements AbstractSection {
         if (connection.equals(conn) || conn.isExpired()) {
           continue;
         }
-
         try {
-          conn.sendMessage(msgEvent);
-        } catch (IOServerException e) {
+          conn.sendMessage(msg);
+        } catch (IOException e) {
           server.submitExpiredConnection(connection);
         }
       }
     } catch (UnableToSerialize e) {
 //      todo maybe make server shutdown when this occurs
       Server.getLog().warn(e.getMessage());
-    } catch (IOException e) {
-      server.submitExpiredConnection(connection);
     }
   }
 }

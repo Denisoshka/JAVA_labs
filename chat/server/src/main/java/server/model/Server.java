@@ -3,7 +3,10 @@ package server.model;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Node;
 import server.model.io_processing.ServerConnection;
+import server.model.server_sections.SectionFactory;
+import server.model.server_sections.interfaces.CommandSupplier;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,6 +29,7 @@ public class Server {
   private final CopyOnWriteArrayList<ServerConnection> connections = new CopyOnWriteArrayList<>();
   private final ExecutorService serverExecutor = Executors.newSingleThreadExecutor();
   private final DTOConverterManager converterManager;
+  private final CommandSupplier commandSupplier;
   private final ServerSocket serverSocket;
   //  todo
   private final ExecutorService expiredConnectionDeleter;
@@ -36,7 +40,6 @@ public class Server {
   private AtomicBoolean serveryPizda = new AtomicBoolean(false);
 
   Server(Properties properties) throws IOException {
-    converterManager = new DTOConverterManager(null /*todo fix this*/);
     serverSocket = new ServerSocket();
     try {
       serverSocket.bind(
@@ -46,6 +49,8 @@ public class Server {
     } catch (IOException e) {
       serverSocket.close();
     }
+    this.converterManager = new DTOConverterManager(null /*todo fix this*/);
+    this.commandSupplier = new SectionFactory(this);
     this.registeredUsers = new Properties();
     this.chatExchangeExecutor = Executors.newCachedThreadPool();
     this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
@@ -53,37 +58,42 @@ public class Server {
   }
 
   private static class ServerWorker implements Runnable {
-
     private final ServerConnection connection;
-
     private final DTOConverterManager XMLDTOConverterManager;
+    private final CommandSupplier commandSupplier;
+    private final Server server;
 
-    public ServerWorker(ServerConnection connection, DTOConverterManager XMLDTOConverterManager) {
+    public ServerWorker(ServerConnection connection, Server server) {
+      this.server = server;
       this.connection = connection;
-      this.XMLDTOConverterManager = XMLDTOConverterManager;
+      this.commandSupplier = server.commandSupplier;
+      this.XMLDTOConverterManager = server.converterManager;
     }
 
     @Override
     public void run() {
       try (ServerConnection con = connection) {
         while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
-          final var xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
-          final var type = XMLDTOConverterManager.getDTOType(xmlTree);
+          final Node xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
+          final RequestDTO.DTO_TYPE type = XMLDTOConverterManager.getDTOType(xmlTree);
+          RequestDTO.DTO_SECTION section = null;
 
           if (type == null) {
             connection.sendMessage(XMLDTOConverterManager.serialize(
-                    new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")).getBytes()
-            );
+                    new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")
+            ).getBytes());
           } else if (type != RequestDTO.DTO_TYPE.COMMAND) {
+//            todo make in XMLDTOConverterManager support of base commands
             connection.sendMessage(XMLDTOConverterManager.serialize(
-                    new RequestDTO.BaseErrorResponse(null, "server support only COMMAND messages")).getBytes()
-            );
-          } else {
-//            todo finish this section
+                    new RequestDTO.BaseErrorResponse(null, "server support only COMMAND messages")
+            ).getBytes());
+          } else if ((section = XMLDTOConverterManager.getDTOSection(xmlTree)) != null) {
+            commandSupplier.getSection(section).perform(connection, xmlTree);
           }
         }
       } catch (IOException _) {
-
+      } finally {
+        server.submitExpiredConnection(connection);
       }
     }
   }
