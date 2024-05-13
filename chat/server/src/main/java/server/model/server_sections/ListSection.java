@@ -1,6 +1,7 @@
 package server.model.server_sections;
 
 import dto.DataDTO;
+import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.ListDTO;
 import org.w3c.dom.Node;
@@ -22,7 +23,11 @@ public class ListSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Node message) throws IOException {
+  public void perform(ServerConnection connection, Node message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+    if (dtoType != RequestDTO.DTO_TYPE.COMMAND) {
+      connection.sendMessage(converter.serialize(new ListDTO.Error(STR."not support \{dtoType.name()}")).getBytes());
+    }
+
     final var connections = server.getConnections();
     List<DataDTO.User> users = new ArrayList<>();
     for (ServerConnection conn : connections) {

@@ -6,4 +6,5 @@ module server {
   requires java.xml;
   requires core;
   requires java.compiler;
+  requires eclipselink;
 }

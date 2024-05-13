@@ -48,12 +48,12 @@ public class DTOTest {
   static ListDTO.ListDTOConverter listDTOConverter;
   static MessageDTO.MessageDTOConverter messageDTOConverter;
   static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
-  static LoginDTO.LoginAbstractDTOConverter loginDTOConverter;
+  static LoginDTO.LoginDTOConverter loginDTOConverter;
 
   @Before
   public void prepare() throws ParserConfigurationException, JAXBException {
     listDTOConverter = new ListDTO.ListDTOConverter();
-    loginDTOConverter = new LoginDTO.LoginAbstractDTOConverter();
+    loginDTOConverter = new LoginDTO.LoginDTOConverter();
     logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
     messageDTOConverter = new MessageDTO.MessageDTOConverter();
   }
@@ -87,7 +87,7 @@ public class DTOTest {
   public static Stream<Arguments> ArgsEventDTOTest() throws JAXBException {
     var messageConverter = new MessageDTO.MessageDTOConverter();
     var logoutConverter = new LogoutDTO.LogoutDTOConverter();
-    var loginConverter = new LoginDTO.LoginAbstractDTOConverter();
+    var loginConverter = new LoginDTO.LoginDTOConverter();
     var listConverter = new ListDTO.ListDTOConverter();
 
     return Stream.of(

@@ -30,7 +30,7 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
     try {
       this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
       this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginAbstractDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
       this.converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
 
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

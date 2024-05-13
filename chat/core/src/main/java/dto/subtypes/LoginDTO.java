@@ -12,8 +12,8 @@ import java.util.Objects;
 public enum LoginDTO {
   ;
 
-  public static class LoginAbstractDTOConverter extends RequestDTO.AbstractDTOConverter {
-    public LoginAbstractDTOConverter() throws JAXBException {
+  public static class LoginDTOConverter extends RequestDTO.AbstractDTOConverter {
+    public LoginDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
   }
@@ -71,7 +71,7 @@ public enum LoginDTO {
   public static class Event extends RequestDTO.BaseEvent implements AbstractDTOInterfaces.NAME {
     private String name;
 
-    Event() {
+    public Event() {
       super(EVENT_TYPE.USER_LOGIN, DTO_SECTION.LOGIN);
     }
 

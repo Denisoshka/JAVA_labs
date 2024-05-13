@@ -1,5 +1,6 @@
 package server.model.server_sections;
 
+import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.MessageDTO;
 import org.w3c.dom.Node;
@@ -19,7 +20,7 @@ public class MessageSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Node dto) throws IOException {
+  public void perform(ServerConnection connection, Node dto, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     try {
       MessageDTO.Command messageDTO = (MessageDTO.Command) converter.deserialize(dto);
       byte[] msg = converter.serialize(new MessageDTO.Event(

@@ -22,6 +22,7 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
   @Override
   public byte[] receiveMessage() throws IOException {
     synchronized (inputStream) {
+
       int len = inputStream.readInt();
       return inputStream.readNBytes(len);
     }
