@@ -9,13 +9,17 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class Connection implements Runnable, AutoCloseable {
-  private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
+  private final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
+
+  private final String connectionName;
+
   private final Socket socket;
   private SessionIOProcessor ioProcessor;
   private volatile boolean expired;
 
-  public Connection(String ipaddr, int port) throws IOException {
-    this.socket = new Socket(ipaddr, port);
+  public Connection(Socket socket, String connectionName) throws IOException {
+    this.connectionName = connectionName;
+    this.socket = socket;
   }
 
   @Override
@@ -63,6 +67,10 @@ public class Connection implements Runnable, AutoCloseable {
 
   public SessionIOProcessor getIoProcessor() {
     return ioProcessor;
+  }
+
+  public String getConnectionName() {
+    return connectionName;
   }
 }
 

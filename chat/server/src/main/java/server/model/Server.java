@@ -1,11 +1,10 @@
 package server.model;
 
-import server.exceptions.UnableToDecodeMessage;
-import server.exceptions.UnableToRegisterUser;
-import server.model.io_processing.Connection;
-import server.model.message_handler.MessageHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
+import server.exceptions.UnableToDecodeMessage;
+import server.model.io_processing.Connection;
+import server.model.message_handler.MessageHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -82,7 +81,7 @@ public class Server implements Runnable, AutoCloseable {
     chatExchangeExecutor.execute(connection);
   }
 
-  public RegistrationState registerUser(String name, String password) throws UnableToRegisterUser {
+  public RegistrationState registerUser(String name, String password) {
     if (name == null || name.isEmpty()) return RegistrationState.INCORRECT_NAME_DATA;
     if (password == null || password.isEmpty()) return RegistrationState.INCORRECT_PASSWORD_DATA;
     String pswrd;
@@ -136,6 +135,7 @@ public class Server implements Runnable, AutoCloseable {
            DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
         for (; end - start <= MAX_CONNECTION_TIME; end = System.currentTimeMillis()) {
           try {
+
             Document doc = messageHandler.receiveMessage(receiveStream);
             RegistrationState ret = messageHandler.handleConnectionMessage(doc);
             if (ret == RegistrationState.SUCCESS) {
