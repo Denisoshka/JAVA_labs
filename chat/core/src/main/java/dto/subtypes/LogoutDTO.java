@@ -1,7 +1,7 @@
 package dto.subtypes;
 
 import dto.RequestDTO;
-import dto.interfaces.DTOInterfaces;
+import dto.interfaces.AbstractDTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -11,8 +11,8 @@ import java.util.Objects;
 public enum LogoutDTO {
   ;
 
-  public static class LogoutDTOConverter extends RequestDTO.DTOConverter {
-    public LogoutDTOConverter() throws JAXBException {
+  public static class LogoutAbstractDTOConverter extends RequestDTO.AbstractDTOConverter {
+    public LogoutAbstractDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
   }
@@ -29,7 +29,7 @@ public enum LogoutDTO {
   @XmlType(name = "logoutevent")
   @XmlAccessorType(XmlAccessType.FIELD)
   @XmlRootElement(name = "event")
-  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.NAME {
+  public static class Event extends RequestDTO.BaseEvent implements AbstractDTOInterfaces.NAME {
     @XmlElement(name = "name")
     String name;
 

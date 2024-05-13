@@ -4,8 +4,8 @@ import dto.exceptions.UnableToCreateXMLContextManager;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.exceptions.UnsupportedDTOType;
-import dto.interfaces.DTOConverter;
-import dto.interfaces.XMLDTOConverterManager;
+import dto.interfaces.AbstractDTOConverter;
+import dto.interfaces.AbstractXMLDTOConverterManager;
 import dto.subtypes.ListDTO;
 import dto.subtypes.LoginDTO;
 import dto.subtypes.LogoutDTO;
@@ -13,29 +13,36 @@ import dto.subtypes.MessageDTO;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager {
-  private final Map<RequestDTO.DTO_SECTION, RequestDTO.DTOConverter> converters;
+public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTOConverterManager {
+  private final Map<RequestDTO.DTO_SECTION, RequestDTO.AbstractDTOConverter> converters;
+  private final DocumentBuilderFactory factory;
+  private final DocumentBuilder builder;
 
   public DTOConverterManager(Properties properties) {
     this.converters = new HashMap<>(properties.size());
     try {
-      this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageAbstractDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutAbstractDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginAbstractDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListAbstractDTOConverter());
       /*for (String property : properties.stringPropertyNames()) {
         converters.put(
                 RequestDTO.DTO_SECTION.valueOf(property),
                 (RequestDTO.DTOConverter) Class.forName(property).getDeclaredConstructor().newInstance()
         );
       }*/
-    } catch (
-            JAXBException | IllegalArgumentException e) {
+      factory = DocumentBuilderFactory.newInstance();
+      builder = Objects.requireNonNull(factory.newDocumentBuilder());
+    } catch (JAXBException | IllegalArgumentException |
+             NullPointerException | ParserConfigurationException e) {
       throw new UnableToCreateXMLContextManager(e);
     }
   }
@@ -52,7 +59,7 @@ public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager
   @Override
   public RequestDTO deserialize(Node root) throws UnableToDeserialize {
     try {
-      RequestDTO.DTOConverter converter = Objects.requireNonNull(converters.get(getDTOType(root)));
+      RequestDTO.AbstractDTOConverter converter = Objects.requireNonNull(converters.get(getDTOType(root)));
       return converter.deserialize(root);
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new UnsupportedDTOType(e.getMessage());
@@ -60,7 +67,12 @@ public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager
   }
 
   @Override
-  public RequestDTO.DTOConverter getConverter(RequestDTO.DTO_SECTION section) {
+  public Node getXMLTree(byte[] data) throws UnableToDeserialize {
+    return getXMLTree(builder, data);
+  }
+
+  @Override
+  public RequestDTO.AbstractDTOConverter getConverter(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
   }
 }

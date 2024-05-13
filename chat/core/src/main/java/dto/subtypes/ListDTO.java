@@ -2,7 +2,7 @@ package dto.subtypes;
 
 import dto.RequestDTO;
 import dto.DataDTO;
-import dto.interfaces.DTOInterfaces;
+import dto.interfaces.AbstractDTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -12,8 +12,8 @@ import java.util.List;
 public enum ListDTO {
   ;
 
-  public static class ListDTOConverter extends RequestDTO.DTOConverter {
-    public ListDTOConverter() throws JAXBException {
+  public static class ListAbstractDTOConverter extends RequestDTO.AbstractDTOConverter {
+    public ListAbstractDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Error.class, Success.class/*, XyiDTO.User.class*/));
     }
   }
@@ -27,7 +27,7 @@ public enum ListDTO {
 
   @XmlRootElement(name = "success")
   @XmlAccessorType(XmlAccessType.NONE)
-  public static class Success extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.USERS {
+  public static class Success extends RequestDTO.BaseSuccessResponse implements AbstractDTOInterfaces.USERS {
     private List<DataDTO.User> users;
 
     public Success() {

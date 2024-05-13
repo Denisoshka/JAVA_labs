@@ -2,7 +2,7 @@ package dto;
 
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
-import dto.interfaces.DTOInterfaces;
+import dto.interfaces.AbstractDTOInterfaces;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;
@@ -14,13 +14,13 @@ import javax.xml.bind.annotation.XmlElement;
 import java.io.StringWriter;
 import java.util.Objects;
 
-public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SECTION {
-  public static class DTOConverter implements dto.interfaces.DTOConverter {
+public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOInterfaces.DTO_SECTION {
+  public static class AbstractDTOConverter implements dto.interfaces.AbstractDTOConverter {
     JAXBContext context;
     Unmarshaller unmarshaller;
     Marshaller marshaller;
 
-    public DTOConverter(JAXBContext context) throws JAXBException {
+    public AbstractDTOConverter(JAXBContext context) throws JAXBException {
       this.context = context;
       this.unmarshaller = context.createUnmarshaller();
       this.marshaller = context.createMarshaller();
@@ -97,7 +97,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
   }
 
   //  @XmlRootElement(name = "command")
-  public static class BaseCommand extends RequestDTO implements DTOInterfaces.NAME_ATTRIBUTE {
+  public static class BaseCommand extends RequestDTO implements AbstractDTOInterfaces.NAME_ATTRIBUTE {
     private String nameAttribute;
 
     public BaseCommand(DTO_SECTION commandType) {
@@ -128,7 +128,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
     }
   }
 
-  public static class BaseEvent extends RequestDTO implements DTOInterfaces.EVENT_TYPE, DTOInterfaces.NAME_ATTRIBUTE {
+  public static class BaseEvent extends RequestDTO implements AbstractDTOInterfaces.EVENT_TYPE, AbstractDTOInterfaces.NAME_ATTRIBUTE {
     public enum EVENT_TYPE {
       MESSAGE("message"),
       USER_LOGIN("userlogin"),
@@ -180,7 +180,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
   }
 
   //  @XmlType(name = "baseresponse")
-  public static class BaseResponse extends RequestDTO implements DTOInterfaces.RESPONSE_TYPE {
+  public static class BaseResponse extends RequestDTO implements AbstractDTOInterfaces.RESPONSE_TYPE {
     public enum RESPONSE_TYPE {
       SUCCESS("success"),
       ERROR("error"),
@@ -230,7 +230,7 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
   }
 
   //  @XmlType(name = "baseerrorresponse")
-  public static class BaseErrorResponse extends BaseResponse implements DTOInterfaces.MESSAGE {
+  public static class BaseErrorResponse extends BaseResponse implements AbstractDTOInterfaces.MESSAGE {
     String message;
 
     public BaseErrorResponse(DTO_SECTION DTOSection) {

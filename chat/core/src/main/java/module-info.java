@@ -8,5 +8,6 @@ module core {
   requires java.xml.bind;
 
   opens dto.subtypes to java.xml.bind;
+  exports io_processing;
 
 }

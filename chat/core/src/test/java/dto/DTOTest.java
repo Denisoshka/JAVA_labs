@@ -45,17 +45,17 @@ public class DTOTest {
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-  static ListDTO.ListDTOConverter listDTOConverter;
-  static MessageDTO.MessageDTOConverter messageDTOConverter;
-  static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
-  static LoginDTO.LoginDTOConverter loginDTOConverter;
+  static ListDTO.ListAbstractDTOConverter listDTOConverter;
+  static MessageDTO.MessageAbstractDTOConverter messageDTOConverter;
+  static LogoutDTO.LogoutAbstractDTOConverter logoutDTOConverter;
+  static LoginDTO.LoginAbstractDTOConverter loginDTOConverter;
 
   @Before
   public void prepare() throws ParserConfigurationException, JAXBException {
-    listDTOConverter = new ListDTO.ListDTOConverter();
-    loginDTOConverter = new LoginDTO.LoginDTOConverter();
-    logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
-    messageDTOConverter = new MessageDTO.MessageDTOConverter();
+    listDTOConverter = new ListDTO.ListAbstractDTOConverter();
+    loginDTOConverter = new LoginDTO.LoginAbstractDTOConverter();
+    logoutDTOConverter = new LogoutDTO.LogoutAbstractDTOConverter();
+    messageDTOConverter = new MessageDTO.MessageAbstractDTOConverter();
   }
 
   @Test
@@ -73,7 +73,7 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("ArgsEventDTOTest")
-  public void EventDTOTest(RequestDTO eventto, String eventXml, RequestDTO.DTOConverter converter) throws JAXBException, IOException, SAXException, ParserConfigurationException {
+  public void EventDTOTest(RequestDTO eventto, String eventXml, RequestDTO.AbstractDTOConverter converter) throws JAXBException, IOException, SAXException, ParserConfigurationException {
     DocumentBuilder builder = Objects.requireNonNull(factory.newDocumentBuilder());
     String serializableXML = converter.serialize(eventto);
     Assert.assertEquals(eventXml, serializableXML);
@@ -85,10 +85,10 @@ public class DTOTest {
   }
 
   public static Stream<Arguments> ArgsEventDTOTest() throws JAXBException {
-    var messageConverter = new MessageDTO.MessageDTOConverter();
-    var logoutConverter = new LogoutDTO.LogoutDTOConverter();
-    var loginConverter = new LoginDTO.LoginDTOConverter();
-    var listConverter = new ListDTO.ListDTOConverter();
+    var messageConverter = new MessageDTO.MessageAbstractDTOConverter();
+    var logoutConverter = new LogoutDTO.LogoutAbstractDTOConverter();
+    var loginConverter = new LoginDTO.LoginAbstractDTOConverter();
+    var listConverter = new ListDTO.ListAbstractDTOConverter();
 
     return Stream.of(
             Arguments.of(

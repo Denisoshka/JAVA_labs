@@ -1,6 +1,6 @@
 package dto;
 
-import dto.interfaces.DTOInterfaces;
+import dto.interfaces.AbstractDTOInterfaces;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,10 +8,10 @@ import java.util.Objects;
 
 
 public class DataDTO {
-  public static class LoginData implements DTOInterfaces.NAME,
-          DTOInterfaces.HOSTNAME,
-          DTOInterfaces.PASSWORD,
-          DTOInterfaces.PORT {
+  public static class LoginData implements AbstractDTOInterfaces.NAME,
+          AbstractDTOInterfaces.HOSTNAME,
+          AbstractDTOInterfaces.PASSWORD,
+          AbstractDTOInterfaces.PORT {
     String name;
     String hostname;
     String password;
@@ -42,7 +42,7 @@ public class DataDTO {
   }
 
   @XmlRootElement(name = "user")
-  public static class User implements DTOInterfaces.NAME {
+  public static class User implements AbstractDTOInterfaces.NAME {
     private String name;
 
     public User() {

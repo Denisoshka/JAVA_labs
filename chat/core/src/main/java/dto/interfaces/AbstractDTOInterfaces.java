@@ -5,7 +5,7 @@ import dto.DataDTO;
 
 import java.util.List;
 
-public interface DTOInterfaces {
+public interface AbstractDTOInterfaces {
   interface NAME_ATTRIBUTE {
     String getNameAttribute();
   }
