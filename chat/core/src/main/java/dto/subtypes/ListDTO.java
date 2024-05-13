@@ -12,8 +12,8 @@ import java.util.List;
 public enum ListDTO {
   ;
 
-  public static class ListAbstractDTOConverter extends RequestDTO.AbstractDTOConverter {
-    public ListAbstractDTOConverter() throws JAXBException {
+  public static class ListDTOConverter extends RequestDTO.AbstractDTOConverter {
+    public ListDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Error.class, Success.class/*, XyiDTO.User.class*/));
     }
   }

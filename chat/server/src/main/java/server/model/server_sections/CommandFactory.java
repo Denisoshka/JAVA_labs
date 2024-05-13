@@ -1,20 +1,22 @@
 package server.model.message_handler;
 
+import server.model.Server;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommandFactory implements CommandSupplier {
-  private Map<String, CommandInterface> commands;
+  private Map<String, AbstractSection> commands;
 
-  public CommandFactory() {
+  public CommandFactory(Server server) {
     this.commands = new HashMap<>();
-    this.commands.put("list", new ListCommand());
-    this.commands.put("message", new MessageCommand());
+    this.commands.put("list", new ListSection());
+    this.commands.put("message", new MessageSection());
     this.commands.put("logout", new LogoutSection());
   }
 
   @Override
-  public CommandInterface getCommand(String command) {
+  public AbstractSection getCommand(String command) {
     return commands.get(command);
   }
 }

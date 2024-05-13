@@ -27,7 +27,5 @@ public interface AbstractDTOConverter {
   String serialize(RequestDTO dto) throws UnableToSerialize;
 
   RequestDTO deserialize(Node root) throws UnableToDeserialize;
-
-  Node getXMLTree(byte[] data) throws UnableToDeserialize;
 }
 

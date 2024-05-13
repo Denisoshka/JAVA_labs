@@ -23,23 +23,17 @@ import java.util.Properties;
 
 public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTOConverterManager {
   private final Map<RequestDTO.DTO_SECTION, RequestDTO.AbstractDTOConverter> converters;
-  private final DocumentBuilderFactory factory;
   private final DocumentBuilder builder;
 
   public DTOConverterManager(Properties properties) {
     this.converters = new HashMap<>(properties.size());
     try {
-      this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageAbstractDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutAbstractDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
+      this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
       this.converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginAbstractDTOConverter());
-      this.converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListAbstractDTOConverter());
-      /*for (String property : properties.stringPropertyNames()) {
-        converters.put(
-                RequestDTO.DTO_SECTION.valueOf(property),
-                (RequestDTO.DTOConverter) Class.forName(property).getDeclaredConstructor().newInstance()
-        );
-      }*/
-      factory = DocumentBuilderFactory.newInstance();
+      this.converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
+
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = Objects.requireNonNull(factory.newDocumentBuilder());
     } catch (JAXBException | IllegalArgumentException |
              NullPointerException | ParserConfigurationException e) {

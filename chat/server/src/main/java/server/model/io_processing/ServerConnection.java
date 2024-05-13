@@ -1,12 +1,12 @@
 package server.model.io_processing;
 
-import io_processing.AbstractIOProcessor;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.Objects;
 
-public class Connection implements AbstractIOProcessor, AutoCloseable {
+public class Connection implements AbstractConnection, AutoCloseable {
   private final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
 
   private final String connectionName;
@@ -35,6 +35,33 @@ public class Connection implements AbstractIOProcessor, AutoCloseable {
   @Override
   public void sendMessage(byte[] message) throws IOException {
     ioProcessor.sendMessage(message);
+  }
+
+  @Override
+  public boolean isClosed() {
+    return false;
+  }
+
+  @Override
+  public boolean isExpired() {
+    return expired;
+  }
+
+  @Override
+  public void markAsExpired() {
+    expired = true;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Connection that)) return false;
+    return Objects.equals(connectionName, that.connectionName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(connectionName);
   }
 }
 

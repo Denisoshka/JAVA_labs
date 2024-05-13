@@ -45,17 +45,17 @@ public class DTOTest {
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-  static ListDTO.ListAbstractDTOConverter listDTOConverter;
-  static MessageDTO.MessageAbstractDTOConverter messageDTOConverter;
-  static LogoutDTO.LogoutAbstractDTOConverter logoutDTOConverter;
+  static ListDTO.ListDTOConverter listDTOConverter;
+  static MessageDTO.MessageDTOConverter messageDTOConverter;
+  static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
   static LoginDTO.LoginAbstractDTOConverter loginDTOConverter;
 
   @Before
   public void prepare() throws ParserConfigurationException, JAXBException {
-    listDTOConverter = new ListDTO.ListAbstractDTOConverter();
+    listDTOConverter = new ListDTO.ListDTOConverter();
     loginDTOConverter = new LoginDTO.LoginAbstractDTOConverter();
-    logoutDTOConverter = new LogoutDTO.LogoutAbstractDTOConverter();
-    messageDTOConverter = new MessageDTO.MessageAbstractDTOConverter();
+    logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
+    messageDTOConverter = new MessageDTO.MessageDTOConverter();
   }
 
   @Test
@@ -85,10 +85,10 @@ public class DTOTest {
   }
 
   public static Stream<Arguments> ArgsEventDTOTest() throws JAXBException {
-    var messageConverter = new MessageDTO.MessageAbstractDTOConverter();
-    var logoutConverter = new LogoutDTO.LogoutAbstractDTOConverter();
+    var messageConverter = new MessageDTO.MessageDTOConverter();
+    var logoutConverter = new LogoutDTO.LogoutDTOConverter();
     var loginConverter = new LoginDTO.LoginAbstractDTOConverter();
-    var listConverter = new ListDTO.ListAbstractDTOConverter();
+    var listConverter = new ListDTO.ListDTOConverter();
 
     return Stream.of(
             Arguments.of(

@@ -13,8 +13,8 @@ import java.util.Objects;
 public enum MessageDTO {
   ;
 
-  public static class MessageAbstractDTOConverter extends RequestDTO.AbstractDTOConverter {
-    public MessageAbstractDTOConverter() throws JAXBException {
+  public static class MessageDTOConverter extends RequestDTO.AbstractDTOConverter {
+    public MessageDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
   }
@@ -62,7 +62,7 @@ public enum MessageDTO {
     private String from;
     private String message;
 
-    Event() {
+    public Event() {
       super(EVENT_TYPE.MESSAGE, DTO_SECTION.MESSAGE);
     }
 
