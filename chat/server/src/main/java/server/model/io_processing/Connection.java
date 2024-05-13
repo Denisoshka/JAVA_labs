@@ -1,76 +1,40 @@
 package server.model.io_processing;
 
+import io_processing.AbstractIOProcessor;
+import io_processing.IOProcessor;
 import org.slf4j.Logger;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.util.Objects;
 
-public class Connection implements Runnable, AutoCloseable {
+public class Connection implements AbstractIOProcessor, AutoCloseable {
   private final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
 
   private final String connectionName;
-
-  private final Socket socket;
-  private SessionIOProcessor ioProcessor;
+  private final IOProcessor ioProcessor;
   private volatile boolean expired;
 
-  public Connection(Socket socket, String connectionName) throws IOException {
+  public Connection(IOProcessor ioProcessor, String connectionName) throws IOException {
     this.connectionName = connectionName;
-    this.socket = socket;
-  }
-
-  @Override
-  public void run() {
-    try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
-         DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
-      ioProcessor = new SessionIOProcessor(receiveStream, sendStream);
-      while (!socket.isClosed()
-              && !Thread.currentThread().isInterrupted()) {
-      }
-    } catch (IOException e) {
-//    todo need to make ex handle
-    }
-  }
-
-  public boolean isClosed() {
-    return socket.isClosed();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Connection that = (Connection) o;
-    return Objects.equals(socket, that.socket);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(socket);
+    this.ioProcessor = ioProcessor;
   }
 
   @Override
   public void close() throws IOException {
-    socket.close();
-  }
-
-  public void markAsExpired() {
-    expired = true;
-  }
-
-  public boolean isExpired() {
-    return expired;
-  }
-
-  public SessionIOProcessor getIoProcessor() {
-    return ioProcessor;
+    ioProcessor.close();
   }
 
   public String getConnectionName() {
     return connectionName;
+  }
+
+  @Override
+  public byte[] receiveMessage() throws IOException {
+    return ioProcessor.receiveMessage();
+  }
+
+  @Override
+  public void sendMessage(byte[] message) throws IOException {
+    ioProcessor.sendMessage(message);
   }
 }
 

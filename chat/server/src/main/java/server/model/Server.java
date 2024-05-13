@@ -1,19 +1,13 @@
 package server.model;
 
+import dto.DTOConverterManager;
+import dto.RequestDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.Document;
-import server.exceptions.UnableToDecodeMessage;
 import server.model.io_processing.Connection;
-import server.model.message_handler.MessageHandler;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
-public class Server implements Runnable, AutoCloseable {
+public class Server {
   private static final String IP_ADDRESS = "ip_address";
   private static final String PORT = "port";
   private static final long MAX_CONNECTION_TIME = 60_000;
@@ -30,148 +24,66 @@ public class Server implements Runnable, AutoCloseable {
   private final ConcurrentHashMap.KeySetView<Connection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
   private final CopyOnWriteArrayList<Connection> connections = new CopyOnWriteArrayList<>();
 
+  private final ExecutorService serverExecutor = Executors.newSingleThreadExecutor();
+  private final DTOConverterManager converterManager;
   private final ServerSocket serverSocket;
-  private final MessageHandler messageHandler;
+  //  todo
   private final ExecutorService expiredConnectionDeleter;
   private final ExecutorService chatExchangeExecutor;
   private final ExecutorService connectionAcceptExecutor;
+
   private final Properties registeredUsers;
 
-  Server(Properties properties) throws TransformerConfigurationException, ParserConfigurationException, IOException {
-    String ipadress;
-    int port;
+  Server(Properties properties) throws IOException {
+    converterManager = new DTOConverterManager(null /*todo fix this*/);
+    serverSocket = new ServerSocket();
     try {
-      ipadress = Objects.requireNonNull(properties.getProperty(IP_ADDRESS));
-      port = Integer.parseInt(Objects.requireNonNull(properties.getProperty(PORT)));
-      serverSocket = new ServerSocket();
-      serverSocket.bind(new InetSocketAddress(ipadress, port));
-    } catch (NumberFormatException | NullPointerException | IOException e) {
-      throw e;
-//      todo make custom exc
+      serverSocket.bind(
+              new InetSocketAddress(Objects.requireNonNull(properties.getProperty(IP_ADDRESS)),
+                      Integer.parseInt(Objects.requireNonNull(properties.getProperty(PORT))))
+      );
+    } catch (IOException e) {
+      serverSocket.close();
     }
-
     this.registeredUsers = new Properties();
-    this.messageHandler = new MessageHandler(this);
     this.chatExchangeExecutor = Executors.newCachedThreadPool();
     this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
     this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
   }
 
-  @Override
-  public void run() {
-    while (!serverSocket.isClosed()) {
-      try {
-        Socket clSocket = serverSocket.accept();
-        connectionAcceptExecutor.execute(new ConnectionAccepter(clSocket, this));
-      } catch (IOException e) {
-        log.info("Error received while wait connection");
-//      todo need to handle accept errors;
-        return;
-      }
-    }
-  }
+  private static class ServerWorker implements Runnable {
+    private final Connection connection;
+    private final DTOConverterManager XMLDTOConverterManager;
 
-  public void submitExpiredConnection(Connection connection) {
-    connection.markAsExpired();
-    expiredConnections.add(connection);
-  }
-
-  private void submitNewConnection(Connection connection) {
-    connections.add(connection);
-    chatExchangeExecutor.execute(connection);
-  }
-
-  public RegistrationState registerUser(String name, String password) {
-    if (name == null || name.isEmpty()) return RegistrationState.INCORRECT_NAME_DATA;
-    if (password == null || password.isEmpty()) return RegistrationState.INCORRECT_PASSWORD_DATA;
-    String pswrd;
-    if (null == (pswrd = registeredUsers.getProperty(name))) {
-      registeredUsers.setProperty(name, String.valueOf(password.hashCode()));
-      return RegistrationState.SUCCESS;
-    }
-    if (pswrd.hashCode() == password.hashCode()) return RegistrationState.SUCCESS;
-    return RegistrationState.INCORRECT_PASSWORD;
-  }
-
-  @Override
-  public void close() throws Exception {
-    try {
-      serverSocket.close();
-    } catch (IOException ignored) {
-    }
-    expiredConnectionDeleter.shutdownNow();
-    chatExchangeExecutor.shutdownNow();
-    connectionAcceptExecutor.shutdownNow();
-    for (var conn : connections) {
-      try {
-        conn.close();
-      } catch (IOException ignored) {
-      }
-    }
-    for (var conn : expiredConnections) {
-      try {
-        conn.close();
-      } catch (IOException ignored) {
-      }
-    }
-  }
-
-  private class ConnectionAccepter implements Runnable {
-    private final Socket socket;
-    private final Server server;
-
-    public ConnectionAccepter(Socket socket, Server server) {
-      this.socket = socket;
-      this.server = server;
+    public ServerWorker(Connection connection, DTOConverterManager XMLDTOConverterManager) {
+      this.connection = connection;
+      this.XMLDTOConverterManager = XMLDTOConverterManager;
     }
 
     @Override
     public void run() {
-//    todo очень смущает разделение на исполение подключения и иные команды
-      long start = System.currentTimeMillis();
-      long end = 0;
-      String name = null;
-      try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
-           DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
-        for (; end - start <= MAX_CONNECTION_TIME; end = System.currentTimeMillis()) {
-          try {
+      try (Connection con = connection) {
+        while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
+          final var xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
+          final var type = XMLDTOConverterManager.getDTOType(xmlTree);
 
-            Document doc = messageHandler.receiveMessage(receiveStream);
-            RegistrationState ret = messageHandler.handleConnectionMessage(doc);
-            if (ret == RegistrationState.SUCCESS) {
-              messageHandler.sendMessage(sendStream, ServerMSG.getSuccess());
-              end = System.currentTimeMillis();
-              name = messageHandler.getConnectionName(doc);
-              break;
-            } else {
-              messageHandler.sendMessage(sendStream, ServerMSG.getError(ret.getDescription()));
-            }
-          } catch (UnableToDecodeMessage e) {
-            messageHandler.sendMessage(sendStream, ServerMSG.getError(e.getMessage()));
+          if (type == null) {
+            connection.sendMessage(XMLDTOConverterManager.serialize(
+                    new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")).getBytes()
+            );
+          } else if (type != RequestDTO.DTO_TYPE.COMMAND) {
+            connection.sendMessage(XMLDTOConverterManager.serialize(
+                    new RequestDTO.BaseErrorResponse(null, "server support only COMMAND messages")).getBytes()
+            );
+          } else {
+
+
+
           }
         }
-        if (end - start <= MAX_CONNECTION_TIME) {
-          String msg = ServerMSG.getUserLogin(name);
-          messageHandler.sendBroadcastMessage(msg);
-          messageHandler.sendMessage(sendStream, ServerMSG.getSuccess());
-        } else {
-          messageHandler.sendMessage(sendStream, ServerMSG.getError(RegistrationState.TIMEOUT_EXPIRED.getDescription()));
-        }
-      } catch (IOException e) {
-        try {
-          socket.close();
-        } catch (IOException ignored) {
-        }
+      } catch (IOException _) {
+
       }
-      if (!socket.isClosed()) submitNewConnection(new Connection(socket, server, messageHandler, name));
     }
-  }
-
-  public CopyOnWriteArrayList<Connection> getConnections() {
-    return connections;
-  }
-
-  public String getSessionName() {
-    return "xyi";
   }
 }

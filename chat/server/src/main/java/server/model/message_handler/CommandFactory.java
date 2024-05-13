@@ -10,7 +10,7 @@ public class CommandFactory implements CommandSupplier {
     this.commands = new HashMap<>();
     this.commands.put("list", new ListCommand());
     this.commands.put("message", new MessageCommand());
-    this.commands.put("logout", new LogoutCommand());
+    this.commands.put("logout", new LogoutSection());
   }
 
   @Override
