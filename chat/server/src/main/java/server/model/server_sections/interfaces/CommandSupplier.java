@@ -1,5 +1,7 @@
-package server.model.server_sections;
+package server.model.server_sections.interfaces;
+
+import dto.RequestDTO;
 
 public interface CommandSupplier {
-  AbstractSection getCommand(String command);
+  AbstractSection getSection(RequestDTO.DTO_SECTION section);
 }

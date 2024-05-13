@@ -6,14 +6,14 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.util.Objects;
 
-public class Connection implements AbstractConnection, AutoCloseable {
-  private final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
+public class ServerConnection implements AbstractServerConnection, AutoCloseable {
+  private final Logger log = org.slf4j.LoggerFactory.getLogger(ServerConnection.class);
 
   private final String connectionName;
   private final IOProcessor ioProcessor;
   private volatile boolean expired;
 
-  public Connection(IOProcessor ioProcessor, String connectionName) throws IOException {
+  public ServerConnection(IOProcessor ioProcessor, String connectionName) throws IOException {
     this.connectionName = connectionName;
     this.ioProcessor = ioProcessor;
   }
@@ -55,7 +55,7 @@ public class Connection implements AbstractConnection, AutoCloseable {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Connection that)) return false;
+    if (!(o instanceof ServerConnection that)) return false;
     return Objects.equals(connectionName, that.connectionName);
   }
 

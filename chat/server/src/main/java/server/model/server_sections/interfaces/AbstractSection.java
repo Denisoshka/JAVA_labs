@@ -1,4 +1,4 @@
-package server.model.server_sections;
+package server.model.server_sections.interfaces;
 
 import dto.RequestDTO;
 import server.exceptions.IOServerException;

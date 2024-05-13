@@ -1,10 +1,11 @@
-package server.model.message_handler;
+package server.model.server_sections;
 
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LogoutDTO;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
+import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;
 
