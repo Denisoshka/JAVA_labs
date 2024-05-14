@@ -13,51 +13,63 @@ import server.model.io_processing.ServerConnection;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
+import java.net.SocketTimeoutException;
 
 @Slf4j
-public class LoginSection implements Runnable {
-  private static final long MAX_CONNECTION_TIME = 60_000;
-  private final ConcurrentHashMap<String, Integer> registeredUsers;
+public class ConnectionAccepter implements Runnable {
+  public static long MAX_CONNECTION_TIME = 50_000;
+  private final Server server;
   private final LoginDTO.LoginDTOConverter converter;
   private final DTOConverterManager manager;
-  private final Server server;
+  private IOProcessor ioProcessor;
+  private RegistrationState registrationState = null;
+  private Socket socket;
 
-  private IOProcessor ioProcessor = null;
-  private volatile long now;
-  private volatile long start;
 
-  public LoginSection(Server server, Socket socket) {
+  /**
+   * close {@code socket} if exceptions occurs during {@code run()} or {@code ConnectionAccepter} construct  else submit new connection to {@code server} connections
+   */
+  public ConnectionAccepter(Server server, Socket socket) {
+    try {
+      this.ioProcessor = new IOProcessor(socket, 10_000);
+    } catch (IOException _) {
+      try {
+        shutdownIO();
+      } catch (IOException _) {
+      }
+    }
+    this.socket = socket;
+    this.server = server;
     this.manager = server.getConverterManager();
     this.converter = (LoginDTO.LoginDTOConverter) manager.getConverter(RequestDTO.DTO_SECTION.LOGIN);
-    this.registeredUsers = server.getRegisteredUsers();
-    this.server = server;
-    try {
-      this.ioProcessor = new IOProcessor(socket);
-    } catch (IOException _) {
-    }
   }
 
   @Override
   public void run() {
     if (ioProcessor == null) return;
+    long startTime = System.currentTimeMillis();
+    long now = startTime;
     try {
-      for (start = System.currentTimeMillis(), now = start;
-           Thread.currentThread().isInterrupted() && now - start < MAX_CONNECTION_TIME;
+      for (; Thread.currentThread().isInterrupted() && now - startTime <= MAX_CONNECTION_TIME;
            now = System.currentTimeMillis()) {
         Node root;
         try {
           root = manager.getXMLTree(ioProcessor.receiveMessage());
           RequestDTO.DTO_SECTION dtoSection = manager.getDTOSection(root);
           RequestDTO.DTO_TYPE dtoType = manager.getDTOType(root);
-          if (handleLoginRequest(dtoSection, dtoType, root) == RegistrationState.SUCCESS) break;
-        } catch (UnableToSerialize _) {
+          if ((registrationState = handleLoginRequest(dtoSection, dtoType, root)) == RegistrationState.SUCCESS) break;
+        } catch (UnableToSerialize e) {
+          ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error("unable to serialize received message")).getBytes());
+        } catch (SocketTimeoutException _) {
+          if (System.currentTimeMillis() - startTime > MAX_CONNECTION_TIME) {
+            break;
+          }
         }
       }
+      if (registrationState != RegistrationState.SUCCESS) onLoginExpired();
     } catch (IOException _) {
       try {
-        ioProcessor.close();
-        ioProcessor = null;
+        onLoginExpired();
       } catch (IOException _) {
       }
     } catch (Exception e) {
@@ -74,16 +86,16 @@ public class LoginSection implements Runnable {
     }
     LoginDTO.Command command = (LoginDTO.Command) converter.deserialize(root);
     String name = command.getName();
-    String password = command.getPassword();
-    Integer registeredPassword = registeredUsers.get(name);
-    if (registeredPassword != null && password.hashCode() != registeredPassword) {
+    int passwordHash = command.getPassword().hashCode();
+    Integer registeredPasswordHash = server.getRegisteredUsers().get(name);
+
+    if (registeredPasswordHash != null && passwordHash != registeredPasswordHash) {
       ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error("incorrect password")).getBytes());
       return RegistrationState.INCORRECT_LOGIN_REQUEST;
     }
-    if (registeredPassword == null) {
-      registeredUsers.put(name, password.hashCode());
+    if (registeredPasswordHash == null) {
+      server.getRegisteredUsers().put(name, passwordHash);
     }
-
     onLoginSuccess(ioProcessor, name);
     return RegistrationState.SUCCESS;
   }
@@ -99,5 +111,25 @@ public class LoginSection implements Runnable {
       }
     }
     server.submitNewConnection(new ServerConnection(ioProcessor, name));
+  }
+
+  public void onLoginExpired() throws IOException {
+    try {
+      byte[] errmsg = converter.serialize(new LoginDTO.Error("login expired")).getBytes();
+      ioProcessor.sendMessage(errmsg);
+    } catch (UnableToSerialize e) {
+      log.warn(e.getMessage(), e);
+    } catch (IOException _) {
+    }
+    shutdownIO();
+  }
+
+  private void shutdownIO() throws IOException {
+    try {
+      if (ioProcessor == null) socket.close();
+      else ioProcessor.close();
+    } finally {
+      ioProcessor = null;
+    }
   }
 }

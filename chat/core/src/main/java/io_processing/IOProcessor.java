@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
@@ -13,16 +14,21 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
   private final DataOutputStream outputStream;
   private final Socket socket;
 
-  public IOProcessor(Socket socket) throws IOException {
+  /**
+   * create IOProcessor with specified {@code socket} and {@code readTimeout}
+   */
+  public IOProcessor(Socket socket, int readTimeout) throws IOException {
     this.inputStream = new DataInputStream(socket.getInputStream());
     this.outputStream = new DataOutputStream(socket.getOutputStream());
     this.socket = socket;
+    if (readTimeout > 0) {
+      socket.setSoTimeout(readTimeout);
+    }
   }
 
   @Override
   public byte[] receiveMessage() throws IOException {
     synchronized (inputStream) {
-
       int len = inputStream.readInt();
       return inputStream.readNBytes(len);
     }
@@ -40,6 +46,11 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
   @Override
   public boolean isClosed() {
     return socket.isClosed();
+  }
+
+  @Override
+  public void setSoTimeout(int timeout) throws SocketException {
+    socket.setSoTimeout(timeout);
   }
 
 

@@ -2,12 +2,10 @@ package server.model;
 
 import dto.DTOConverterManager;
 import dto.RequestDTO;
-import dto.exceptions.UnableToSerialize;
-import dto.subtypes.LoginDTO;
-import io_processing.IOProcessor;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import server.model.io_processing.ServerConnection;
+import server.model.server_sections.ConnectionAccepter;
 import server.model.server_sections.SectionFactory;
 import server.model.server_sections.interfaces.CommandSupplier;
 
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,9 +28,6 @@ public class Server implements Runnable {
   private static final long DELETER_DELAY = 30_000;
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Server.class);
 
-  public ConcurrentHashMap<String, Integer> getRegisteredUsers() {
-    return registeredUsers;
-  }
 
   private final ConcurrentHashMap<String, Integer> registeredUsers = new ConcurrentHashMap<>();
   private final ConcurrentHashMap.KeySetView<ServerConnection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
@@ -42,11 +36,9 @@ public class Server implements Runnable {
   private final CommandSupplier commandSupplier;
   private final ServerSocket serverSocket;
 
-  //  todo
+  private final ExecutorService connectionAcceptExecutor = Executors.newFixedThreadPool(2);
+  private final ExecutorService connectionsPool = Executors.newCachedThreadPool();
 
-  private final ExecutorService expiredConnectionDeleter;
-  private final ExecutorService connectionAcceptExecutor;
-  
   private AtomicBoolean serveryPizda = new AtomicBoolean(false);
 
   Server(Properties properties) throws IOException {
@@ -61,26 +53,23 @@ public class Server implements Runnable {
     }
     this.converterManager = new DTOConverterManager(null /*todo fix this*/);
     this.commandSupplier = new SectionFactory(this);
-    this.connectionAcceptExecutor = Executors.newFixedThreadPool(2);
-    this.expiredConnectionDeleter = Executors.newSingleThreadExecutor();
   }
 
   @Override
   public void run() {
-    expiredConnectionDeleter.submit(new ConnectionDeleter(this));
-
     try {
       while (!Thread.currentThread().isInterrupted()) {
         Socket socket = serverSocket.accept();
+        connectionAcceptExecutor.submit(new ConnectionAccepter(this, socket));
       }
-
-    } catch (InterruptedException e) {
-//      todo handle ex
+    } catch (IOException e) {
+      log.warn(e.getMessage(), e);
     }
   }
 
   private static class ServerWorker implements Runnable {
     private final ServerConnection connection;
+
     private final DTOConverterManager XMLDTOConverterManager;
     private final CommandSupplier commandSupplier;
     private final Server server;
@@ -116,35 +105,6 @@ public class Server implements Runnable {
     }
   }
 
-  private static class ConnectionDeleter implements Runnable {
-    CopyOnWriteArrayList<ServerConnection> connections;
-    ConnectionDeleter(Server server) {
-      connections = server.connections;
-    }
-
-    @Override
-    public void run() {
-      Thread.currentThread().setDaemon(true);
-      try {
-        while (!Thread.currentThread().isInterrupted()) {
-          List<ServerConnection> exConnections = connections.stream().
-                  filter(ServerConnection::isExpired).toList();
-          exConnections.forEach(connection -> {
-            try {
-              connection.close();
-            } catch (IOException _) {
-            }
-          });
-          connections.removeAll(exConnections);
-          Thread.sleep(DELETER_DELAY);
-        }
-      } catch (InterruptedException _) {
-      } catch (Exception e) {
-        log.warn(e.getMessage());
-      }
-    }
-  }
-
   public void submitExpiredConnection(ServerConnection connection) {
     connection.markAsExpired();
     expiredConnections.add(connection);
@@ -152,6 +112,8 @@ public class Server implements Runnable {
 
   public void submitNewConnection(ServerConnection connection) {
     connections.add(connection);
+
+    connectionsPool.submit(new ServerWorker(connection, this));
   }
 
   public CopyOnWriteArrayList<ServerConnection> getConnections() {
@@ -169,6 +131,11 @@ public class Server implements Runnable {
   public DTOConverterManager getConverterManager() {
     return converterManager;
   }
+
+  public ConcurrentHashMap<String, Integer> getRegisteredUsers() {
+    return registeredUsers;
+  }
+
 
   public static Logger getLog() {
     return Server.log;
