@@ -3,6 +3,7 @@ package server.model;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.ConnectionAccepter;
@@ -27,9 +28,7 @@ public class Server implements Runnable {
   private static final String PORT = "port";
   private static final long DELETER_DELAY = 30_000;
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Server.class);
-
-  private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
-
+  private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("moduleLogger");
 
   private final ConcurrentHashMap<String, Integer> registeredUsers = new ConcurrentHashMap<>();
 
@@ -38,7 +37,7 @@ public class Server implements Runnable {
   private final DTOConverterManager converterManager;
   private final CommandSupplier commandSupplier;
   private final ServerSocket serverSocket;
-  private final ExecutorService connectionsAccepter = Executors.newFixedThreadPool(2);
+  private final ExecutorService connectionsAccepterExecutor = Executors.newFixedThreadPool(2);
 
   private final ExecutorService connectionsPool = Executors.newCachedThreadPool();
   private final ExecutorService expiredConnectionsDeleter = Executors.newSingleThreadExecutor();
@@ -60,18 +59,19 @@ public class Server implements Runnable {
 
   @Override
   public void run() {
-    expiredConnectionsDeleter.submit(new ConnectionDeleter(this));
+    expiredConnectionsDeleter.execute(new ConnectionDeleter(this));
     try {
       while (!Thread.currentThread().isInterrupted()) {
         Socket socket = serverSocket.accept();
         log.info("new connection from {}", socket.getRemoteSocketAddress());
-        connectionsAccepter.submit(new ConnectionAccepter(this, socket));
+        connectionsAccepterExecutor.execute(new ConnectionAccepter(this, socket));
       }
     } catch (IOException e) {
       log.warn(e.getMessage(), e);
     } catch (Exception e) {
+      log.warn(e.getMessage(), e);
       expiredConnectionsDeleter.shutdownNow();
-      connectionsAccepter.shutdownNow();
+      connectionsAccepterExecutor.shutdownNow();
       connectionsPool.shutdownNow();
     }
   }
@@ -83,6 +83,7 @@ public class Server implements Runnable {
 
     private final CommandSupplier commandSupplier;
     private final Server server;
+
     public ServerWorker(ServerConnection connection, Server server) {
       this.server = server;
       this.connection = connection;
@@ -94,7 +95,7 @@ public class Server implements Runnable {
     public void run() {
       try (ServerConnection con = connection) {
         while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
-          final Node xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
+          final Document xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
           final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
           final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
 
@@ -114,9 +115,11 @@ public class Server implements Runnable {
     }
 
   }
+
   private static class ConnectionDeleter implements Runnable {
 
     CopyOnWriteArrayList<ServerConnection> connections;
+
     ConnectionDeleter(Server server) {
       connections = server.connections;
     }
@@ -149,6 +152,7 @@ public class Server implements Runnable {
     }
 
   }
+
   public void submitExpiredConnection(ServerConnection connection) {
     connection.markAsExpired();
     expiredConnections.add(connection);

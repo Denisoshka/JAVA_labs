@@ -58,7 +58,7 @@ public class ChatSessionController {
   }
 
   private void onCommand(RequestDTO.BaseCommand event, RequestDTO.BaseResponse response) {
-    switch (event.getCommandType()) {
+    switch (event.geDTOSection()) {
       case MESSAGE -> onMessageResponse((MessageDTO.Command) event, null);
     }
   }

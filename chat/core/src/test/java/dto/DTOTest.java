@@ -1,10 +1,11 @@
 package dto;
 
+import dto.exceptions.UnableToDeserialize;
+import dto.exceptions.UnableToSerialize;
 import dto.subtypes.ListDTO;
 import dto.subtypes.LoginDTO;
 import dto.subtypes.LogoutDTO;
 import dto.subtypes.MessageDTO;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,11 +45,11 @@ public class DTOTest {
 
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
   static ListDTO.ListDTOConverter listDTOConverter;
   static MessageDTO.MessageDTOConverter messageDTOConverter;
   static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
   static LoginDTO.LoginDTOConverter loginDTOConverter;
+  static DTOConverterManager manager;
 
   @Before
   public void prepare() throws ParserConfigurationException, JAXBException {
@@ -59,16 +60,73 @@ public class DTOTest {
   }
 
   @Test
-  public void ListDTOTest() throws JAXBException {
-/*
-   String xmlString1 = xmlMapper.writeValueAsString(createdMessageEvent);
-    Assert.assertEquals(xmlString1, MessageEventSTR);
-    var unmarshalledMessageEvent = xmlMapper.readValue(xmlString1, Event.class);
-    Assert.assertEquals(unmarshalledMessageEvent, createdMessageEvent);
+  public void ABXyi() {
+  }
 
-    ListDTO.Command command = new ListDTO.Command();
-    String xml = listDTOConverter.serialize(command);
-    Assert.assertEquals(xml, ListCommandSTR);*/
+  @ParameterizedTest
+  @MethodSource("CommandDTOTest")
+  public void SectionTest(String eventto, RequestDTO.DTO_SECTION section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
+    var tree = manager.getXMLTree(eventto.getBytes());
+    Assert.assertEquals(section, manager.getDTOSection(tree));
+    Assert.assertEquals(type, manager.getDTOType(tree));
+  }
+
+  public static Stream<Arguments> CommandDTOTest() throws UnableToSerialize, UnableToDeserialize {
+    manager = new DTOConverterManager(null);
+//    new LoginDTO.Command("xyi", "xyi")
+    return Stream.of(
+            Arguments.of(
+                    manager.serialize(new MessageDTO.Command("MESSAGE")),
+                    RequestDTO.DTO_SECTION.MESSAGE,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ),
+
+            Arguments.of(
+                    manager.serialize(new LogoutDTO.Command()),
+                    RequestDTO.DTO_SECTION.LOGOUT,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ),
+
+            Arguments.of(
+                    manager.serialize(new LoginDTO.Command("USER_NAME", "PASSWORD")),
+                    RequestDTO.DTO_SECTION.LOGIN,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ),
+
+            Arguments.of(
+                    manager.serialize(new ListDTO.Command()),
+                    RequestDTO.DTO_SECTION.LIST,
+                    RequestDTO.DTO_TYPE.COMMAND
+            )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("EventsDTOTest")
+  public void EventsTest(String eventto, RequestDTO.BaseEvent.EVENT_TYPE section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
+    var tree = manager.getXMLTree(eventto.getBytes());
+    Assert.assertEquals(section, manager.getDTOEventType(tree));
+    Assert.assertEquals(type, manager.getDTOType(tree));
+  }
+
+  public static Stream<Arguments> EventsDTOTest() throws UnableToSerialize, UnableToDeserialize {
+    manager = new DTOConverterManager(null);
+//    new LoginDTO.Command("xyi", "xyi")
+    return Stream.of(Arguments.of(
+                    manager.serialize(new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE")),
+                    RequestDTO.BaseEvent.EVENT_TYPE.MESSAGE,
+                    RequestDTO.DTO_TYPE.EVENT
+            ),
+            Arguments.of(
+                    manager.serialize(new LogoutDTO.Event("USER_NAME")),
+                    RequestDTO.BaseEvent.EVENT_TYPE.USERLOGOUT,
+                    RequestDTO.DTO_TYPE.EVENT
+            ),
+            Arguments.of(
+                    manager.serialize(new LoginDTO.Event("USER_NAME")),
+                    RequestDTO.BaseEvent.EVENT_TYPE.USERLOGIN,
+                    RequestDTO.DTO_TYPE.EVENT
+            ));
   }
 
   @ParameterizedTest

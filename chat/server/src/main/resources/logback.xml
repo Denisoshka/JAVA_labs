@@ -5,15 +5,21 @@
         </encoder>
     </appender>
 
-    <appender name="MODULE_FILE" class="ch.qos.logback.core.FileAppender">
-        <file>server_info.log</file>
-        <append>true</append>
+    <!-- Логирование сообщений об ошибках в файл -->
+    <appender name="MODULEFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/server_info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/${loggerName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg at %class.%method\(%file:%line\)%n
+            </pattern>
         </encoder>
+        <fileAppend>false</fileAppend>
     </appender>
 
-    <!-- Логирование сообщений об ошибках в файл -->
     <appender name="FILE_ERROR" class="ch.qos.logback.core.FileAppender">
         <file>server_error.log</file>
         <append>true</append>
@@ -22,12 +28,12 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
+    <root level="TRACE">
+        <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="module_logger" level="DEBUG" additivity="false">
-        <appender-ref ref="MODULE_FILE" />
+    <logger name="moduleLogger" level="TRACE">
+        <appender-ref ref="MODULEFILE"/>
     </logger>
 
 </configuration>

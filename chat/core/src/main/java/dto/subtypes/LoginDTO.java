@@ -72,7 +72,7 @@ public enum LoginDTO {
     private String name;
 
     public Event() {
-      super(EVENT_TYPE.USER_LOGIN, DTO_SECTION.LOGIN);
+      super(EVENT_TYPE.USERLOGIN, DTO_SECTION.LOGIN);
     }
 
     public Event(String name) {

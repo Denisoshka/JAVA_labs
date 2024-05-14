@@ -34,7 +34,7 @@ public enum LogoutDTO {
     String name;
 
     Event() {
-      super(EVENT_TYPE.USER_LOGOUT, DTO_SECTION.LOGOUT);
+      super(EVENT_TYPE.USERLOGOUT, DTO_SECTION.LOGOUT);
     }
 
     public Event(String name) {

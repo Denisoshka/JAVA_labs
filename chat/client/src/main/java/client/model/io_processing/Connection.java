@@ -18,13 +18,14 @@ public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
   private final Socket socket;
   private volatile boolean expired;
-  private IOProcessor ioProcessor;
+  private final IOProcessor ioProcessor;
   private DTOConverterManager dtoConverterManager;
   private ChatModuleManager chatModuleManager;
   private BlockingQueue<RequestDTO> moduleExchanger;
 
   public Connection(ChatSessionExecutor chatSessionExecutor, String ipaddr, int port) throws IOException {
     this.socket = new Socket(ipaddr, port);
+    this.ioProcessor = new IOProcessor(socket, 0);
     dtoConverterManager = chatSessionExecutor.getDTOConverterManager();
     chatModuleManager = chatSessionExecutor.getChatModuleManager();
     moduleExchanger = chatSessionExecutor.getModuleExchanger();
@@ -32,10 +33,14 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void run() {
-    try (IOProcessor ioProcessor = (this.ioProcessor = new IOProcessor(socket, 0))) {
+    try {
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
         var tree = dtoConverterManager.getXMLTree(ioProcessor.receiveMessage());
+        if (tree == null) {
+          continue;
+        }
+        log.info(tree.toString());
         final RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSection(tree);
         final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
         if (type == null || section == null) {
@@ -59,6 +64,11 @@ public class Connection implements Runnable, AutoCloseable {
 //    todo need to make ex handle
     } catch (Exception e) {
       log.warn(e.getMessage(), e);
+    } finally {
+      try {
+        close();
+      } catch (IOException _) {
+      }
     }
   }
 
@@ -81,7 +91,10 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void close() throws IOException {
-    socket.close();
+    try {
+      ioProcessor.close();
+    } catch (IOException _) {
+    }
   }
 
   public void markAsExpired() {

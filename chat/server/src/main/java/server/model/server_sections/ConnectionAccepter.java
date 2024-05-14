@@ -6,6 +6,8 @@ import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LoginDTO;
 import io_processing.IOProcessor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
@@ -46,6 +48,7 @@ public class ConnectionAccepter implements Runnable {
   /**
    * close {@code socket} if exceptions occurs during {@code run()} or {@code ConnectionAccepter()} else submit new connection to {@code server} connections
    */
+
   public ConnectionAccepter(Server server, Socket socket) {
     try {
       this.ioProcessor = new IOProcessor(socket, 10_000);
@@ -63,13 +66,18 @@ public class ConnectionAccepter implements Runnable {
 
   @Override
   public void run() {
-    if (ioProcessor == null) return;
+    log.info("ConnectionAccepter started");
+    if (ioProcessor == null) {
+      log.warn("IOProcessor is null");
+      return;
+    }
     long startTime = System.currentTimeMillis();
     long now = startTime;
+    Logger moduleLogger = server.getModuleLogger();
     try {
-      for (; Thread.currentThread().isInterrupted() && now - startTime <= MAX_CONNECTION_TIME;
+      for (; !Thread.currentThread().isInterrupted() && now - startTime <= MAX_CONNECTION_TIME;
            now = System.currentTimeMillis()) {
-        Node root;
+        Document root;
         try {
           root = manager.getXMLTree(ioProcessor.receiveMessage());
           RequestDTO.DTO_SECTION dtoSection = manager.getDTOSection(root);
@@ -78,17 +86,18 @@ public class ConnectionAccepter implements Runnable {
             break;
           }
         } catch (UnableToSerialize e) {
-          server.getModuleLogger().info(e.getMessage(), e);
+          log.info(e.getMessage(), e);
           ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error("unable to serialize received message")).getBytes());
         } catch (SocketTimeoutException _) {
           if (System.currentTimeMillis() - startTime > MAX_CONNECTION_TIME) {
-
+            log.info("connection time expired");
             break;
           }
         }
       }
       if (registrationState != RegistrationState.SUCCESS) onLoginExpired();
-    } catch (IOException _) {
+    } catch (IOException e) {
+      log.warn(e.getMessage(), e);
       try {
         onLoginExpired();
       } catch (IOException _) {

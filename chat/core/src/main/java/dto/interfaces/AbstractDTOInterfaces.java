@@ -51,6 +51,6 @@ public interface AbstractDTOInterfaces {
   }
 
   interface DTO_SECTION {
-    RequestDTO.DTO_SECTION getCommandType();
+    RequestDTO.DTO_SECTION geDTOSection();
   }
 }

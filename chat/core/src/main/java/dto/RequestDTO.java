@@ -3,7 +3,7 @@ package dto;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.AbstractDTOInterfaces;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -39,7 +39,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
 
     @Override
-    public RequestDTO deserialize(Node root) throws UnableToDeserialize {
+    public RequestDTO deserialize(Document root) throws UnableToDeserialize {
       try {
         return (RequestDTO) unmarshaller.unmarshal(root);
       } catch (JAXBException e) {
@@ -92,7 +92,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
   }
 
   @Override
-  public DTO_SECTION getCommandType() {
+  public DTO_SECTION geDTOSection() {
     return DTOSection;
   }
 
@@ -131,8 +131,8 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
   public static class BaseEvent extends RequestDTO implements AbstractDTOInterfaces.EVENT_TYPE, AbstractDTOInterfaces.NAME_ATTRIBUTE {
     public enum EVENT_TYPE {
       MESSAGE("message"),
-      USER_LOGIN("userlogin"),
-      USER_LOGOUT("userlogout"),
+      USERLOGIN("userlogin"),
+      USERLOGOUT("userlogout"),
       ;
 
       private final String EVENTName;
