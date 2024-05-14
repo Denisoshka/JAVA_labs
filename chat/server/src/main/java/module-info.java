@@ -1,10 +1,11 @@
-module server {
+module server_application {
   requires static lombok;
 
+  requires core;
   requires org.apache.commons.cli;
   requires org.slf4j;
   requires java.xml;
-  requires core;
-  requires java.compiler;
-  requires eclipselink;
+//  exports server;
+
+//  requires java.compiler;
 }

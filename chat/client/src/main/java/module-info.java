@@ -1,4 +1,4 @@
-module client {
+module client_application {
   requires static lombok;
 
   requires javafx.controls;
@@ -23,10 +23,10 @@ module client {
   opens client.model.main_context to javafx.fxml;
   opens client.model.main_context.interfaces to javafx.fxml;
 
-  exports client.application to javafx.graphics;
   exports client.view;
   exports client.exception;
   exports client.model.io_processing;
   exports client.model.main_context;
   exports client.model.main_context.interfaces;
+  exports client to javafx.graphics;
 }

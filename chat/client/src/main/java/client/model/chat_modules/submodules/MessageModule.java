@@ -27,11 +27,11 @@ public class MessageModule implements ChatModule {
   @Override
   public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
-    var converter = chatSessionExecutor.getXMLDTOConverterManager();
+    var converter = chatSessionExecutor.getDTOConverterManager();
     responseActon(command);
     chatSessionExecutor.executeAction(() -> {
       try {
-        ioProcessor.sendMessage(converter.serialize(command));
+        ioProcessor.sendMessage(converter.serialize(command).getBytes());
       } catch (IOException e) {
         modulelogger.warn(e.getMessage(), e);
       }

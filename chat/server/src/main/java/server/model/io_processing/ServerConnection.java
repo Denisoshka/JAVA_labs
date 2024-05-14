@@ -4,6 +4,7 @@ import io_processing.IOProcessor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Objects;
 
 public class ServerConnection implements AbstractServerConnection, AutoCloseable {
@@ -18,13 +19,14 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
     this.ioProcessor = ioProcessor;
   }
 
+  public ServerConnection(IOProcessor ioProcessor, String connectionName, int soTimeout) throws IOException {
+    this(ioProcessor, connectionName);
+    ioProcessor.setSoTimeout(soTimeout);
+  }
+
   @Override
   public void close() throws IOException {
     ioProcessor.close();
-  }
-
-  public String getConnectionName() {
-    return connectionName;
   }
 
   @Override
@@ -40,6 +42,11 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
   @Override
   public boolean isClosed() {
     return false;
+  }
+
+  @Override
+  public void setSoTimeout(int timeout) throws SocketException {
+    ioProcessor.setSoTimeout(timeout);
   }
 
   @Override
@@ -62,6 +69,10 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
   @Override
   public int hashCode() {
     return Objects.hashCode(connectionName);
+  }
+
+  public String getConnectionName() {
+    return connectionName;
   }
 }
 

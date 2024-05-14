@@ -25,7 +25,9 @@ public class ListSection implements AbstractSection {
   @Override
   public void perform(ServerConnection connection, Node message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     if (dtoType != RequestDTO.DTO_TYPE.COMMAND) {
-      connection.sendMessage(converter.serialize(new ListDTO.Error(STR."not support \{dtoType.name()}")).getBytes());
+      var errmsg = STR."not support \{dtoType.name()}";
+      server.getModuleLogger().info(errmsg);
+      connection.sendMessage(converter.serialize(new ListDTO.Error(errmsg)).getBytes());
     }
 
     final var connections = server.getConnections();
@@ -36,6 +38,7 @@ public class ListSection implements AbstractSection {
 
     try {
       connection.sendMessage(converter.serialize(new ListDTO.Success(users)).getBytes());
+      server.getModuleLogger().info("send message to user");
     } catch (UnableToSerialize e1) {
       try {
         connection.sendMessage(converter.serialize(new ListDTO.Error(e1.getMessage())).getBytes());

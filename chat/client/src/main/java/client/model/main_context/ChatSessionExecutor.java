@@ -4,13 +4,12 @@ import client.facade.ChatSessionController;
 import client.model.chat_modules.ChatModuleManager;
 import client.model.chat_modules.interfaces.AbstractChatModuleManager;
 import client.model.chat_modules.interfaces.ChatModule;
-
-import dto.DTOConverterManager;
-import dto.RequestDTO;
 import client.model.io_processing.Connection;
-import client.model.io_processing.IOProcessor;
 import client.model.main_context.interfaces.AbstractChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
+import dto.DTOConverterManager;
+import dto.RequestDTO;
+import io_processing.IOProcessor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -28,7 +27,12 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   private final ExecutorService responseExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
 
-  private final DTOConverterManager XMLDTOConverterManager;
+  private final DTOConverterManager DTOConverterManager;
+
+  public ChatModuleManager getChatModuleManager() {
+    return chatModuleManager;
+  }
+
   private final ChatModuleManager chatModuleManager;
 
 
@@ -42,16 +46,22 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
     Properties properties = new Properties();
     try (var input = getClass().getResourceAsStream("xml_converter_manager.properties")) {
       properties.load(input);
-      this.XMLDTOConverterManager = new DTOConverterManager(properties);
+      this.DTOConverterManager = new DTOConverterManager(properties);
     }
     this.chatModuleManager = new ChatModuleManager(null, this);
   }
 
   @Override
-  public IOProcessor introduceConnection(String hostname, int port) throws IOException {
-    this.connection = new Connection(hostname, port);
+  public void introduceConnection(String hostname, int port) throws IOException {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (IOException e) {
+        defaultLogger.info(e.getMessage());
+      }
+    }
+    this.connection = new Connection(this, hostname, port);
     IOExecutor.execute(connection);
-    return connection.getIoProcessor();
   }
 
   public void executeAction(Runnable task) {
@@ -86,8 +96,8 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
     return moduleExchanger;
   }
 
-  public DTOConverterManager getXMLDTOConverterManager() {
-    return XMLDTOConverterManager;
+  public DTOConverterManager getDTOConverterManager() {
+    return DTOConverterManager;
   }
 
   @Override

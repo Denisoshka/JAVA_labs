@@ -2,11 +2,11 @@ package client.model.chat_modules.submodules;
 
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
+import client.model.main_context.ChatSessionExecutor;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LoginDTO;
-import client.model.main_context.ChatSessionExecutor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class LoginModule implements ChatModule {
   private final Logger modulelogger;
   private final Logger defaultLogger;
 
-  private DataDTO.LoginData loginData;
+  private DataDTO.LoginData loginData = null;
 
   public LoginModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
@@ -33,24 +33,28 @@ public class LoginModule implements ChatModule {
     DataDTO.LoginData data = (DataDTO.LoginData) args.getFirst();
     String hostname = data.getHostname();
     int port = data.getPort();
+    if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port) {
+      modulelogger.info("login request repeated");
+      return;
+    }
+
     chatSessionExecutor.executeAction(() -> {
       try {
-        if (loginData == null || !loginData.getHostname().equals(hostname) && loginData.getPort() != port) {
-          chatSessionExecutor.introduceConnection(hostname, port);
+        if (loginData == null) {
           loginData = data;
         }
+        chatSessionExecutor.introduceConnection(hostname, port);
         var ioProcessor = chatSessionExecutor.getIOProcessor();
-        var converter = chatSessionExecutor.getXMLDTOConverterManager();
+        var converter = chatSessionExecutor.getDTOConverterManager();
 
         responseActon(null);
-        ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(data.getName(), data.getPassword())));
+        ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(data.getName(), data.getPassword())).getBytes());
       } catch (UnableToSerialize e) {
         modulelogger.info(e.getMessage(), e);
       } catch (IOException e) {
         defaultLogger.info(e.getMessage(), e);
       }
     });
-
   }
 
   @Override

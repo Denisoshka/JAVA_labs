@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,24 +25,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Server implements Runnable {
   private static final String IP_ADDRESS = "ip_address";
   private static final String PORT = "port";
-  private static final long MAX_CONNECTION_TIME = 60_000;
   private static final long DELETER_DELAY = 30_000;
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Server.class);
 
+  private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
+
 
   private final ConcurrentHashMap<String, Integer> registeredUsers = new ConcurrentHashMap<>();
+
   private final ConcurrentHashMap.KeySetView<ServerConnection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
   private final CopyOnWriteArrayList<ServerConnection> connections = new CopyOnWriteArrayList<>();
   private final DTOConverterManager converterManager;
   private final CommandSupplier commandSupplier;
   private final ServerSocket serverSocket;
+  private final ExecutorService connectionsAccepter = Executors.newFixedThreadPool(2);
 
-  private final ExecutorService connectionAcceptExecutor = Executors.newFixedThreadPool(2);
   private final ExecutorService connectionsPool = Executors.newCachedThreadPool();
-
+  private final ExecutorService expiredConnectionsDeleter = Executors.newSingleThreadExecutor();
   private AtomicBoolean serveryPizda = new AtomicBoolean(false);
 
-  Server(Properties properties) throws IOException {
+  public Server(Properties properties) throws IOException {
     serverSocket = new ServerSocket();
     try {
       serverSocket.bind(
@@ -57,23 +60,29 @@ public class Server implements Runnable {
 
   @Override
   public void run() {
+    expiredConnectionsDeleter.submit(new ConnectionDeleter(this));
     try {
       while (!Thread.currentThread().isInterrupted()) {
         Socket socket = serverSocket.accept();
-        connectionAcceptExecutor.submit(new ConnectionAccepter(this, socket));
+        log.info("new connection from {}", socket.getRemoteSocketAddress());
+        connectionsAccepter.submit(new ConnectionAccepter(this, socket));
       }
     } catch (IOException e) {
       log.warn(e.getMessage(), e);
+    } catch (Exception e) {
+      expiredConnectionsDeleter.shutdownNow();
+      connectionsAccepter.shutdownNow();
+      connectionsPool.shutdownNow();
     }
   }
 
   private static class ServerWorker implements Runnable {
-    private final ServerConnection connection;
 
+    private final ServerConnection connection;
     private final DTOConverterManager XMLDTOConverterManager;
+
     private final CommandSupplier commandSupplier;
     private final Server server;
-
     public ServerWorker(ServerConnection connection, Server server) {
       this.server = server;
       this.connection = connection;
@@ -103,8 +112,43 @@ public class Server implements Runnable {
         server.submitExpiredConnection(connection);
       }
     }
-  }
 
+  }
+  private static class ConnectionDeleter implements Runnable {
+
+    CopyOnWriteArrayList<ServerConnection> connections;
+    ConnectionDeleter(Server server) {
+      connections = server.connections;
+    }
+
+    @Override
+    public void run() {
+      try {
+        while (!Thread.currentThread().isInterrupted()) {
+          List<ServerConnection> exConnections = connections.stream().
+                  filter(ServerConnection::isExpired).toList();
+          exConnections.forEach(connection -> {
+            try {
+              connection.close();
+            } catch (IOException _) {
+            }
+          });
+          connections.removeAll(exConnections);
+          Thread.sleep(DELETER_DELAY);
+        }
+      } catch (InterruptedException _) {
+        connections.forEach(connection -> {
+          try {
+            connection.close();
+          } catch (IOException _) {
+          }
+        });
+      } catch (Exception e) {
+        log.warn(e.getMessage());
+      }
+    }
+
+  }
   public void submitExpiredConnection(ServerConnection connection) {
     connection.markAsExpired();
     expiredConnections.add(connection);
@@ -136,6 +180,10 @@ public class Server implements Runnable {
     return registeredUsers;
   }
 
+
+  public Logger getModuleLogger() {
+    return moduleLogger;
+  }
 
   public static Logger getLog() {
     return Server.log;

@@ -68,7 +68,7 @@ public class ChatSessionController {
   }
 
   public void loginCommand(String login, String password, String hostname, int port) {
-    loginModule.commandAction(null, List.of(new DataDTO.LoginData(login, password, hostname, port)));
+    loginModule.commandAction(null, List.of(new DataDTO.LoginData(login, hostname, password, port)));
   }
 
   public void logoutCommand() {

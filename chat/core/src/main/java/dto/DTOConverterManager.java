@@ -26,7 +26,8 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
   private final DocumentBuilder builder;
 
   public DTOConverterManager(Properties properties) {
-    this.converters = new HashMap<>(properties.size());
+    /*todo make properties usage*/
+    this.converters = new HashMap<>();
     try {
       this.converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
       this.converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());

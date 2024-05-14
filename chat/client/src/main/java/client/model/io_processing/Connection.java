@@ -1,34 +1,64 @@
 package client.model.io_processing;
 
+import client.model.chat_modules.ChatModuleManager;
+import client.model.main_context.ChatSessionExecutor;
+import dto.DTOConverterManager;
+import dto.RequestDTO;
+import dto.exceptions.UnableToDeserialize;
+import io_processing.IOProcessor;
 import org.slf4j.Logger;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
 
 
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
   private final Socket socket;
-  private SessionIOProcessor ioProcessor;
   private volatile boolean expired;
+  private IOProcessor ioProcessor;
+  private DTOConverterManager dtoConverterManager;
+  private ChatModuleManager chatModuleManager;
+  private BlockingQueue<RequestDTO> moduleExchanger;
 
-  public Connection(String ipaddr, int port) throws IOException {
+  public Connection(ChatSessionExecutor chatSessionExecutor, String ipaddr, int port) throws IOException {
     this.socket = new Socket(ipaddr, port);
+    dtoConverterManager = chatSessionExecutor.getDTOConverterManager();
+    chatModuleManager = chatSessionExecutor.getChatModuleManager();
+    moduleExchanger = chatSessionExecutor.getModuleExchanger();
   }
 
   @Override
   public void run() {
-    try (DataInputStream receiveStream = new DataInputStream(socket.getInputStream());
-         DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream())) {
-      ioProcessor = new SessionIOProcessor(receiveStream, sendStream);
+    try (IOProcessor ioProcessor = (this.ioProcessor = new IOProcessor(socket, 0))) {
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
+        var tree = dtoConverterManager.getXMLTree(ioProcessor.receiveMessage());
+        final RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSection(tree);
+        final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
+        if (type == null || section == null) {
+          log.info("message with type {}, section {}", type, section);
+          continue;
+        }
+        try {
+//          todo make in other thread
+          if (type == RequestDTO.DTO_TYPE.EVENT) {
+            chatModuleManager.getChatModule(section).eventAction((RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree));
+          } else if (type == RequestDTO.DTO_TYPE.RESPONSE) {
+            moduleExchanger.put(dtoConverterManager.deserialize(tree));
+          }
+        } catch (UnableToDeserialize e) {
+          log.warn(e.getMessage(), e);
+          return;
+        }
       }
     } catch (IOException e) {
+      log.error(e.getMessage(), e);
 //    todo need to make ex handle
+    } catch (Exception e) {
+      log.warn(e.getMessage(), e);
     }
   }
 
@@ -62,7 +92,7 @@ public class Connection implements Runnable, AutoCloseable {
     return expired;
   }
 
-  public SessionIOProcessor getIoProcessor() {
+  public IOProcessor getIoProcessor() {
     return ioProcessor;
   }
 }

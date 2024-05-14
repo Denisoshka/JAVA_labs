@@ -28,11 +28,11 @@ public class LogoutModule implements ChatModule {
   @Override
   public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
-    var converter = chatSessionExecutor.getXMLDTOConverterManager();
+    var converter = chatSessionExecutor.getDTOConverterManager();
     chatSessionExecutor.executeAction(() -> {
       try {
         responseActon(null);
-        ioProcessor.sendMessage(converter.serialize(new LogoutDTO.Command()));
+        ioProcessor.sendMessage(converter.serialize(new LogoutDTO.Command()).getBytes());
       } catch (IOException e) {
         modulelogger.warn(e.getMessage());
       }

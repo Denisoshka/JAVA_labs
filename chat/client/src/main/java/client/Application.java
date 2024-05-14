@@ -1,15 +1,14 @@
-package client.application;
+package client;
 
 import client.facade.ChatSessionController;
 import client.model.main_context.ChatSessionExecutor;
 import client.view.ChatSessionView;
-import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ClientApplication extends Application {
+public class Application extends javafx.application.Application {
 
   @Override
   public void start(Stage stage) throws IOException {
