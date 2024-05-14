@@ -3,7 +3,7 @@ package server.model.server_sections;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LogoutDTO;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -20,7 +20,7 @@ public class LogoutSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Node message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     try {
       connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
     } catch (UnableToSerialize e) {

@@ -6,6 +6,7 @@ module core {
 
   requires java.xml;
   requires java.xml.bind;
+  requires static lombok;
 
   opens dto.subtypes to java.xml.bind;
   exports io_processing;

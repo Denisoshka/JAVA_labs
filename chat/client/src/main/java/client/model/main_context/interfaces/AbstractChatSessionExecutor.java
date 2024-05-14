@@ -1,7 +1,7 @@
 package client.model.main_context.interfaces;
 
-import dto.RequestDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -10,5 +10,5 @@ public interface AbstractChatSessionExecutor {
 
   Logger getDefaultLogger();
 
-  BlockingQueue<RequestDTO> getModuleExchanger();
+  BlockingQueue<Document> getModuleExchanger();
 }

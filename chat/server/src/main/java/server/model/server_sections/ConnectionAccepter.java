@@ -8,7 +8,6 @@ import io_processing.IOProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 
@@ -107,7 +106,7 @@ public class ConnectionAccepter implements Runnable {
     }
   }
 
-  private RegistrationState handleLoginRequest(RequestDTO.DTO_SECTION dtoSection, RequestDTO.DTO_TYPE dtoType, Node root) throws IOException {
+  private RegistrationState handleLoginRequest(RequestDTO.DTO_SECTION dtoSection, RequestDTO.DTO_TYPE dtoType, Document root) throws IOException {
     if (dtoSection != RequestDTO.DTO_SECTION.LOGIN || dtoType != RequestDTO.DTO_TYPE.COMMAND) {
       var errMsg = STR."excepted name=login actual: \{dtoType}\n excepted type=command actual: \{dtoSection}";
       server.getModuleLogger().info(errMsg);

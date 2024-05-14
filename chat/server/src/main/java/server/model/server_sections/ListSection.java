@@ -4,7 +4,7 @@ import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.ListDTO;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -23,7 +23,7 @@ public class ListSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Node message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     if (dtoType != RequestDTO.DTO_TYPE.COMMAND) {
       var errmsg = STR."not support \{dtoType.name()}";
       server.getModuleLogger().info(errmsg);

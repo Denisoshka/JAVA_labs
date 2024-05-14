@@ -3,7 +3,7 @@ package server.model.server_sections;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.MessageDTO;
-import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -20,7 +20,7 @@ public class MessageSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Node dto, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document dto, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     try {
       MessageDTO.Command messageDTO = (MessageDTO.Command) converter.deserialize(dto);
       byte[] msg = converter.serialize(new MessageDTO.Event(

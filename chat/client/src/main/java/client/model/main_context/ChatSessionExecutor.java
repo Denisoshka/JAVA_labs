@@ -11,6 +11,7 @@ import dto.DTOConverterManager;
 import dto.RequestDTO;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -26,19 +27,10 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   private final ExecutorService actionExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService responseExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
-
   private final DTOConverterManager DTOConverterManager;
-
-  public ChatModuleManager getChatModuleManager() {
-    return chatModuleManager;
-  }
-
   private final ChatModuleManager chatModuleManager;
-
-
   private final ChatSessionController chatSessionController;
-  private final BlockingQueue<RequestDTO> moduleExchanger = new SynchronousQueue<>(true);
-
+  private final BlockingQueue<Document> moduleExchanger = new SynchronousQueue<>(true);
   private Connection connection;
 
   public ChatSessionExecutor(ChatSessionController chatSessionController) throws IOException {
@@ -92,7 +84,7 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   }
 
   @Override
-  public BlockingQueue<RequestDTO> getModuleExchanger() {
+  public BlockingQueue<Document> getModuleExchanger() {
     return moduleExchanger;
   }
 
@@ -103,5 +95,9 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   @Override
   public ChatModule getChatModule(RequestDTO.DTO_SECTION moduleSection) {
     return chatModuleManager.getChatModule(moduleSection);
+  }
+
+  public ChatModuleManager getChatModuleManager() {
+    return chatModuleManager;
   }
 }

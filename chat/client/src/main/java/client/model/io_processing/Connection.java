@@ -7,6 +7,7 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -21,7 +22,7 @@ public class Connection implements Runnable, AutoCloseable {
   private final IOProcessor ioProcessor;
   private DTOConverterManager dtoConverterManager;
   private ChatModuleManager chatModuleManager;
-  private BlockingQueue<RequestDTO> moduleExchanger;
+  private BlockingQueue<Document> moduleExchanger;
 
   public Connection(ChatSessionExecutor chatSessionExecutor, String ipaddr, int port) throws IOException {
     this.socket = new Socket(ipaddr, port);
@@ -36,23 +37,24 @@ public class Connection implements Runnable, AutoCloseable {
     try {
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
-        var tree = dtoConverterManager.getXMLTree(ioProcessor.receiveMessage());
-        if (tree == null) {
+        byte[] msg = ioProcessor.receiveMessage();
+        if (msg == null){
           continue;
         }
+        var tree = dtoConverterManager.getXMLTree(msg);
         log.info(tree.toString());
         final RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSection(tree);
         final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
-        if (type == null || section == null) {
-          log.info("message with type {}, section {}", type, section);
+        if (type == null) {
           continue;
         }
+        log.info("message with type {}, section {}", type, section);
         try {
 //          todo make in other thread
           if (type == RequestDTO.DTO_TYPE.EVENT) {
             chatModuleManager.getChatModule(section).eventAction((RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree));
-          } else if (type == RequestDTO.DTO_TYPE.RESPONSE) {
-            moduleExchanger.put(dtoConverterManager.deserialize(tree));
+          } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
+            moduleExchanger.put(tree);
           }
         } catch (UnableToDeserialize e) {
           log.warn(e.getMessage(), e);
@@ -91,6 +93,7 @@ public class Connection implements Runnable, AutoCloseable {
 
   @Override
   public void close() throws IOException {
+    log.info("close connection");
     try {
       ioProcessor.close();
     } catch (IOException _) {

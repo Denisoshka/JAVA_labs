@@ -1,12 +1,14 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg at %class.%method\(%file:%line\)%n
+            </pattern>
         </encoder>
     </appender>
 
     <appender name="MODULEFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/module_info.log</file>
+        <file>logs/client_log/module.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/${loggerName}.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
@@ -19,17 +21,23 @@
         <fileAppend>false</fileAppend>
     </appender>
 
-    <!-- Логирование сообщений об ошибках в файл -->
-    <appender name="FILE_ERROR" class="ch.qos.logback.core.FileAppender">
-        <file>client_error.log</file>
-        <append>true</append>
+    <appender name="ALLFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/client_log/all.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/${loggerName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg at %class.%method\(%file:%line\)%n
+            </pattern>
         </encoder>
+        <fileAppend>false</fileAppend>
     </appender>
 
     <root level="TRACE">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ALLFILE"/>
     </root>
 
     <logger name="moduleLogger" level="TRACE">

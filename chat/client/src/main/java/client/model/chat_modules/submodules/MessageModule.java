@@ -2,9 +2,10 @@ package client.model.chat_modules.submodules;
 
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
-import dto.RequestDTO;
-import dto.subtypes.MessageDTO;
 import client.model.main_context.ChatSessionExecutor;
+import dto.RequestDTO;
+import dto.exceptions.UnableToDeserialize;
+import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -12,8 +13,8 @@ import java.util.List;
 
 public class MessageModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
-
   private final ChatSessionController chatSessionController;
+  private final MessageDTO.MessageDTOConverter converter;
   private final Logger modulelogger;
   private final Logger defaultLoger;
 
@@ -22,6 +23,7 @@ public class MessageModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
+    this.converter = (MessageDTO.MessageDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.MESSAGE);
   }
 
   @Override
@@ -42,7 +44,7 @@ public class MessageModule implements ChatModule {
   public void responseActon(RequestDTO.BaseCommand command) {
     chatSessionExecutor.executeAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) chatSessionExecutor.getModuleExchanger().take();
+        final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
           chatSessionController.onMessageResponse((MessageDTO.Command) command, null);
@@ -50,6 +52,8 @@ public class MessageModule implements ChatModule {
           modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
         }
       } catch (InterruptedException _) {
+      } catch (UnableToDeserialize e) {
+        modulelogger.warn(e.getMessage(), e);
       }
     });
 
@@ -57,6 +61,6 @@ public class MessageModule implements ChatModule {
 
   @Override
   public void eventAction(RequestDTO.BaseEvent event) {
-
+//  todo
   }
 }

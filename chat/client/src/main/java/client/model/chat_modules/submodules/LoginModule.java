@@ -5,6 +5,7 @@ import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
 import dto.DataDTO;
 import dto.RequestDTO;
+import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LoginDTO;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class LoginModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
-
+  private final LoginDTO.LoginDTOConverter converter;
   private final ChatSessionController chatSessionController;
   private final Logger modulelogger;
   private final Logger defaultLogger;
@@ -26,6 +27,7 @@ public class LoginModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLogger = chatSessionExecutor.getDefaultLogger();
+    this.converter = (LoginDTO.LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LOGIN);
   }
 
   @Override
@@ -45,7 +47,6 @@ public class LoginModule implements ChatModule {
         }
         chatSessionExecutor.introduceConnection(hostname, port);
         var ioProcessor = chatSessionExecutor.getIOProcessor();
-        var converter = chatSessionExecutor.getDTOConverterManager();
 
         responseActon(null);
         ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(data.getName(), data.getPassword())).getBytes());
@@ -61,15 +62,19 @@ public class LoginModule implements ChatModule {
   public void responseActon(RequestDTO.BaseCommand command) {
     chatSessionExecutor.executeAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) chatSessionExecutor.getModuleExchanger().take();
+        final var response = (RequestDTO.BaseResponse) converter.deserialize(
+                chatSessionExecutor.getModuleExchanger().take()
+        );
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+          modulelogger.info("login successful");
           onLoginSuccess();
         } else if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.ERROR) {
           modulelogger.info(((LoginDTO.Error) response).getMessage());
         }
-      } catch (InterruptedException e) {
+      } catch (UnableToDeserialize e) {
         modulelogger.info(e.getMessage(), e);
+      } catch (InterruptedException _) {
       }
     });
   }

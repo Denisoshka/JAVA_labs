@@ -1,5 +1,6 @@
 package io_processing;
 
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,8 +30,11 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
   @Override
   public byte[] receiveMessage() throws IOException {
     synchronized (inputStream) {
-      int len = inputStream.readInt();
-      return inputStream.readNBytes(len);
+      if (inputStream.available() > 0) {
+        int len = inputStream.readInt();
+        return inputStream.readNBytes(len);
+      }
+      return null;
     }
   }
 
@@ -56,6 +60,7 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
 
   @Override
   public void close() throws IOException {
+
     IOException startEx = null;
     try {
       socket.close();

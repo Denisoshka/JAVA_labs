@@ -52,6 +52,8 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     COMMAND("command"),
     EVENT("event"),
     RESPONSE("response"),
+    SUCCESS("response"),
+    ERROR("error");
     ;
     final String DTOName;
 
