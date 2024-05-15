@@ -78,7 +78,11 @@ public class ConnectionAccepter implements Runnable {
            now = System.currentTimeMillis()) {
         Document root;
         try {
-          root = manager.getXMLTree(ioProcessor.receiveMessage());
+          byte[] msg = ioProcessor.receiveMessage();
+          if (msg == null) {
+            continue;
+          }
+          root = manager.getXMLTree(msg);
           RequestDTO.DTO_SECTION dtoSection = manager.getDTOSection(root);
           RequestDTO.DTO_TYPE dtoType = manager.getDTOType(root);
           if ((registrationState = handleLoginRequest(dtoSection, dtoType, root)) == RegistrationState.SUCCESS) {

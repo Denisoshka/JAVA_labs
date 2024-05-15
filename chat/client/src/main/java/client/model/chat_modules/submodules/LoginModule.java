@@ -35,14 +35,15 @@ public class LoginModule implements ChatModule {
     DataDTO.LoginData data = (DataDTO.LoginData) args.getFirst();
     String hostname = data.getHostname();
     int port = data.getPort();
-    if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port) {
+    if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port && chatSessionExecutor.isConnected()) {
+//todo make on logout
       modulelogger.info("login request repeated");
       return;
     }
 
     chatSessionExecutor.executeAction(() -> {
       try {
-        if (loginData == null) {
+        if (!chatSessionExecutor.isConnected()) {
           loginData = data;
         }
         chatSessionExecutor.introduceConnection(hostname, port);

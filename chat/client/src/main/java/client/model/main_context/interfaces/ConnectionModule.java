@@ -7,5 +7,7 @@ import java.io.IOException;
 public interface ConnectionModule {
   void introduceConnection(String hostname, int port) throws IOException;
 
+  void shutdownConnection() throws IOException;
+
   IOProcessor getIOProcessor();
 }

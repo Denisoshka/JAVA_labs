@@ -23,6 +23,7 @@ public class LogoutSection implements AbstractSection {
   public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
     try {
       connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
+      server.submitExpiredConnection(connection);
     } catch (UnableToSerialize e) {
       Server.getLog().warn(e.getMessage());
     }

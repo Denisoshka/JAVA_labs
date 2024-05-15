@@ -3,6 +3,7 @@ package io_processing;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -30,11 +31,12 @@ public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
   @Override
   public byte[] receiveMessage() throws IOException {
     synchronized (inputStream) {
-      if (inputStream.available() > 0) {
+      try {
         int len = inputStream.readInt();
         return inputStream.readNBytes(len);
+      } catch (EOFException _) {
+        return null;
       }
-      return null;
     }
   }
 

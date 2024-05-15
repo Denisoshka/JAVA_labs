@@ -17,10 +17,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Server implements Runnable {
@@ -77,10 +74,8 @@ public class Server implements Runnable {
   }
 
   private static class ServerWorker implements Runnable {
-
     private final ServerConnection connection;
     private final DTOConverterManager XMLDTOConverterManager;
-
     private final CommandSupplier commandSupplier;
     private final Server server;
 
@@ -94,21 +89,26 @@ public class Server implements Runnable {
     @Override
     public void run() {
       try (ServerConnection con = connection) {
-        while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
-          final Document xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
-          final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
-          final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
+        while (!connection.isClosed()  && !Thread.currentThread().isInterrupted()) {
+          try{
+            final Document xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
+            final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
+            final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
 
-          if (dtoType == null || dtoSection == null) {
+            if (dtoType == null || dtoSection == null) {
 //            todo make in XMLDTOConverterManager support of base commands
-            connection.sendMessage(XMLDTOConverterManager.serialize(
-                    new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")
-            ).getBytes());
-          } else {
-            commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+              connection.sendMessage(XMLDTOConverterManager.serialize(
+                      new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")
+              ).getBytes());
+            } else {
+              commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+            }
+          }catch (TimeoutException _){
           }
+
         }
-      } catch (IOException _) {
+      } catch (IOException e) {
+        log.warn(e.getMessage(), e);
       } finally {
         server.submitExpiredConnection(connection);
       }
@@ -137,6 +137,7 @@ public class Server implements Runnable {
             }
           });
           connections.removeAll(exConnections);
+          log.info(STR."delete \{exConnections.size()} expired connectinos");
           Thread.sleep(DELETER_DELAY);
         }
       } catch (InterruptedException _) {
@@ -154,6 +155,7 @@ public class Server implements Runnable {
   }
 
   public void submitExpiredConnection(ServerConnection connection) {
+    log.info(STR."\{connection} submitted as expired connection");
     connection.markAsExpired();
     expiredConnections.add(connection);
   }

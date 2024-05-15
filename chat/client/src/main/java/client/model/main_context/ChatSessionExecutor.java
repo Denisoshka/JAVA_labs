@@ -56,17 +56,26 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
     IOExecutor.execute(connection);
   }
 
-  public void executeAction(Runnable task) {
-    actionExecutor.execute(task);
+  @Override
+  public void shutdownConnection() throws IOException {
+    try {
+      connection.close();
+    } finally {
+      connection = null;
+    }
   }
 
-  public void executeResponse(Runnable task) {
-    responseExecutor.execute(task);
+  public void executeAction(Runnable task) {
+    actionExecutor.execute(task);
   }
 
   @Override
   public IOProcessor getIOProcessor() {
     return connection.getIoProcessor();
+  }
+
+  public boolean isConnected() {
+    return connection != null;
   }
 
   @Override
