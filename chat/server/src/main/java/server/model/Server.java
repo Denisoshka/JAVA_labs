@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -94,7 +95,6 @@ public class Server implements Runnable {
             final Document xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
             final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
             final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
-
             if (dtoType == null || dtoSection == null) {
 //            todo make in XMLDTOConverterManager support of base commands
               connection.sendMessage(XMLDTOConverterManager.serialize(
@@ -103,9 +103,9 @@ public class Server implements Runnable {
             } else {
               commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
             }
-          }catch (TimeoutException _){
+          } catch (SocketTimeoutException _){
+//            todo handle this
           }
-
         }
       } catch (IOException e) {
         log.warn(e.getMessage(), e);

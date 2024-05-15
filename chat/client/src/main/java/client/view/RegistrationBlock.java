@@ -49,7 +49,7 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
     port.setPromptText("Port");
     userLogin.setPromptText("Login");
     userPassword.setPromptText("Password");
-    userPassword.setText("9876");
+    port.setText("9876");
     hostname.setText("localhost");
   }
 
