@@ -133,11 +133,12 @@ public class DTOTest {
   @MethodSource("ArgsConvertingDTOTest")
   public void ConvertingDTOTest(RequestDTO eventto, String eventXml, DTOConverterManager manager) throws JAXBException, IOException, SAXException, ParserConfigurationException {
     DocumentBuilder builder = Objects.requireNonNull(factory.newDocumentBuilder());
+    RequestDTO.BaseDTOConverter converter = manager.getConverter(eventto.geDTOSection());
     String serializableXML = manager.serialize(eventto);
     Assert.assertEquals(eventXml, serializableXML);
 
-    RequestDTO eventfrom = manager.deserialize(
-            manager.getXMLTree(builder, eventXml)
+    RequestDTO eventfrom = converter.deserialize(
+            converter.getXMLTree(builder, eventXml)
     );
     Assert.assertEquals(eventto, eventfrom);
   }
@@ -220,7 +221,7 @@ public class DTOTest {
             ),
 
             Arguments.of(
-                    new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "YXI"),
+                    new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "XYI"),
                     LoginErrorSTR,
                     manager
             ),Arguments.of(

@@ -267,6 +267,11 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
       this.message = message;
     }
 
+    public BaseErrorResponse(String message) {
+      this();
+      this.message = message;
+    }
+
     @Override
     @XmlElement(name = "message")
     public String getMessage() {

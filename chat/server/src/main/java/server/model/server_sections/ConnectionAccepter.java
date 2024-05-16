@@ -137,7 +137,8 @@ public class ConnectionAccepter implements Runnable {
     byte[] successResponse = converter.serialize(new LoginDTO.Success()).getBytes();
     byte[] loginEvent = converter.serialize(new LoginDTO.Event(name)).getBytes();
 
-    ioProcessor.sendMessage(successResponse);
+//    ioProcessor.sendMessage(loginEvent);
+    server.submitNewConnection(new ServerConnection(ioProcessor, name));
     for (var conn : server.getConnections()) {
       try {
         conn.sendMessage(loginEvent);
@@ -145,8 +146,7 @@ public class ConnectionAccepter implements Runnable {
         server.submitExpiredConnection(conn);
       }
     }
-//    ioProcessor.sendMessage(loginEvent);
-    server.submitNewConnection(new ServerConnection(ioProcessor, name));
+    ioProcessor.sendMessage(successResponse);
   }
 
   private void onLoginTimeExpired() throws IOException {
