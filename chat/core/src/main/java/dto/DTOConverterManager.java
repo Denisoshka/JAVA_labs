@@ -61,11 +61,16 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
   @Override
   public RequestDTO deserialize(Document root) throws UnableToDeserialize {
     try {
-      RequestDTO.DTO_SECTION type = getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ? sectionEventDisplay.get(getDTOEventType(root)) : getDTOSection(root);
+      RequestDTO.DTO_SECTION type = getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ? sectionEventDisplay.get(getDTOEvent(root)) : getDTOSection(root);
       return requireNonNull(converters.get(type).deserialize(root));
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new UnsupportedDTOType(e.getMessage());
     }
+  }
+
+  @Override
+  public RequestDTO.DTO_SECTION getDTOSectionByEventType(RequestDTO.BaseEvent.EVENT_TYPE eventType) {
+    return sectionEventDisplay.get(eventType);
   }
 
   @Override

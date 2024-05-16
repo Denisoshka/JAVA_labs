@@ -3,8 +3,8 @@ package client.model.chat_modules.submodules;
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
+import client.model.main_context.interfaces.ConnectionModule;
 import dto.RequestDTO;
-import dto.exceptions.UnableToDeserialize;
 import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
 
@@ -46,9 +46,12 @@ public class LogoutModule implements ChatModule {
     chatSessionExecutor.executeAction(() -> {
       try {
         final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
-        if (response.getResponseType() == RequestDTO.BaseResponse.RESPONSE_TYPE.ERROR) {
+        if (response.getResponseType() == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+          chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.CONNECTED);
+        } else {
           modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
         }
+        chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
         chatSessionExecutor.shutdownConnection();
       } catch (IOException e) {
         modulelogger.warn(e.getMessage(), e);

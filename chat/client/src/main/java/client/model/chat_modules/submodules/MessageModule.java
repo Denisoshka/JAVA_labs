@@ -28,12 +28,14 @@ public class MessageModule implements ChatModule {
 
   @Override
   public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
+    modulelogger.info(STR."sending msg: \{((MessageDTO.Command) command).getMessage()}");
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     var converter = chatSessionExecutor.getDTOConverterManager();
-    responseActon(command);
     chatSessionExecutor.executeAction(() -> {
       try {
+        responseActon(command);
         ioProcessor.sendMessage(converter.serialize(command).getBytes());
+        modulelogger.info(STR."send msg: \{((MessageDTO.Command) command).getMessage()}");
       } catch (IOException e) {
         modulelogger.warn(e.getMessage(), e);
       }
@@ -56,11 +58,11 @@ public class MessageModule implements ChatModule {
         modulelogger.warn(e.getMessage(), e);
       }
     });
-
   }
 
   @Override
   public void eventAction(RequestDTO.BaseEvent event) {
+    chatSessionController.onMessageEvent((MessageDTO.Event) event);
 //  todo
   }
 }

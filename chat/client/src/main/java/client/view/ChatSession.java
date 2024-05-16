@@ -1,6 +1,7 @@
 package client.view;
 
 import client.facade.ChatSessionController;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +12,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -20,6 +23,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private static final int OTHERS_COLUMN_INDEX = 0;
   private static final int EVENT_COLUMN_INDEX = 1;
   private static final int USER_COLUMN_INDEX = 2;
+  private static final Logger log = LoggerFactory.getLogger(ChatSession.class);
 
   @FXML
   private TextField messageTextField;
@@ -29,7 +33,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private ScrollPane chatScrollPane;
   @FXML
   private GridPane chatGridPane;
-
+  @FXML
   private ChatSessionController chatSessionController;
 
   public enum ChatEventType {
@@ -61,18 +65,19 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   @FXML
   private void sendMessage(ActionEvent actionEvent) {
+    log.info("Sending chat message");
     chatSessionController.messageCommand(messageTextField.getText());
     messageTextField.clear();
   }
 
-  public synchronized void addNewChatRecord(ChatRecord chatRecord) {
+  public void addNewChatRecord(ChatRecord chatRecord) {
     ChatEventType type = chatRecord.type;
     final var columnIndex = type == ChatEventType.EVENT ? EVENT_COLUMN_INDEX :
             (type == ChatEventType.SEND ? USER_COLUMN_INDEX : OTHERS_COLUMN_INDEX);
     final var columnSpan = 2;
     final var rowIndex = chatGridPane.getRowCount();
     final var rowSpan = 1;
-    chatGridPane.add(chatRecord, columnIndex, rowIndex, columnSpan, rowSpan);
+    Platform.runLater(() -> chatGridPane.add(chatRecord, columnIndex, rowIndex, columnSpan, rowSpan));
   }
 
   public static class ChatRecord extends VBox {

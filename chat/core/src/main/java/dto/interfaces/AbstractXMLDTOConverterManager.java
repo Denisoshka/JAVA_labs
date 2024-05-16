@@ -22,13 +22,14 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
    */
   default RequestDTO.DTO_SECTION getDTOSection(Document root) {
     try {
+//      todo events not support
       return RequestDTO.DTO_SECTION.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
     } catch (IllegalArgumentException e) {
       return null;
     }
   }
 
-  default RequestDTO.BaseEvent.EVENT_TYPE getDTOEventType(Document root) {
+  default RequestDTO.BaseEvent.EVENT_TYPE getDTOEvent(Document root) {
     try {
       return RequestDTO.BaseEvent.EVENT_TYPE.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
     } catch (IllegalArgumentException e) {
@@ -36,6 +37,7 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
     }
   }
 
+  RequestDTO.DTO_SECTION getDTOSectionByEventType(RequestDTO.BaseEvent.EVENT_TYPE eventType);
 
   Node getXMLTree(byte[] data) throws UnableToDeserialize;
 

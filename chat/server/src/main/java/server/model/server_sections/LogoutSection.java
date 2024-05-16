@@ -20,12 +20,18 @@ public class LogoutSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) {
     try {
       connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
-      server.submitExpiredConnection(connection);
+      byte[] msg = converter.serialize(new LogoutDTO.Event(connection.getConnectionName())).getBytes();
+      for (var con : server.getConnections()){
+        con.sendMessage(msg);
+      }
     } catch (UnableToSerialize e) {
-      Server.getLog().warn(e.getMessage());
+      server.getModuleLogger().warn(e.getMessage());
+    } catch (IOException _) {
+    } finally {
+      server.submitExpiredConnection(connection);
     }
   }
 }

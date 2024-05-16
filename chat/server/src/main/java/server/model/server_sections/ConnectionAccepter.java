@@ -98,11 +98,11 @@ public class ConnectionAccepter implements Runnable {
           }
         }
       }
-      if (registrationState != RegistrationState.SUCCESS) onLoginExpired();
+      if (registrationState != RegistrationState.SUCCESS) onLoginTimeExpired();
     } catch (IOException e) {
       log.warn(e.getMessage(), e);
       try {
-        onLoginExpired();
+        onLoginTimeExpired();
       } catch (IOException _) {
       }
     } catch (Exception e) {
@@ -133,7 +133,7 @@ public class ConnectionAccepter implements Runnable {
     if (registeredPasswordHash == null) {
       server.getRegisteredUsers().put(name, passwordHash);
     }
-    server.getModuleLogger().info("success connection from " + ioProcessor);
+    server.getModuleLogger().info(STR."success connection from \{ioProcessor}");
     onLoginSuccess(ioProcessor, name);
     return RegistrationState.SUCCESS;
   }
@@ -151,9 +151,9 @@ public class ConnectionAccepter implements Runnable {
     server.submitNewConnection(new ServerConnection(ioProcessor, name));
   }
 
-  private void onLoginExpired() throws IOException {
+  private void onLoginTimeExpired() throws IOException {
     try {
-      byte[] errmsg = converter.serialize(new LoginDTO.Error("login expired")).getBytes();
+      byte[] errmsg = converter.serialize(new LoginDTO.Error("login time expired")).getBytes();
       ioProcessor.sendMessage(errmsg);
     } catch (UnableToSerialize e) {
       log.warn(e.getMessage(), e);

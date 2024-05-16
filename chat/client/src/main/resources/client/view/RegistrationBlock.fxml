@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          prefHeight="60.0" prefWidth="180.0" type="VBox">
+    <HBox fx:id="connectionStatusBox" spacing="5">
+        <!--        <TextField fx:id="connectionStatus" editable="false" minWidth="100" prefWidth="Infinity"/>-->
+        <Circle fx:id="connectionStatusMarker" radius="10"/>
+        <Label fx:id="connectionStatusLabel" minWidth="100" prefWidth="Infinity"/>
+    </HBox>
     <TextField fx:id="hostname" prefWidth="Infinity"/>
     <TextField fx:id="port" prefWidth="Infinity"/>
     <TextField fx:id="userLogin" prefWidth="Infinity"/>

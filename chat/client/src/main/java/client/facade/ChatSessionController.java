@@ -4,8 +4,10 @@ import client.model.chat_modules.submodules.LoginModule;
 import client.model.chat_modules.submodules.LogoutModule;
 import client.model.chat_modules.submodules.MessageModule;
 import client.model.main_context.ChatSessionExecutor;
+import client.model.main_context.interfaces.ConnectionModule;
 import client.view.ChatSession;
 import client.view.ChatSessionView;
+import client.view.RegistrationBlock;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.subtypes.ListDTO;
@@ -23,10 +25,12 @@ public class ChatSessionController {
   private static final String USER_LOGOUT = "userlogout";
   private static final String USER_MESSAGE = "message";
 
-  private ChatSession chatSession;
   private MessageModule messageModule;
   private LoginModule loginModule;
   private LogoutModule logoutModule;
+
+  private ChatSession chatSession;
+  private RegistrationBlock registrationBlock;
 
   public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
@@ -37,9 +41,8 @@ public class ChatSessionController {
 
   public void setChatSessionViewDependence(ChatSessionView chatSessionView) {
     this.chatSession = chatSessionView.getChatSession();
+    this.registrationBlock = chatSessionView.getRegistrationBlock();
   }
-
-  private ChatSessionExecutor chatSessionExecutor;
 
   public void showMessage(RequestDTO requestDTO, RequestDTO.BaseResponse response) {
     if (requestDTO.getDTOType() == RequestDTO.DTO_TYPE.EVENT) {
@@ -79,13 +82,15 @@ public class ChatSessionController {
     chatSession.addNewChatRecord(
             /*todo make for server sender desc and time*/
             new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.RECEIVE,
+                    ChatSession.ChatEventType.RECEIVE, "AB xyi AV xyi",
 //   todo remove this on release
-                    "AB xyi AV xyi",
-                    message.getMessage(),
-                    ZonedDateTime.now()
+                    message.getMessage(), ZonedDateTime.now()
             )
     );
+  }
+
+  public void onConnectResponse(ConnectionModule.ConnectionState state) {
+    registrationBlock.setConnectionStatus(state);
   }
 
   public void onListResponse(ListDTO.Command command, RequestDTO.BaseResponse response) {
@@ -96,10 +101,8 @@ public class ChatSessionController {
     chatSession.addNewChatRecord(
             /*todo make for server sender desc and time*/
             new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.RECEIVE,
-                    event.getFrom(),
-                    event.getMessage(),
-                    ZonedDateTime.now()
+                    ChatSession.ChatEventType.RECEIVE, event.getFrom(),
+                    event.getMessage(), ZonedDateTime.now()
             )
     );
   }
@@ -108,9 +111,8 @@ public class ChatSessionController {
     chatSession.addNewChatRecord(
             /*todo make for server sender desc and time*/
             new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.EVENT,
-                    "",
-                    "logout user: " + event.getName(),
+                    ChatSession.ChatEventType.EVENT, "",
+                    STR."logout user: \{event.getName()}",
                     ZonedDateTime.now()
             )
     );
@@ -120,12 +122,10 @@ public class ChatSessionController {
     chatSession.addNewChatRecord(
             /*todo make for server sender desc and time*/
             new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.EVENT,
-                    "",
-                    "login user: " + event.getName(),
+                    ChatSession.ChatEventType.EVENT, "",
+                    STR."login user: \{event.getName()}",
                     ZonedDateTime.now()
             )
     );
   }
-
 }

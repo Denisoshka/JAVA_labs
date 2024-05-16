@@ -2,9 +2,9 @@ package server.model;
 
 import dto.DTOConverterManager;
 import dto.RequestDTO;
+import dto.exceptions.UnableToDeserialize;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import server.model.io_processing.ServerConnection;
 import server.model.server_sections.ConnectionAccepter;
 import server.model.server_sections.SectionFactory;
@@ -18,7 +18,10 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Server implements Runnable {
@@ -90,26 +93,37 @@ public class Server implements Runnable {
     @Override
     public void run() {
       try (ServerConnection con = connection) {
-        while (!connection.isClosed()  && !Thread.currentThread().isInterrupted()) {
-          try{
-            final Document xmlTree = XMLDTOConverterManager.getXMLTree(con.receiveMessage());
+        log.info(STR."serwer worker: \{con.getConnectionName()} started");
+        while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
+          try {
+            byte[] msg = con.receiveMessage();
+            log.info(STR."new message \{new String(msg)}");
+            final Document xmlTree = XMLDTOConverterManager.getXMLTree(msg);
             final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
             final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
+//            todo not support events getting
+            log.info(STR."new message for \{dtoSection} with type \{dtoType}");
             if (dtoType == null || dtoSection == null) {
 //            todo make in XMLDTOConverterManager support of base commands
               connection.sendMessage(XMLDTOConverterManager.serialize(
                       new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")
               ).getBytes());
             } else {
-              commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+              var section = commandSupplier.getSection(dtoSection);
+              log.info(STR."section \{section} started");
+              section.perform(connection, xmlTree, dtoType, dtoSection);
             }
-          } catch (SocketTimeoutException _){
+
+          } catch (UnableToDeserialize e) {
+            log.info(e.getMessage(), e);
+          } catch (SocketTimeoutException _) {
 //            todo handle this
           }
         }
       } catch (IOException e) {
         log.warn(e.getMessage(), e);
       } finally {
+        log.info(STR."server worker: \{connection.getConnectionName()} finish session");
         server.submitExpiredConnection(connection);
       }
     }
@@ -155,15 +169,17 @@ public class Server implements Runnable {
   }
 
   public void submitExpiredConnection(ServerConnection connection) {
-    log.info(STR."\{connection} submitted as expired connection");
+    log.info(STR."try submit expired connection \{connection.getConnectionName()}");
     connection.markAsExpired();
     expiredConnections.add(connection);
+    log.info(STR."\{connection} submit expired connection");
   }
 
   public void submitNewConnection(ServerConnection connection) {
+    log.info(STR."try submit new connection \{connection.getConnectionName()}");
     connections.add(connection);
-
     connectionsPool.submit(new ServerWorker(connection, this));
+    log.info(STR."submit new connection \{connection.getConnectionName()}");
   }
 
   public CopyOnWriteArrayList<ServerConnection> getConnections() {

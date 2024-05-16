@@ -105,7 +105,7 @@ public class DTOTest {
   @MethodSource("EventsDTOTest")
   public void EventsTest(String eventto, RequestDTO.BaseEvent.EVENT_TYPE section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
     var tree = manager.getXMLTree(eventto.getBytes());
-    Assert.assertEquals(section, manager.getDTOEventType(tree));
+    Assert.assertEquals(section, manager.getDTOEvent(tree));
     Assert.assertEquals(type, manager.getDTOType(tree));
   }
 
