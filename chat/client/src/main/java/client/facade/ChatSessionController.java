@@ -101,7 +101,7 @@ public class ChatSessionController {
     chatSession.addNewChatRecord(
             /*todo make for server sender desc and time*/
             new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.RECEIVE, "AB xyi AV xyi",
+                    ChatSession.ChatEventType.SEND, "you =)",
 //   todo remove this on release
                     message.getMessage(), ZonedDateTime.now()
             )

@@ -42,14 +42,12 @@ public class Connection implements Runnable, AutoCloseable {
           continue;
         }
         var tree = dtoConverterManager.getXMLTree(msg);
-        log.info(tree.toString());
         final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
         if (type == null) {
           continue;
         }
         log.info("message with type {}", type);
         try {
-//          todo make in other thread
           if (type == RequestDTO.DTO_TYPE.EVENT) {
             RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(dtoConverterManager.getDTOEvent(tree));
             if (section == null) {
