@@ -49,7 +49,6 @@ public class LoginModule implements ChatModule {
         }
         chatSessionExecutor.introduceConnection(hostname, port);
         var ioProcessor = chatSessionExecutor.getIOProcessor();
-
         responseActon(null);
         ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(data.getName(), data.getPassword())).getBytes());
       } catch (UnableToSerialize e) {
@@ -64,19 +63,23 @@ public class LoginModule implements ChatModule {
   public void responseActon(RequestDTO.BaseCommand command) {
 //      final var event = (LoginDTO.Event) converter.deserialize(tree);
     chatSessionExecutor.executeAction(() -> {
+      String nodeName = null;
       try {
         final var tree = chatSessionExecutor.getModuleExchanger().take();
-        assert (tree==null);
+        nodeName = tree.getDocumentElement().getNodeName();
+        modulelogger.error(tree.getDocumentElement().getNodeName());
         final var response = (RequestDTO.BaseResponse) converter.deserialize(tree);
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
           modulelogger.info("login successful");
           chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.CONNECTED);
+
         } else if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.ERROR) {
           modulelogger.info(((LoginDTO.Error) response).getMessage());
         }
       } catch (UnableToDeserialize e) {
-        modulelogger.info(e.getMessage(), e);
+        modulelogger.warn(STR."Node name \{nodeName}");
+        modulelogger.warn(e.getMessage() , e);
       } catch (InterruptedException _) {
       }
     });

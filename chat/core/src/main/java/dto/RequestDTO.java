@@ -19,8 +19,8 @@ import java.util.Objects;
 public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOInterfaces.DTO_SECTION {
   public static class BaseDTOConverter implements dto.interfaces.AbstractDTOConverter {
     JAXBContext context;
-    Unmarshaller unmarshaller;
-    Marshaller marshaller;
+    final Unmarshaller unmarshaller;
+    final Marshaller marshaller;
 
     public BaseDTOConverter(JAXBContext context) throws JAXBException {
       this.context = context;
@@ -43,7 +43,9 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     public String serialize(RequestDTO dto) throws UnableToSerialize {
       try {
         StringWriter writer = new StringWriter();
-        marshaller.marshal(dto, writer);
+        synchronized (marshaller) {
+          marshaller.marshal(dto, writer);
+        }
         return writer.toString();
       } catch (JAXBException e) {
         throw new UnableToSerialize(e);
@@ -53,7 +55,9 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     @Override
     public RequestDTO deserialize(Document root) throws UnableToDeserialize {
       try {
-        return (RequestDTO) unmarshaller.unmarshal(root);
+        synchronized (unmarshaller) {
+          return (RequestDTO) unmarshaller.unmarshal(root);
+        }
       } catch (JAXBException e) {
         throw new UnableToDeserialize(e);
       }

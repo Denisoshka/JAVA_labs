@@ -139,6 +139,7 @@ public class ConnectionAccepter implements Runnable {
 
 //    ioProcessor.sendMessage(loginEvent);
     server.submitNewConnection(new ServerConnection(ioProcessor, name));
+    ioProcessor.sendMessage(successResponse);
     for (var conn : server.getConnections()) {
       try {
         conn.sendMessage(loginEvent);
@@ -146,7 +147,6 @@ public class ConnectionAccepter implements Runnable {
         server.submitExpiredConnection(conn);
       }
     }
-    ioProcessor.sendMessage(successResponse);
   }
 
   private void onLoginTimeExpired() throws IOException {

@@ -1,5 +1,6 @@
 package client.facade;
 
+import client.model.chat_modules.submodules.ListModule;
 import client.model.chat_modules.submodules.LoginModule;
 import client.model.chat_modules.submodules.LogoutModule;
 import client.model.chat_modules.submodules.MessageModule;
@@ -7,6 +8,7 @@ import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
 import client.view.ChatSession;
 import client.view.ChatSessionView;
+import client.view.ChatUsersInfo;
 import client.view.RegistrationBlock;
 import dto.DataDTO;
 import dto.RequestDTO;
@@ -17,6 +19,7 @@ import dto.subtypes.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -28,20 +31,23 @@ public class ChatSessionController {
   private MessageModule messageModule;
   private LoginModule loginModule;
   private LogoutModule logoutModule;
-
+  private ListModule listModule;
   private ChatSession chatSession;
   private RegistrationBlock registrationBlock;
+  private ChatUsersInfo chatUsersInfo;
 
   public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
     logoutModule = (LogoutModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGOUT);
     loginModule = (LoginModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGIN);
+    listModule = (ListModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LIST);
   }
 
 
   public void setChatSessionViewDependence(ChatSessionView chatSessionView) {
     this.chatSession = chatSessionView.getChatSession();
     this.registrationBlock = chatSessionView.getRegistrationBlock();
+    this.chatUsersInfo = chatSessionView.getChatUsersInfo();
   }
 
   public void showMessage(RequestDTO requestDTO, RequestDTO.BaseResponse response) {
@@ -93,8 +99,20 @@ public class ChatSessionController {
     registrationBlock.setConnectionStatus(state);
   }
 
+  public void reloadUsers() {
+    listModule.commandAction(null, null);
+  }
+
   public void onListResponse(ListDTO.Command command, RequestDTO.BaseResponse response) {
-//    todo implements this section
+    if (response.getResponseType() != RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+      return;
+    }
+    ListDTO.Success successResponse = (ListDTO.Success) response;
+    ArrayList<UserInfo> usersInfo = new ArrayList<>(successResponse.getUsers().size());
+    for (var info : successResponse.getUsers()) {
+      usersInfo.add(new UserInfo(info.getName()));
+    }
+    chatUsersInfo.onReloadUsers(usersInfo);
   }
 
   public void onMessageEvent(MessageDTO.Event event) {
@@ -127,5 +145,22 @@ public class ChatSessionController {
                     ZonedDateTime.now()
             )
     );
+  }
+
+  public static class UserInfo {
+    private String name;
+
+    public UserInfo(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
   }
 }

@@ -56,6 +56,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   public void initialize() {
     sendButton.setOnAction(this::sendMessage);
+    chatGridPane.heightProperty().addListener((_, _, _) -> chatScrollPane.setVvalue(1.0));
   }
 
   @Override

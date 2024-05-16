@@ -55,9 +55,12 @@ public class Connection implements Runnable, AutoCloseable {
             if (section == null) {
               continue;
             }
-            log.info("received event from section {}", section);
-            chatModuleManager.getChatModule(section).eventAction((RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree));
+            log.info("event {}", section);
+            RequestDTO.BaseEvent event = (RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree);
+            chatModuleManager.getChatModule(section).eventAction(event);
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
+            log.info("response {}", type);
+            log.error(type.toString());
             moduleExchanger.put(tree);
           }
         } catch (UnableToDeserialize e) {
