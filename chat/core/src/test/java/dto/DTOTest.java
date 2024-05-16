@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class DTOTest {
   static String ListCommandSTR = "<command name=\"list\"/>";
   static String ListSuccessSTR = "<success><users><user><name>USER_1</name></user><user><name>USER_2</name></user></users></success>";
+  static String ListSuccessSTR2 = "<success><users><user><name>6</name></user></users></success>";
   static String ListErrorSTR = "<error><message>XYI</message></error>";
 
   static String LoginEventSTR = "<event name=\"userlogin\"><name>USER_NAME</name></event>";
@@ -138,19 +139,13 @@ public class DTOTest {
     Assert.assertEquals(eventXml, serializableXML);
 
     RequestDTO eventfrom = converter.deserialize(
-            converter.getXMLTree(builder, eventXml)
+            converter.getXMLTree(builder, eventXml.getBytes())
     );
     Assert.assertEquals(eventto, eventfrom);
   }
 
   public static Stream<Arguments> ArgsConvertingDTOTest() throws JAXBException {
     manager = new DTOConverterManager(null);
-
-//    var messageConverter = new MessageDTO.MessageDTOConverter();
-//    var logoutConverter = new LogoutDTO.LogoutDTOConverter();
-//    var loginConverter = new LoginDTO.LoginDTOConverter();
-//    var listConverter = new ListDTO.ListDTOConverter();
-
     return Stream.of(
             Arguments.of(
                     new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE"),
@@ -215,6 +210,10 @@ public class DTOTest {
                     ListSuccessSTR,
                     manager
             ), Arguments.of(
+                    new ListDTO.Success(List.of(new DataDTO.User("6"))),
+                    ListSuccessSTR2,
+                    manager
+            ), Arguments.of(
                     new ListDTO.Error("XYI"),
                     ListErrorSTR,
                     manager
@@ -224,7 +223,7 @@ public class DTOTest {
                     new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "XYI"),
                     LoginErrorSTR,
                     manager
-            ),Arguments.of(
+            ), Arguments.of(
                     new RequestDTO.BaseSuccessResponse(RequestDTO.DTO_SECTION.BASE),
                     LoginSuccessSTR,
                     manager

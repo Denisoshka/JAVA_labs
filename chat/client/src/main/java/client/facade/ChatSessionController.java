@@ -80,8 +80,21 @@ public class ChatSessionController {
     loginModule.commandAction(null, List.of(new DataDTO.LoginData(login, hostname, password, port)));
   }
 
+  public void onLoginCommand(RequestDTO.BaseResponse.RESPONSE_TYPE responseType) {
+    if (responseType != RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+      return;
+    }
+    registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
+    reloadUsers();
+  }
+
   public void logoutCommand() {
     logoutModule.commandAction(null, null);
+  }
+
+  public void onLogoutCommand(RequestDTO.BaseResponse response) {
+    chatSession.clearSession();
+    registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
   }
 
   public void onMessageResponse(MessageDTO.Command message, RequestDTO.BaseResponse response) {
@@ -134,6 +147,7 @@ public class ChatSessionController {
                     ZonedDateTime.now()
             )
     );
+    chatUsersInfo.removeUser(new UserInfo(event.getName()));
   }
 
   public void onLoginEvent(LoginDTO.Event event) {
@@ -145,6 +159,7 @@ public class ChatSessionController {
                     ZonedDateTime.now()
             )
     );
+    chatUsersInfo.addUser(new UserInfo(event.getName()));
   }
 
   public static class UserInfo {

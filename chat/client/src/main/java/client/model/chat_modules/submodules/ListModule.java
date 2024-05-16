@@ -8,6 +8,7 @@ import dto.exceptions.UnableToDeserialize;
 import dto.subtypes.ListDTO;
 import org.slf4j.Logger;
 
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,7 +46,33 @@ public class ListModule implements ChatModule {
   public void responseActon(RequestDTO.BaseCommand command) {
     chatSessionExecutor.executeAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
+        var docResponse = chatSessionExecutor.getModuleExchanger().take();
+        final var response = (RequestDTO.BaseResponse) converter.deserialize(docResponse);
+
+        try {
+          javax.xml.transform.TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
+          // Создаем Transformer
+          javax.xml.transform.Transformer transformer = transformerFactory.newTransformer();
+
+          // Настраиваем преобразователь для удобного чтения
+//          transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
+//          transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+          // Создаем строковый Writer для сохранения результата
+          java.io.StringWriter writer = new java.io.StringWriter();
+
+          // Преобразуем Document в StreamResult
+          javax.xml.transform.dom.DOMSource domSource = new javax.xml.transform.dom.DOMSource(docResponse);
+          javax.xml.transform.stream.StreamResult result = new javax.xml.transform.stream.StreamResult(writer);
+
+          // Преобразуем DOM в строку
+          transformer.transform(domSource, result);
+
+          // Возвращаем строковое представление XML
+          modulelogger.debug(writer.toString());
+        } catch (TransformerException _) {
+        }
+
         modulelogger.info(response.toString());
         chatSessionController.onListResponse(null, response);
       } catch (InterruptedException _) {

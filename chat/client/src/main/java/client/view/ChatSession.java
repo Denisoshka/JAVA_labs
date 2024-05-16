@@ -105,4 +105,8 @@ public class ChatSession extends VBox implements ControllerIntroduce {
       return type;
     }
   }
+
+  public void clearSession(){
+    Platform.runLater(()->chatGridPane.getChildren().clear());
+  }
 }

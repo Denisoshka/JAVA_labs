@@ -3,7 +3,6 @@ package client.model.chat_modules.submodules;
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
-import client.model.main_context.interfaces.ConnectionModule;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
@@ -72,8 +71,7 @@ public class LoginModule implements ChatModule {
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
           modulelogger.info("login successful");
-          chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.CONNECTED);
-
+          chatSessionController.onLoginCommand(status);
         } else if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.ERROR) {
           modulelogger.info(((LoginDTO.Error) response).getMessage());
         }

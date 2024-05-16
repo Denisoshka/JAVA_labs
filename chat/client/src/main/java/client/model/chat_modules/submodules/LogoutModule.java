@@ -52,6 +52,7 @@ public class LogoutModule implements ChatModule {
           modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
         }
         chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
+        chatSessionController.onLogoutCommand(response);
         chatSessionExecutor.shutdownConnection();
       } catch (IOException e) {
         modulelogger.warn(e.getMessage(), e);

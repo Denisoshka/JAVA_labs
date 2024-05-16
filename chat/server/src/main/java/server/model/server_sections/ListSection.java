@@ -23,11 +23,15 @@ public class ListSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) {
     if (dtoType != RequestDTO.DTO_TYPE.COMMAND) {
       var errmsg = STR."not support \{dtoType.name()}";
       server.getModuleLogger().info(errmsg);
-      connection.sendMessage(converter.serialize(new ListDTO.Error(errmsg)).getBytes());
+      try {
+        connection.sendMessage(converter.serialize(new ListDTO.Error(errmsg)).getBytes());
+      } catch (IOException e) {
+        server.submitExpiredConnection(connection);
+      }
     }
 
     final var connections = server.getConnections();
@@ -38,14 +42,18 @@ public class ListSection implements AbstractSection {
 
     try {
       connection.sendMessage(converter.serialize(new ListDTO.Success(users)).getBytes());
-      server.getModuleLogger().info("send message to user");
+      server.getModuleLogger().info("ListDTO.Success");
     } catch (UnableToSerialize e1) {
       try {
         connection.sendMessage(converter.serialize(new ListDTO.Error(e1.getMessage())).getBytes());
       } catch (UnableToSerialize e2) {
 //        todo handle this
         Server.getLog().warn(e1.getMessage(), e1);
+      } catch (IOException e2) {
+        server.submitExpiredConnection(connection);
       }
+    } catch (IOException e1) {
+      server.submitExpiredConnection(connection);
     }
   }
 }

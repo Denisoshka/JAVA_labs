@@ -152,6 +152,7 @@ public class Server implements Runnable {
           });
           connections.removeAll(exConnections);
           log.info(STR."delete \{exConnections.size()} expired connectinos");
+          log.info(STR."Connections quantity:\{connections.size()}");
           Thread.sleep(DELETER_DELAY);
         }
       } catch (InterruptedException _) {

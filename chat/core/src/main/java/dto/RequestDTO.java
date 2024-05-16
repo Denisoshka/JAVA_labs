@@ -241,8 +241,8 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
   }
 
-  @XmlType(name = "basesuccessresponse")
-  @XmlRootElement(name = "success")
+//  @XmlType(name = "basesuccessresponse")
+//  @XmlRootElement(name = "success")
   public static class BaseSuccessResponse extends BaseResponse {
     public BaseSuccessResponse(DTO_SECTION DTOSection) {
       super(DTOSection, RESPONSE_TYPE.SUCCESS);
