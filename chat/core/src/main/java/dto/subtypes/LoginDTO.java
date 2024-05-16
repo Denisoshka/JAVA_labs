@@ -12,7 +12,7 @@ import java.util.Objects;
 public enum LoginDTO {
   ;
 
-  public static class LoginDTOConverter extends RequestDTO.AbstractDTOConverter {
+  public static class LoginDTOConverter extends RequestDTO.BaseDTOConverter {
     public LoginDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }

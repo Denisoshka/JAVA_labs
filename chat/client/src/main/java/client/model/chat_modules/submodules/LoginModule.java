@@ -62,11 +62,12 @@ public class LoginModule implements ChatModule {
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
+//      final var event = (LoginDTO.Event) converter.deserialize(tree);
     chatSessionExecutor.executeAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) converter.deserialize(
-                chatSessionExecutor.getModuleExchanger().take()
-        );
+        final var tree = chatSessionExecutor.getModuleExchanger().take();
+        assert (tree==null);
+        final var response = (RequestDTO.BaseResponse) converter.deserialize(tree);
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
           modulelogger.info("login successful");

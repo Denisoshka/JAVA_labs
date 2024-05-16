@@ -106,7 +106,7 @@ public class Server implements Runnable {
             if (dtoType == null || dtoSection == null) {
 //            todo make in XMLDTOConverterManager support of base commands
               connection.sendMessage(XMLDTOConverterManager.serialize(
-                      new RequestDTO.BaseErrorResponse(null, "unhandled message in server protocol")
+                      new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "unhandled message in server protocol")
               ).getBytes());
             } else {
               var section = commandSupplier.getSection(dtoSection);
@@ -117,7 +117,7 @@ public class Server implements Runnable {
           } catch (UnableToDeserialize e) {
             log.info(e.getMessage(), e);
           } catch (SocketTimeoutException _) {
-//            todo handle this
+            /*todo handle ex*/
           }
         }
       } catch (IOException e) {

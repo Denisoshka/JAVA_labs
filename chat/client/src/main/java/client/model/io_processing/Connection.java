@@ -43,7 +43,6 @@ public class Connection implements Runnable, AutoCloseable {
         }
         var tree = dtoConverterManager.getXMLTree(msg);
         log.info(tree.toString());
-//        final RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSection(tree);
         final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
         if (type == null) {
           continue;
@@ -53,10 +52,11 @@ public class Connection implements Runnable, AutoCloseable {
 //          todo make in other thread
           if (type == RequestDTO.DTO_TYPE.EVENT) {
             RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(dtoConverterManager.getDTOEvent(tree));
-            if (section != null) {
-              log.info("received event from section {}", section);
-              chatModuleManager.getChatModule(section).eventAction((RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree));
+            if (section == null) {
+              continue;
             }
+            log.info("received event from section {}", section);
+            chatModuleManager.getChatModule(section).eventAction((RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree));
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
             moduleExchanger.put(tree);
           }

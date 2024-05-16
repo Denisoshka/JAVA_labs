@@ -58,7 +58,6 @@ public class LogoutModule implements ChatModule {
       } catch (InterruptedException _) {
       }
     });
-//    todo
   }
 
   @Override

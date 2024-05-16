@@ -130,91 +130,103 @@ public class DTOTest {
   }
 
   @ParameterizedTest
-  @MethodSource("ArgsEventDTOTest")
-  public void EventDTOTest(RequestDTO eventto, String eventXml, RequestDTO.AbstractDTOConverter converter) throws JAXBException, IOException, SAXException, ParserConfigurationException {
+  @MethodSource("ArgsConvertingDTOTest")
+  public void ConvertingDTOTest(RequestDTO eventto, String eventXml, DTOConverterManager manager) throws JAXBException, IOException, SAXException, ParserConfigurationException {
     DocumentBuilder builder = Objects.requireNonNull(factory.newDocumentBuilder());
-    String serializableXML = converter.serialize(eventto);
+    String serializableXML = manager.serialize(eventto);
     Assert.assertEquals(eventXml, serializableXML);
 
-    RequestDTO eventfrom = converter.deserialize(
-            converter.getXMLTree(builder, eventXml)
+    RequestDTO eventfrom = manager.deserialize(
+            manager.getXMLTree(builder, eventXml)
     );
     Assert.assertEquals(eventto, eventfrom);
   }
 
-  public static Stream<Arguments> ArgsEventDTOTest() throws JAXBException {
-    var messageConverter = new MessageDTO.MessageDTOConverter();
-    var logoutConverter = new LogoutDTO.LogoutDTOConverter();
-    var loginConverter = new LoginDTO.LoginDTOConverter();
-    var listConverter = new ListDTO.ListDTOConverter();
+  public static Stream<Arguments> ArgsConvertingDTOTest() throws JAXBException {
+    manager = new DTOConverterManager(null);
+
+//    var messageConverter = new MessageDTO.MessageDTOConverter();
+//    var logoutConverter = new LogoutDTO.LogoutDTOConverter();
+//    var loginConverter = new LoginDTO.LoginDTOConverter();
+//    var listConverter = new ListDTO.ListDTOConverter();
 
     return Stream.of(
             Arguments.of(
                     new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE"),
                     MessageEventSTR,
-                    messageConverter
+                    manager
             ), Arguments.of(
                     new MessageDTO.Command("MESSAGE"),
                     MessageCommandSTR,
-                    messageConverter
+                    manager
             ), Arguments.of(
                     new MessageDTO.Success(),
                     MessageSuccessSTR,
-                    messageConverter
+                    manager
             ), Arguments.of(
                     new MessageDTO.Error("XYI"),
                     MessageErrorSTR,
-                    messageConverter
+                    manager
             ),
 
             Arguments.of(
                     new LogoutDTO.Event("USER_NAME"),
                     LogoutEventSTR,
-                    logoutConverter
+                    manager
             ), Arguments.of(
                     new LogoutDTO.Command(),
                     LogoutCommandSTR,
-                    logoutConverter
+                    manager
             ), Arguments.of(
                     new LogoutDTO.Success(),
                     LogoutSuccessSTR,
-                    logoutConverter
+                    manager
             ), Arguments.of(
                     new LogoutDTO.Error("XYI"),
                     LogoutErrorSTR,
-                    logoutConverter
+                    manager
             ),
 
             Arguments.of(
                     new LoginDTO.Event("USER_NAME"),
                     LoginEventSTR,
-                    loginConverter
+                    manager
             ), Arguments.of(
                     new LoginDTO.Command("USER_NAME", "PASSWORD"),
                     LoginCommandSTR,
-                    loginConverter
+                    manager
             ), Arguments.of(
                     new LoginDTO.Success(),
                     LoginSuccessSTR,
-                    loginConverter
+                    manager
             ), Arguments.of(
                     new LoginDTO.Error("XYI"),
                     LoginErrorSTR,
-                    loginConverter
+                    manager
             ),
 
             Arguments.of(
                     new ListDTO.Command(),
                     ListCommandSTR,
-                    listConverter
+                    manager
             ), Arguments.of(
                     new ListDTO.Success(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
                     ListSuccessSTR,
-                    listConverter
+                    manager
             ), Arguments.of(
                     new ListDTO.Error("XYI"),
                     ListErrorSTR,
-                    listConverter
+                    manager
+            ),
+
+            Arguments.of(
+                    new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "YXI"),
+                    LoginErrorSTR,
+                    manager
+            ),Arguments.of(
+                    new RequestDTO.BaseSuccessResponse(RequestDTO.DTO_SECTION.BASE),
+                    LoginSuccessSTR,
+                    manager
             )
     );
   }

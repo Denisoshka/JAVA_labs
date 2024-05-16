@@ -40,23 +40,16 @@ public class ConnectionAccepter implements Runnable {
   private final Server server;
   private final LoginDTO.LoginDTOConverter converter;
   private final DTOConverterManager manager;
-  private IOProcessor ioProcessor;
+  private final Socket socket;
+  private final IOProcessor ioProcessor;
   private RegistrationState registrationState = null;
-  private Socket socket;
 
   /**
    * close {@code socket} if exceptions occurs during {@code run()} or {@code ConnectionAccepter()} else submit new connection to {@code server} connections
    */
 
-  public ConnectionAccepter(Server server, Socket socket) {
-    try {
-      this.ioProcessor = new IOProcessor(socket, 10_000);
-    } catch (IOException _) {
-      try {
-        shutdownIO();
-      } catch (IOException _) {
-      }
-    }
+  public ConnectionAccepter(Server server, Socket socket) throws IOException {
+    this.ioProcessor = new IOProcessor(socket, 10_000);
     this.socket = socket;
     this.server = server;
     this.manager = server.getConverterManager();
@@ -82,9 +75,11 @@ public class ConnectionAccepter implements Runnable {
           if (msg == null) {
             continue;
           }
+
           root = manager.getXMLTree(msg);
           RequestDTO.DTO_SECTION dtoSection = manager.getDTOSection(root);
           RequestDTO.DTO_TYPE dtoType = manager.getDTOType(root);
+
           if ((registrationState = handleLoginRequest(dtoSection, dtoType, root)) == RegistrationState.SUCCESS) {
             break;
           }
@@ -112,10 +107,10 @@ public class ConnectionAccepter implements Runnable {
 
   private RegistrationState handleLoginRequest(RequestDTO.DTO_SECTION dtoSection, RequestDTO.DTO_TYPE dtoType, Document root) throws IOException {
     if (dtoSection != RequestDTO.DTO_SECTION.LOGIN || dtoType != RequestDTO.DTO_TYPE.COMMAND) {
-      var errMsg = STR."excepted name=login actual: \{dtoType}\n excepted type=command actual: \{dtoSection}";
+      var errMsg = STR."excepted name=LOGIN actual: \{dtoSection}\n excepted type=COMMAND actual: \{dtoType}";
       server.getModuleLogger().info(errMsg);
-      ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error(
-              errMsg)).getBytes()
+      ioProcessor.sendMessage(
+              converter.serialize(new LoginDTO.Error(errMsg)).getBytes()
       );
       return RegistrationState.INCORRECT_LOGIN_REQUEST;
     }
@@ -139,15 +134,18 @@ public class ConnectionAccepter implements Runnable {
   }
 
   private void onLoginSuccess(IOProcessor ioProcessor, String name) throws IOException {
-    ioProcessor.sendMessage(converter.serialize(new LoginDTO.Success()).getBytes());
-    byte[] onSuccessLogin = converter.serialize(new LoginDTO.Event(name)).getBytes();
+    byte[] successResponse = converter.serialize(new LoginDTO.Success()).getBytes();
+    byte[] loginEvent = converter.serialize(new LoginDTO.Event(name)).getBytes();
+
+    ioProcessor.sendMessage(successResponse);
     for (var conn : server.getConnections()) {
       try {
-        conn.sendMessage(onSuccessLogin);
+        conn.sendMessage(loginEvent);
       } catch (IOException _) {
         server.submitExpiredConnection(conn);
       }
     }
+//    ioProcessor.sendMessage(loginEvent);
     server.submitNewConnection(new ServerConnection(ioProcessor, name));
   }
 
@@ -163,11 +161,6 @@ public class ConnectionAccepter implements Runnable {
   }
 
   private void shutdownIO() throws IOException {
-    try {
-      if (ioProcessor == null) socket.close();
-      else ioProcessor.close();
-    } finally {
-      ioProcessor = null;
-    }
+    ioProcessor.close();
   }
 }

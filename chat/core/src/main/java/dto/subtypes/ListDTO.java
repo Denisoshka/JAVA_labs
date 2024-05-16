@@ -12,7 +12,7 @@ import java.util.List;
 public enum ListDTO {
   ;
 
-  public static class ListDTOConverter extends RequestDTO.AbstractDTOConverter {
+  public static class ListDTOConverter extends RequestDTO.BaseDTOConverter {
     public ListDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Error.class, Success.class/*, XyiDTO.User.class*/));
     }

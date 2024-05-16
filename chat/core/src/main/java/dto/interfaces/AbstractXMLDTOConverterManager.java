@@ -22,7 +22,6 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
    */
   default RequestDTO.DTO_SECTION getDTOSection(Document root) {
     try {
-//      todo events not support
       return RequestDTO.DTO_SECTION.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
     } catch (IllegalArgumentException e) {
       return null;
@@ -47,5 +46,5 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
     return root.getAttributes().getNamedItem("name").getNodeValue();
   }
 
-  RequestDTO.AbstractDTOConverter getConverter(RequestDTO.DTO_SECTION section);
+  RequestDTO.BaseDTOConverter getConverter(RequestDTO.DTO_SECTION section);
 }

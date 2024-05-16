@@ -23,7 +23,7 @@ import java.util.Properties;
 import static java.util.Objects.requireNonNull;
 
 public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTOConverterManager {
-  private final Map<RequestDTO.DTO_SECTION, RequestDTO.AbstractDTOConverter> converters;
+  private final Map<RequestDTO.DTO_SECTION, RequestDTO.BaseDTOConverter> converters;
   private final Map<RequestDTO.BaseEvent.EVENT_TYPE, RequestDTO.DTO_SECTION> sectionEventDisplay;
   private final DocumentBuilder builder;
 
@@ -32,14 +32,15 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
     this.converters = new HashMap<>();
     this.sectionEventDisplay = new HashMap<>();
     try {
-      converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.BASE, new RequestDTO.BaseDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
+      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.BASE, RequestDTO.DTO_SECTION.BASE);
       sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
-      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
       sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.USERLOGIN, RequestDTO.DTO_SECTION.LOGIN);
-
+      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
 
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = requireNonNull(factory.newDocumentBuilder());
@@ -64,7 +65,7 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
       RequestDTO.DTO_SECTION type = getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ? sectionEventDisplay.get(getDTOEvent(root)) : getDTOSection(root);
       return requireNonNull(converters.get(type).deserialize(root));
     } catch (IllegalArgumentException | NullPointerException e) {
-      throw new UnsupportedDTOType(e.getMessage());
+      throw new UnsupportedDTOType(e);
     }
   }
 
@@ -84,7 +85,7 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
   }
 
   @Override
-  public RequestDTO.AbstractDTOConverter getConverter(RequestDTO.DTO_SECTION section) {
+  public RequestDTO.BaseDTOConverter getConverter(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
   }
 }

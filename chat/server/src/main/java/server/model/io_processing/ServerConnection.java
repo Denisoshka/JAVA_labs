@@ -14,7 +14,7 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
   private final IOProcessor ioProcessor;
   private volatile boolean expired;
 
-  public ServerConnection(IOProcessor ioProcessor, String connectionName) throws IOException {
+  public ServerConnection(IOProcessor ioProcessor, String connectionName) {
     this.connectionName = connectionName;
     this.ioProcessor = ioProcessor;
   }

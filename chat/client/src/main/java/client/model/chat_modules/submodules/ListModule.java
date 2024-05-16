@@ -57,6 +57,7 @@ public class ListModule implements ChatModule {
 
   @Override
   public void eventAction(RequestDTO.BaseEvent event) {
+    modulelogger.warn("unimplemented event");
 //    unhandle list event
   }
 }

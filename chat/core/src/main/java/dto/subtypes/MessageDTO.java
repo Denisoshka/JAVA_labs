@@ -13,7 +13,7 @@ import java.util.Objects;
 public enum MessageDTO {
   ;
 
-  public static class MessageDTOConverter extends RequestDTO.AbstractDTOConverter {
+  public static class MessageDTOConverter extends RequestDTO.BaseDTOConverter {
     public MessageDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }

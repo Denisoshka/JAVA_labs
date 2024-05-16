@@ -63,6 +63,5 @@ public class MessageModule implements ChatModule {
   @Override
   public void eventAction(RequestDTO.BaseEvent event) {
     chatSessionController.onMessageEvent((MessageDTO.Event) event);
-//  todo
   }
 }

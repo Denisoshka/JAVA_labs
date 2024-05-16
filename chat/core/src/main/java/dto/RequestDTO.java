@@ -11,17 +11,29 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.io.StringWriter;
 import java.util.Objects;
 
 public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOInterfaces.DTO_SECTION {
-  public static class AbstractDTOConverter implements dto.interfaces.AbstractDTOConverter {
+  public static class BaseDTOConverter implements dto.interfaces.AbstractDTOConverter {
     JAXBContext context;
     Unmarshaller unmarshaller;
     Marshaller marshaller;
 
-    public AbstractDTOConverter(JAXBContext context) throws JAXBException {
+    public BaseDTOConverter(JAXBContext context) throws JAXBException {
       this.context = context;
+      this.unmarshaller = context.createUnmarshaller();
+      this.marshaller = context.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+    }
+
+    public BaseDTOConverter() throws JAXBException {
+      context = JAXBContext.newInstance(
+              BaseErrorResponse.class, BaseSuccessResponse.class, BaseEvent.class,
+              BaseCommand.class, BaseResponse.class
+      );
       this.unmarshaller = context.createUnmarshaller();
       this.marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
@@ -53,8 +65,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     EVENT("event"),
     RESPONSE("response"),
     SUCCESS("response"),
-    ERROR("error");
-    ;
+    ERROR("error");;
     final String DTOName;
 
     DTO_TYPE(String DTOName) {
@@ -63,6 +74,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
   }
 
   public enum DTO_SECTION {
+    BASE("base"),
     MESSAGE("message"),
     LOGOUT("logout"),
     LOGIN("login"),
@@ -132,6 +144,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
 
   public static class BaseEvent extends RequestDTO implements AbstractDTOInterfaces.EVENT_TYPE, AbstractDTOInterfaces.NAME_ATTRIBUTE {
     public enum EVENT_TYPE {
+      BASE("base"),
       MESSAGE("message"),
       USERLOGIN("userlogin"),
       USERLOGOUT("userlogout"),
@@ -181,7 +194,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
   }
 
-  //  @XmlType(name = "baseresponse")
+  @XmlType(name = "baseresponse")
   public static class BaseResponse extends RequestDTO implements AbstractDTOInterfaces.RESPONSE_TYPE {
     public enum RESPONSE_TYPE {
       SUCCESS("success"),
@@ -224,19 +237,29 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
   }
 
-  //  @XmlType(name = "basesuccessresponse")
+  @XmlType(name = "basesuccessresponse")
+  @XmlRootElement(name = "success")
   public static class BaseSuccessResponse extends BaseResponse {
     public BaseSuccessResponse(DTO_SECTION DTOSection) {
       super(DTOSection, RESPONSE_TYPE.SUCCESS);
     }
+
+    public BaseSuccessResponse() {
+      this(DTO_SECTION.BASE);
+    }
   }
 
-  //  @XmlType(name = "baseerrorresponse")
+  @XmlType(name = "baseerrorresponse")
+  @XmlRootElement(name = "error")
   public static class BaseErrorResponse extends BaseResponse implements AbstractDTOInterfaces.MESSAGE {
     String message;
 
     public BaseErrorResponse(DTO_SECTION DTOSection) {
       super(DTOSection, RESPONSE_TYPE.ERROR);
+    }
+
+    public BaseErrorResponse() {
+      this(DTO_SECTION.BASE);
     }
 
     public BaseErrorResponse(DTO_SECTION DTOSection, String message) {

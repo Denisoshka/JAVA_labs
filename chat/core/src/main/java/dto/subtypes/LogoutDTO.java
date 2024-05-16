@@ -11,7 +11,7 @@ import java.util.Objects;
 public enum LogoutDTO {
   ;
 
-  public static class LogoutDTOConverter extends RequestDTO.AbstractDTOConverter {
+  public static class LogoutDTOConverter extends RequestDTO.BaseDTOConverter {
     public LogoutDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
