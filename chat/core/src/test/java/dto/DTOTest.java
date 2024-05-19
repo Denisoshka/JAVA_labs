@@ -3,7 +3,7 @@ package dto;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverter;
-import dto.interfaces.XMLDTOConverterManager;
+import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class DTOTest {
   static LoginDTO.LoginDTOConverter loginDTOConverter;
   static FileDTO.FileUploadDTOConverter fileUploadConverter;
   static FileDTO.FileDownloadDTOConverter fileDownloadDTOConverter;
-  static DTOConverterManager manager;
+  static dto.DTOConverterManager manager;
 
 
   @BeforeAll
@@ -66,7 +66,7 @@ public class DTOTest {
     fileUploadConverter = new FileDTO.FileUploadDTOConverter();
     fileDownloadDTOConverter = new FileDTO.FileDownloadDTOConverter();
     messageDTOConverter = new MessageDTO.MessageDTOConverter();
-    manager = new DTOConverterManager(null);
+    manager = new dto.DTOConverterManager(null);
   }
 
   @Test
@@ -81,12 +81,12 @@ public class DTOTest {
     var tree = manager.getXMLTree(serCommand.getBytes());
     Assert.assertEquals(expectedSTR, serCommand);
     Assert.assertEquals(expectedCommand, manager.deserialize(tree));
-    Assert.assertEquals(section, XMLDTOConverterManager.getDTOSection(tree));
-    Assert.assertEquals(type, XMLDTOConverterManager.getDTOType(tree));
+    Assert.assertEquals(section, DTOConverterManagerInterface.getDTOSection(tree));
+    Assert.assertEquals(type, DTOConverterManagerInterface.getDTOType(tree));
   }
 
   public Stream<Arguments> CommandDTOTest() throws UnableToSerialize, UnableToDeserialize, JAXBException {
-    manager = new DTOConverterManager(null);
+    manager = new dto.DTOConverterManager(null);
     return Stream.of(
             Arguments.of(
                     new MessageDTO.Command("MESSAGE"),
@@ -139,8 +139,8 @@ public class DTOTest {
     var serEvent = converter.serialize(expectedEvent);
     var tree = manager.getXMLTree(serEvent.getBytes());
     var deserDTO = converter.deserialize(manager.getXMLTree(serEvent.getBytes()));
-    Assert.assertEquals(section, XMLDTOConverterManager.getDTOEvent(tree));
-    Assert.assertEquals(type, XMLDTOConverterManager.getDTOType(tree));
+    Assert.assertEquals(section, DTOConverterManagerInterface.getDTOEvent(tree));
+    Assert.assertEquals(type, DTOConverterManagerInterface.getDTOType(tree));
     Assert.assertEquals(expectedSTR, serEvent);
 //    Assert.assertTrue(expectedEvent.equals(deserDTO));
     Assert.assertEquals(expectedEvent, deserDTO);
@@ -187,7 +187,7 @@ public class DTOTest {
   }
 
   public Stream<Arguments> ResponseDTOTest() throws JAXBException {
-    manager = new DTOConverterManager(null);
+    manager = new dto.DTOConverterManager(null);
     return Stream.of(
             Arguments.of(
                     new MessageDTO.Success(),

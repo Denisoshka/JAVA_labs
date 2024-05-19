@@ -23,9 +23,9 @@ public class ListSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) {
-    if (dtoType != RequestDTO.DTO_TYPE.COMMAND) {
-      var errmsg = STR."not support \{dtoType.name()}";
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) {
+    if (type != RequestDTO.DTO_TYPE.COMMAND) {
+      var errmsg = STR."not support \{type.name()}";
       server.getModuleLogger().info(errmsg);
       try {
         connection.sendMessage(converter.serialize(new ListDTO.Error(errmsg)).getBytes());

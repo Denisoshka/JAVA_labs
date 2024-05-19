@@ -2,10 +2,9 @@ package client.model.io_processing;
 
 import client.model.chat_modules.ChatModuleManager;
 import client.model.main_context.ChatSessionExecutor;
-import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
-import dto.interfaces.XMLDTOConverterManager;
+import dto.interfaces.DTOConverterManagerInterface;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -21,7 +20,7 @@ public class Connection implements Runnable, AutoCloseable {
   private final Socket socket;
   private volatile boolean expired;
   private final IOProcessor ioProcessor;
-  private DTOConverterManager dtoConverterManager;
+  private dto.DTOConverterManager dtoConverterManager;
   private ChatModuleManager chatModuleManager;
   private BlockingQueue<Document> moduleExchanger;
 
@@ -43,14 +42,14 @@ public class Connection implements Runnable, AutoCloseable {
           continue;
         }
         var tree = dtoConverterManager.getXMLTree(msg);
-        final RequestDTO.DTO_TYPE type = XMLDTOConverterManager.getDTOType(tree);
+        final RequestDTO.DTO_TYPE type = DTOConverterManagerInterface.getDTOType(tree);
         if (type == null) {
           continue;
         }
         log.info("message with type {}", type);
         try {
           if (type == RequestDTO.DTO_TYPE.EVENT) {
-            RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(XMLDTOConverterManager.getDTOEvent(tree));
+            RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(DTOConverterManagerInterface.getDTOEvent(tree));
             if (section == null) {
               continue;
             }

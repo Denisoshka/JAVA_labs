@@ -5,7 +5,7 @@ import dto.exceptions.UnableToDeserialize;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public interface XMLDTOConverterManager extends DTOConverter {
+public interface DTOConverterManagerInterface extends DTOConverter {
   /**
    * return {@code RequestDTO.DTO_TYPE} which specified in root node if {@code RequestDTO.DTO_TYPE} exists, else {@code null}
    */

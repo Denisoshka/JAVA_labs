@@ -24,11 +24,11 @@ public class MessageSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Document dto, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException {
+  public void perform(ServerConnection connection, Document root, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) throws IOException {
     try {
       MessageDTO.Command messageDTO;
       try {
-        messageDTO = (MessageDTO.Command) converter.deserialize(dto);
+        messageDTO = (MessageDTO.Command) converter.deserialize(root);
         connection.sendMessage(converter.serialize(new MessageDTO.Success()).getBytes());
       } catch (UnableToDeserialize e) {
         log.info(e.getMessage(), e);

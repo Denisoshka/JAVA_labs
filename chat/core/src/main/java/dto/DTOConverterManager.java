@@ -5,7 +5,7 @@ import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
-import dto.interfaces.XMLDTOConverterManager;
+import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.*;
 import org.w3c.dom.Document;
 
@@ -19,15 +19,15 @@ import java.util.Properties;
 
 import static java.util.Objects.requireNonNull;
 
-public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager {
+public class DTOConverterManager implements DTOConverter, DTOConverterManagerInterface {
   private final Map<RequestDTO.DTO_SECTION, DTOConverter> converters;
-  private final Map<RequestDTO.BaseEvent.EVENT_TYPE, RequestDTO.DTO_SECTION> sectionEventDisplay;
+  private final Map<RequestDTO.EVENT_TYPE, RequestDTO.DTO_SECTION> sectionEventDisplay = new HashMap<>();
+  private final Map<RequestDTO.COMMAND_TYPE, RequestDTO.DTO_SECTION> sectionCommandDisplay = new HashMap<>();
   private final DocumentBuilder builder;
 
   public DTOConverterManager(Properties properties) {
     /*todo make properties usage*/
     this.converters = new HashMap<>();
-    this.sectionEventDisplay = new HashMap<>();
     try {
       converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.BASE, new RequestDTO.BaseDTOConverter());
@@ -36,11 +36,9 @@ public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager
       converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.FILE, new FileDTO.FileDTOConverter());
 //      todo put heer FILE section
-      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.BASE, RequestDTO.DTO_SECTION.BASE);
-      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
-      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGIN, RequestDTO.DTO_SECTION.LOGIN);
-      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
-      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.FILE, RequestDTO.DTO_SECTION.FILE);
+      fillEventDisplay();
+      fillCommandDisplay();
+
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = requireNonNull(factory.newDocumentBuilder());
     } catch (JAXBException | IllegalArgumentException |
@@ -61,12 +59,16 @@ public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager
   @Override
   public RequestDTO deserialize(Document root) throws UnableToDeserialize {
     try {
-      RequestDTO.DTO_SECTION type = XMLDTOConverterManager.getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ?
-              sectionEventDisplay.get(XMLDTOConverterManager.getDTOEvent(root))
-              : XMLDTOConverterManager.getDTOSection(root);
-      return requireNonNull(converters.get(type).deserialize(root));
+      RequestDTO.DTO_TYPE type = DTOConverterManagerInterface.getDTOType(root);
+      RequestDTO.DTO_SECTION section;
+      if (type == RequestDTO.DTO_TYPE.EVENT) {
+        section = sectionEventDisplay.get(DTOConverterManagerInterface.getDTOEvent(root));
+      } else if (type == RequestDTO.DTO_TYPE.COMMAND) {
+        section = sectionCommandDisplay.get(DTOConverterManagerInterface.getDTOCommand(root));
+      } else throw new UnableToDeserialize("unsupported DTO type: " + type);
+      return converters.get(section).deserialize(root);
     } catch (IllegalArgumentException | NullPointerException e) {
-      throw new UnsupportedDTOType(e);
+      throw new UnableToDeserialize(e);
     }
   }
 
@@ -88,5 +90,21 @@ public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager
   @Override
   public DTOConverter getConverter(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
+  }
+
+  private void fillEventDisplay() {
+    sectionEventDisplay.put(RequestDTO.EVENT_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
+    sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGIN, RequestDTO.DTO_SECTION.LOGIN);
+    sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
+    sectionEventDisplay.put(RequestDTO.EVENT_TYPE.FILE, RequestDTO.DTO_SECTION.FILE);
+  }
+
+  private void fillCommandDisplay() {
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.LOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.LOGIN, RequestDTO.DTO_SECTION.LOGIN);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.LIST, RequestDTO.DTO_SECTION.LIST);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.DOWNLOAD, RequestDTO.DTO_SECTION.FILE);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.UPLOAD, RequestDTO.DTO_SECTION.FILE);
   }
 }

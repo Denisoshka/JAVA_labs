@@ -7,5 +7,5 @@ import server.model.io_processing.ServerConnection;
 import java.io.IOException;
 
 public interface AbstractSection {
-  void perform(ServerConnection connection, Document dto, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) throws IOException;
+  void perform(ServerConnection connection, Document root, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) throws IOException;
 }

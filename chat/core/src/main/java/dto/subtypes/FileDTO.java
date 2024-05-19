@@ -6,7 +6,7 @@ import dto.exceptions.UnableToSerialize;
 import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOInterfaces;
-import dto.interfaces.XMLDTOConverterManager;
+import dto.interfaces.DTOConverterManagerInterface;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBContext;
@@ -46,16 +46,16 @@ public class FileDTO {
 
     @Override
     public RequestDTO deserialize(Document root) throws UnableToDeserialize {
-      var type = XMLDTOConverterManager.getDTOType(root);
+      var type = DTOConverterManagerInterface.getDTOType(root);
       if (type == RequestDTO.DTO_TYPE.COMMAND) {
-        var commandType = XMLDTOConverterManager.getDTOCommand(root);
+        var commandType = DTOConverterManagerInterface.getDTOCommand(root);
         if (commandType == RequestDTO.COMMAND_TYPE.UPLOAD) {
           return fileUploadDTOConverter.deserialize(root);
         } else if (commandType == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
           return fileDownloadDTOConverter.deserialize(root);
         } else throw new UnsupportedDTOType("unrecognized dto");
       } else if (type == RequestDTO.DTO_TYPE.EVENT) {
-        var eventType = XMLDTOConverterManager.getDTOEvent(root);
+        var eventType = DTOConverterManagerInterface.getDTOEvent(root);
         if (eventType == RequestDTO.EVENT_TYPE.FILE) {
           return fileUploadDTOConverter.deserialize(root);
         } else throw new UnsupportedDTOType("unrecognized dto");
@@ -89,7 +89,7 @@ public class FileDTO {
     }
   }
 
-  @XmlType(name = "uploadfilecommand")
+  @XmlType(name = "uploadfilecommand", propOrder = {"name", "mimeType", "encoding", "content"})
   @XmlRootElement(name = "command")
   public static class UploadCommand extends Command implements DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
     String name;
@@ -162,6 +162,7 @@ public class FileDTO {
     }
 
     @Override
+    @XmlElement(name = "id")
     public String getId() {
       return id;
     }
@@ -231,19 +232,6 @@ public class FileDTO {
     public String getMimeType() {
       return mimeType;
     }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Event event)) return false;
-      if (!super.equals(o)) return false;
-      return size == event.size && Objects.equals(id, event.id) && Objects.equals(from, event.from) && Objects.equals(name, event.name) && Objects.equals(mimeType, event.mimeType);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(super.hashCode(), id, from, name, size, mimeType);
-    }
   }
 
   @XmlType(name = "uploadsuccess")
@@ -280,7 +268,7 @@ public class FileDTO {
     }
   }
 
-  @XmlType(name = "downloadsuccess")
+  @XmlType(name = "downloadsuccess", propOrder = {"id","name", "mimeType", "encoding", "content"})
   @XmlRootElement(name = "success")
   public static class DownloadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
     private String id;
@@ -315,21 +303,25 @@ public class FileDTO {
     }
 
     @Override
+    @XmlElement(name = "content")
     public byte[] getContent() {
       return content;
     }
 
     @Override
+    @XmlElement(name = "encoding")
     public String getEncoding() {
       return encoding;
     }
 
     @Override
+    @XmlElement(name = "mimeType")
     public String getMimeType() {
       return mimeType;
     }
 
     @Override
+    @XmlElement(name = "name")
     public String getName() {
       return name;
     }

@@ -20,7 +20,7 @@ public class LogoutSection implements AbstractSection {
   }
 
   @Override
-  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE dtoType, RequestDTO.DTO_SECTION section) {
+  public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) {
     try {
       connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
       byte[] msg = converter.serialize(new LogoutDTO.Event(connection.getConnectionName())).getBytes();
