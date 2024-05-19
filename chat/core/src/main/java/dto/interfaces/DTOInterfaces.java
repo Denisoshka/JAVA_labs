@@ -1,11 +1,11 @@
 package dto.interfaces;
 
-import dto.RequestDTO;
 import dto.DataDTO;
+import dto.RequestDTO;
 
 import java.util.List;
 
-public interface AbstractDTOInterfaces {
+public interface DTOInterfaces {
   interface NAME_ATTRIBUTE {
     String getNameAttribute();
   }
@@ -48,6 +48,30 @@ public interface AbstractDTOInterfaces {
 
   interface RESPONSE_TYPE {
     RequestDTO.BaseResponse.RESPONSE_TYPE getResponseType();
+  }
+
+  interface COMMAND_TYPE {
+    RequestDTO.COMMAND_TYPE getCommandType();
+  }
+
+  interface MIME_TYPE {
+    String getMimeType();
+  }
+
+  interface ENCODING {
+    String getEncoding();
+  }
+
+  interface CONTENT {
+    byte[] getContent();
+  }
+
+  interface ID {
+    String getId();
+  }
+
+  interface SIZE {
+    long getSize();
   }
 
   interface DTO_SECTION {

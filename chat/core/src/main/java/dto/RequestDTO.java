@@ -2,7 +2,8 @@ package dto;
 
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
-import dto.interfaces.AbstractDTOInterfaces;
+import dto.interfaces.DTOConverter;
+import dto.interfaces.DTOInterfaces;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBContext;
@@ -11,13 +12,12 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.StringWriter;
 import java.util.Objects;
 
-public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOInterfaces.DTO_SECTION {
-  public static class BaseDTOConverter implements dto.interfaces.AbstractDTOConverter {
+public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SECTION {
+  public static class BaseDTOConverter implements DTOConverter {
     JAXBContext context;
     final Unmarshaller unmarshaller;
     final Marshaller marshaller;
@@ -83,7 +83,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     LOGOUT("logout"),
     LOGIN("login"),
     LIST("list"),
-    ;
+    FILE("file");
 
     DTO_SECTION(String COMMANDName) {
       this.COMMANDName = COMMANDName;
@@ -93,6 +93,60 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
 
     public String getCOMMANDName() {
       return this.COMMANDName;
+    }
+  }
+
+  public enum COMMAND_TYPE {
+    MESSAGE("message"),
+    LOGOUT("logout"),
+    LOGIN("login"),
+    LIST("list"),
+    UPLOAD("upload"),
+    DOWNLOAD("download");
+
+    private final String type;
+
+    COMMAND_TYPE(String type) {
+      this.type = type;
+    }
+
+    public String getType() {
+      return type;
+    }
+  }
+
+  public enum EVENT_TYPE {
+    BASE("base"),
+    MESSAGE("message"),
+    USERLOGIN("userlogin"),
+    USERLOGOUT("userlogout"),
+    FILE("file"),
+    ;
+
+    private final String EVENTName;
+
+    EVENT_TYPE(String name) {
+      this.EVENTName = name;
+    }
+
+    public String getEVENTName() {
+      return EVENTName;
+    }
+  }
+
+  public enum RESPONSE_TYPE {
+    SUCCESS("success"),
+    ERROR("error"),
+    ;
+
+    private final String RESPONSEName;
+
+    RESPONSE_TYPE(String RESPONSEName) {
+      this.RESPONSEName = RESPONSEName;
+    }
+
+    public String getRESPONSEName() {
+      return RESPONSEName;
     }
   }
 
@@ -115,12 +169,14 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
   }
 
   //  @XmlRootElement(name = "command")
-  public static class BaseCommand extends RequestDTO implements AbstractDTOInterfaces.NAME_ATTRIBUTE {
+  public static class BaseCommand extends RequestDTO implements DTOInterfaces.NAME_ATTRIBUTE, DTOInterfaces.COMMAND_TYPE {
+    private final COMMAND_TYPE commandType;
     private String nameAttribute;
 
-    public BaseCommand(DTO_SECTION commandType) {
-      super(DTO_TYPE.COMMAND, commandType);
-      this.nameAttribute = commandType.getCOMMANDName();
+    public BaseCommand(DTO_SECTION dtoSection, COMMAND_TYPE commandType) {
+      super(DTO_TYPE.COMMAND, dtoSection);
+      this.commandType = commandType;
+      this.nameAttribute = commandType.getType();
     }
 
     @Override
@@ -144,26 +200,15 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     public int hashCode() {
       return Objects.hash(nameAttribute);
     }
+
+    @Override
+    public COMMAND_TYPE getCommandType() {
+      return commandType;
+    }
   }
 
-  public static class BaseEvent extends RequestDTO implements AbstractDTOInterfaces.EVENT_TYPE, AbstractDTOInterfaces.NAME_ATTRIBUTE {
-    public enum EVENT_TYPE {
-      BASE("base"),
-      MESSAGE("message"),
-      USERLOGIN("userlogin"),
-      USERLOGOUT("userlogout"),
-      ;
+  public static class BaseEvent extends RequestDTO implements DTOInterfaces.EVENT_TYPE, DTOInterfaces.NAME_ATTRIBUTE {
 
-      private final String EVENTName;
-
-      EVENT_TYPE(String name) {
-        this.EVENTName = name;
-      }
-
-      public String getEVENTName() {
-        return EVENTName;
-      }
-    }
 
     final EVENT_TYPE eventType;
     private final String nameAttribute;
@@ -198,23 +243,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
   }
 
-  @XmlType(name = "baseresponse")
-  public static class BaseResponse extends RequestDTO implements AbstractDTOInterfaces.RESPONSE_TYPE {
-    public enum RESPONSE_TYPE {
-      SUCCESS("success"),
-      ERROR("error"),
-      ;
-
-      private final String RESPONSEName;
-
-      RESPONSE_TYPE(String RESPONSEName) {
-        this.RESPONSEName = RESPONSEName;
-      }
-
-      public String getRESPONSEName() {
-        return RESPONSEName;
-      }
-    }
+  public static class BaseResponse extends RequestDTO implements DTOInterfaces.RESPONSE_TYPE {
 
     private final RESPONSE_TYPE responseType;
 
@@ -241,7 +270,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
     }
   }
 
-//  @XmlType(name = "basesuccessresponse")
+  //  @XmlType(name = "basesuccessresponse")
 //  @XmlRootElement(name = "success")
   public static class BaseSuccessResponse extends BaseResponse {
     public BaseSuccessResponse(DTO_SECTION DTOSection) {
@@ -254,8 +283,7 @@ public class RequestDTO implements AbstractDTOInterfaces.DTO_TYPE, AbstractDTOIn
   }
 
   @XmlType(name = "baseerrorresponse")
-  @XmlRootElement(name = "error")
-  public static class BaseErrorResponse extends BaseResponse implements AbstractDTOInterfaces.MESSAGE {
+  public static class BaseErrorResponse extends BaseResponse implements DTOInterfaces.MESSAGE {
     String message;
 
     public BaseErrorResponse(DTO_SECTION DTOSection) {

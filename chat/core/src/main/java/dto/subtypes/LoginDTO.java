@@ -1,7 +1,7 @@
 package dto.subtypes;
 
 import dto.RequestDTO;
-import dto.interfaces.AbstractDTOInterfaces;
+import dto.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -19,12 +19,12 @@ public enum LoginDTO {
   }
 
   @XmlRootElement(name = "command")
-  public static class Command extends RequestDTO.BaseCommand implements AbstractDTOInterfaces.NAME, AbstractDTOInterfaces.PASSWORD {
+  public static class Command extends RequestDTO.BaseCommand implements DTOInterfaces.NAME, DTOInterfaces.PASSWORD {
     private String name;
     private String password;
 
     public Command() {
-      super(DTO_SECTION.LOGIN);
+      super(DTO_SECTION.LOGIN, COMMAND_TYPE.LOGIN);
     }
 
     public Command(String name, String password) {
@@ -68,7 +68,7 @@ public enum LoginDTO {
   }
 
   @XmlRootElement(name = "event")
-  public static class Event extends RequestDTO.BaseEvent implements AbstractDTOInterfaces.NAME {
+  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.NAME {
     private String name;
 
     public Event() {

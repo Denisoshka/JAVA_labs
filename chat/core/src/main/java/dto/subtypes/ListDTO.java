@@ -2,11 +2,13 @@ package dto.subtypes;
 
 import dto.DataDTO;
 import dto.RequestDTO;
-import dto.interfaces.AbstractDTOInterfaces;
+import dto.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 public enum ListDTO {
@@ -21,12 +23,12 @@ public enum ListDTO {
   @XmlRootElement(name = "command")
   public static class Command extends RequestDTO.BaseCommand {
     public Command() {
-      super(DTO_SECTION.LIST);
+      super(DTO_SECTION.LIST, COMMAND_TYPE.LIST);
     }
   }
 
   @XmlRootElement(name = "success")
-  public static class Success extends RequestDTO.BaseSuccessResponse implements AbstractDTOInterfaces.USERS {
+  public static class Success extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.USERS {
     private List<DataDTO.User> users;
 
     public Success() {

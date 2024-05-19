@@ -2,27 +2,24 @@ package dto;
 
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
-import dto.subtypes.ListDTO;
-import dto.subtypes.LoginDTO;
-import dto.subtypes.LogoutDTO;
-import dto.subtypes.MessageDTO;
+import dto.interfaces.DTOConverter;
+import dto.interfaces.XMLDTOConverterManager;
+import dto.subtypes.*;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DTOTest {
   static String ListCommandSTR = "<command name=\"list\"/>";
   static String ListSuccessSTR = "<success><users><user><name>USER_1</name></user><user><name>USER_2</name></user></users></success>";
@@ -44,20 +41,32 @@ public class DTOTest {
   static String MessageSuccessSTR = "<success/>";
   static String MessageErrorSTR = "<error><message>XYI</message></error>";
 
+  static String FileUploadCommandSTR = "<command name=\"upload\"><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></command>";
+  static String FileDownloadCommandSTR = "<command name=\"download\"><id>unique file ID</id></command>";
+  static String FileUploadSuccessSTR = "<success><id>unique file ID</id></success>";
+  static String FileDownloadSuccessSTR = "<success><id>unique file ID</id><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></success>";
+  static String FileErrorSTR = "<error><message>REASON</message></error>";
+  static String FileEventSTR = "<event name=\"file\"><id>unique file ID</id><from>CHAT_NAME_FROM</from><name>file name</name><size>0</size><mimeType>text/plain</mimeType></event>";
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
   static ListDTO.ListDTOConverter listDTOConverter;
   static MessageDTO.MessageDTOConverter messageDTOConverter;
   static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
   static LoginDTO.LoginDTOConverter loginDTOConverter;
+  static FileDTO.FileUploadDTOConverter fileUploadConverter;
+  static FileDTO.FileDownloadDTOConverter fileDownloadDTOConverter;
   static DTOConverterManager manager;
 
-  @Before
-  public void prepare() throws ParserConfigurationException, JAXBException {
+
+  @BeforeAll
+  public void prepare() throws JAXBException {
     listDTOConverter = new ListDTO.ListDTOConverter();
     loginDTOConverter = new LoginDTO.LoginDTOConverter();
     logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
+    fileUploadConverter = new FileDTO.FileUploadDTOConverter();
+    fileDownloadDTOConverter = new FileDTO.FileDownloadDTOConverter();
     messageDTOConverter = new MessageDTO.MessageDTOConverter();
+    manager = new DTOConverterManager(null);
   }
 
   @Test
@@ -66,37 +75,56 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("CommandDTOTest")
-  public void SectionTest(String eventto, RequestDTO.DTO_SECTION section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
-    var tree = manager.getXMLTree(eventto.getBytes());
-    Assert.assertEquals(section, manager.getDTOSection(tree));
-    Assert.assertEquals(type, manager.getDTOType(tree));
+  public void CommandTest(RequestDTO.BaseCommand expectedCommand, String expectedSTR,
+                          RequestDTO.DTO_SECTION section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
+    var serCommand = manager.serialize(expectedCommand);
+    var tree = manager.getXMLTree(serCommand.getBytes());
+    Assert.assertEquals(expectedSTR, serCommand);
+    Assert.assertEquals(expectedCommand, manager.deserialize(tree));
+    Assert.assertEquals(section, XMLDTOConverterManager.getDTOSection(tree));
+    Assert.assertEquals(type, XMLDTOConverterManager.getDTOType(tree));
   }
 
-  public static Stream<Arguments> CommandDTOTest() throws UnableToSerialize, UnableToDeserialize {
+  public Stream<Arguments> CommandDTOTest() throws UnableToSerialize, UnableToDeserialize, JAXBException {
     manager = new DTOConverterManager(null);
-//    new LoginDTO.Command("xyi", "xyi")
     return Stream.of(
             Arguments.of(
-                    manager.serialize(new MessageDTO.Command("MESSAGE")),
+                    new MessageDTO.Command("MESSAGE"),
+                    MessageCommandSTR,
                     RequestDTO.DTO_SECTION.MESSAGE,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    manager.serialize(new LogoutDTO.Command()),
+                    new LogoutDTO.Command(),
+                    LogoutCommandSTR,
                     RequestDTO.DTO_SECTION.LOGOUT,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    manager.serialize(new LoginDTO.Command("USER_NAME", "PASSWORD")),
+                    new LoginDTO.Command("USER_NAME", "PASSWORD"),
+                    LoginCommandSTR,
                     RequestDTO.DTO_SECTION.LOGIN,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    manager.serialize(new ListDTO.Command()),
+                    new ListDTO.Command(),
+                    ListCommandSTR,
                     RequestDTO.DTO_SECTION.LIST,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ),
+
+            Arguments.of(
+                    new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    FileUploadCommandSTR,
+                    RequestDTO.DTO_SECTION.FILE,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ), Arguments.of(
+                    new FileDTO.DownloadCommand("unique file ID"),
+                    FileDownloadCommandSTR,
+                    RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
             )
     );
@@ -104,121 +132,98 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("EventsDTOTest")
-  public void EventsTest(String eventto, RequestDTO.BaseEvent.EVENT_TYPE section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
-    var tree = manager.getXMLTree(eventto.getBytes());
-    Assert.assertEquals(section, manager.getDTOEvent(tree));
-    Assert.assertEquals(type, manager.getDTOType(tree));
+  public void EventsTest(RequestDTO.BaseEvent expectedEvent, String expectedSTR,
+                         RequestDTO.BaseEvent.EVENT_TYPE section,
+                         RequestDTO.DTO_TYPE type,
+                         DTOConverter converter) throws UnableToSerialize, UnableToDeserialize {
+    var serEvent = converter.serialize(expectedEvent);
+    var tree = manager.getXMLTree(serEvent.getBytes());
+    var deserDTO = converter.deserialize(manager.getXMLTree(serEvent.getBytes()));
+    Assert.assertEquals(section, XMLDTOConverterManager.getDTOEvent(tree));
+    Assert.assertEquals(type, XMLDTOConverterManager.getDTOType(tree));
+    Assert.assertEquals(expectedSTR, serEvent);
+//    Assert.assertTrue(expectedEvent.equals(deserDTO));
+    Assert.assertEquals(expectedEvent, deserDTO);
   }
 
-  public static Stream<Arguments> EventsDTOTest() throws UnableToSerialize, UnableToDeserialize {
-    manager = new DTOConverterManager(null);
-//    new LoginDTO.Command("xyi", "xyi")
-    return Stream.of(Arguments.of(
-                    manager.serialize(new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE")),
-                    RequestDTO.BaseEvent.EVENT_TYPE.MESSAGE,
-                    RequestDTO.DTO_TYPE.EVENT
-            ),
-            Arguments.of(
-                    manager.serialize(new LogoutDTO.Event("USER_NAME")),
-                    RequestDTO.BaseEvent.EVENT_TYPE.USERLOGOUT,
-                    RequestDTO.DTO_TYPE.EVENT
-            ),
-            Arguments.of(
-                    manager.serialize(new LoginDTO.Event("USER_NAME")),
-                    RequestDTO.BaseEvent.EVENT_TYPE.USERLOGIN,
-                    RequestDTO.DTO_TYPE.EVENT
-            ));
-  }
-
-  @ParameterizedTest
-  @MethodSource("ArgsConvertingDTOTest")
-  public void ConvertingDTOTest(RequestDTO eventto, String eventXml, DTOConverterManager manager) throws JAXBException, IOException, SAXException, ParserConfigurationException {
-    DocumentBuilder builder = Objects.requireNonNull(factory.newDocumentBuilder());
-    RequestDTO.BaseDTOConverter converter = manager.getConverter(eventto.geDTOSection());
-    String serializableXML = manager.serialize(eventto);
-    Assert.assertEquals(eventXml, serializableXML);
-
-    RequestDTO eventfrom = converter.deserialize(
-            converter.getXMLTree(builder, eventXml.getBytes())
-    );
-    Assert.assertEquals(eventto, eventfrom);
-  }
-
-  public static Stream<Arguments> ArgsConvertingDTOTest() throws JAXBException {
-    manager = new DTOConverterManager(null);
+  public Stream<Arguments> EventsDTOTest() throws UnableToSerialize {
     return Stream.of(
             Arguments.of(
                     new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE"),
                     MessageEventSTR,
-                    manager
+                    RequestDTO.EVENT_TYPE.MESSAGE,
+                    RequestDTO.DTO_TYPE.EVENT,
+                    messageDTOConverter
             ), Arguments.of(
-                    new MessageDTO.Command("MESSAGE"),
-                    MessageCommandSTR,
-                    manager
-            ), Arguments.of(
-                    new MessageDTO.Success(),
-                    MessageSuccessSTR,
-                    manager
-            ), Arguments.of(
-                    new MessageDTO.Error("XYI"),
-                    MessageErrorSTR,
-                    manager
-            ),
-
-            Arguments.of(
                     new LogoutDTO.Event("USER_NAME"),
                     LogoutEventSTR,
-                    manager
+                    RequestDTO.EVENT_TYPE.USERLOGOUT,
+                    RequestDTO.DTO_TYPE.EVENT,
+                    logoutDTOConverter
             ), Arguments.of(
-                    new LogoutDTO.Command(),
-                    LogoutCommandSTR,
-                    manager
-            ), Arguments.of(
-                    new LogoutDTO.Success(),
-                    LogoutSuccessSTR,
-                    manager
-            ), Arguments.of(
-                    new LogoutDTO.Error("XYI"),
-                    LogoutErrorSTR,
-                    manager
-            ),
-
-            Arguments.of(
                     new LoginDTO.Event("USER_NAME"),
                     LoginEventSTR,
-                    manager
+                    RequestDTO.EVENT_TYPE.USERLOGIN,
+                    RequestDTO.DTO_TYPE.EVENT,
+                    loginDTOConverter
             ), Arguments.of(
-                    new LoginDTO.Command("USER_NAME", "PASSWORD"),
-                    LoginCommandSTR,
-                    manager
+                    new FileDTO.Event("unique file ID", "CHAT_NAME_FROM", "file name", 0, "text/plain"),
+                    FileEventSTR,
+                    RequestDTO.EVENT_TYPE.FILE,
+                    RequestDTO.DTO_TYPE.EVENT,
+                    fileUploadConverter
+            )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("ResponseDTOTest")
+  public void ResponseTest(RequestDTO.BaseResponse expectedResponse,
+                           String expectedStr, DTOConverter converter) throws IOException {
+    var serEvent = converter.serialize(expectedResponse);
+    var serResp = converter.deserialize(manager.getXMLTree(serEvent));
+    Assert.assertEquals(expectedStr, serEvent);
+    Assert.assertEquals(expectedResponse, serResp);
+  }
+
+  public Stream<Arguments> ResponseDTOTest() throws JAXBException {
+    manager = new DTOConverterManager(null);
+    return Stream.of(
+            Arguments.of(
+                    new MessageDTO.Success(),
+                    MessageSuccessSTR, messageDTOConverter
             ), Arguments.of(
-                    new LoginDTO.Success(),
-                    LoginSuccessSTR,
-                    manager
-            ), Arguments.of(
-                    new LoginDTO.Error("XYI"),
-                    LoginErrorSTR,
-                    manager
+                    new MessageDTO.Error("XYI"),
+                    MessageErrorSTR, messageDTOConverter
             ),
 
             Arguments.of(
-                    new ListDTO.Command(),
-                    ListCommandSTR,
-                    manager
+                    new LogoutDTO.Success(),
+                    LogoutSuccessSTR, logoutDTOConverter
             ), Arguments.of(
-                    new ListDTO.Success(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
-                    ListSuccessSTR,
-                    manager
-            ), Arguments.of(
-                    new ListDTO.Success(List.of(new DataDTO.User("6"))),
-                    ListSuccessSTR2,
-                    manager
-            ), Arguments.of(
-                    new ListDTO.Error("XYI"),
-                    ListErrorSTR,
-                    manager
+                    new LogoutDTO.Error("XYI"),
+                    LogoutErrorSTR, logoutDTOConverter
             ),
 
+            Arguments.of(
+                    new LoginDTO.Success(),
+                    LoginSuccessSTR, loginDTOConverter
+            ), Arguments.of(
+                    new LoginDTO.Error("XYI"),
+                    LoginErrorSTR, loginDTOConverter
+            ),
+
+            Arguments.of(
+                    new ListDTO.Success(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
+                    ListSuccessSTR, listDTOConverter
+            ), Arguments.of(
+                    new ListDTO.Success(List.of(new DataDTO.User("6"))),
+                    ListSuccessSTR2, listDTOConverter
+            ), Arguments.of(
+                    new ListDTO.Error("XYI"),
+                    ListErrorSTR, listDTOConverter
+            ),
+/*
             Arguments.of(
                     new RequestDTO.BaseErrorResponse(RequestDTO.DTO_SECTION.BASE, "XYI"),
                     LoginErrorSTR,
@@ -227,7 +232,15 @@ public class DTOTest {
                     new RequestDTO.BaseSuccessResponse(RequestDTO.DTO_SECTION.BASE),
                     LoginSuccessSTR,
                     manager
-            )
+            ),*/
+
+            Arguments.of(
+                    new FileDTO.UploadSuccess("unique file ID"),
+                    FileUploadSuccessSTR, fileUploadConverter
+            ), Arguments.of(
+                    new FileDTO.DownloadSuccess("unique file ID", "file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    FileDownloadSuccessSTR, fileDownloadDTOConverter
+            ), Arguments.of(new FileDTO.Error("REASON"), FileErrorSTR, fileUploadConverter)
     );
   }
 }

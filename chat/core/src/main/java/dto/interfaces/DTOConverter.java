@@ -12,7 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 
-public interface AbstractDTOConverter {
+public interface DTOConverter {
   default Document getXMLTree(DocumentBuilder builder, byte[] data) throws UnableToDeserialize {
     try {
       return builder.parse(new InputSource(new ByteArrayInputStream(data)));

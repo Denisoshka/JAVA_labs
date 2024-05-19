@@ -1,7 +1,7 @@
 package dto.subtypes;
 
 import dto.RequestDTO;
-import dto.interfaces.AbstractDTOInterfaces;
+import dto.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,11 +21,11 @@ public enum MessageDTO {
 
   @XmlType(name = "messagecommand")
   @XmlRootElement(name = "command")
-  public static class Command extends RequestDTO.BaseCommand implements AbstractDTOInterfaces.MESSAGE {
+  public static class Command extends RequestDTO.BaseCommand implements DTOInterfaces.MESSAGE {
     private String message;
 
     public Command() {
-      super(DTO_SECTION.MESSAGE);
+      super(DTO_SECTION.MESSAGE, COMMAND_TYPE.MESSAGE);
     }
 
     public Command(String message) {
@@ -58,7 +58,7 @@ public enum MessageDTO {
 
   @XmlRootElement(name = "event")
   @XmlType(name = "messageevent")
-  public static class Event extends RequestDTO.BaseEvent implements AbstractDTOInterfaces.FROM, AbstractDTOInterfaces.MESSAGE {
+  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
     private String from;
     private String message;
 

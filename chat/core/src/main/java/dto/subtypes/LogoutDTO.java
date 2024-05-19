@@ -1,7 +1,7 @@
 package dto.subtypes;
 
 import dto.RequestDTO;
-import dto.interfaces.AbstractDTOInterfaces;
+import dto.interfaces.DTOInterfaces;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -18,19 +18,16 @@ public enum LogoutDTO {
   }
 
   @XmlType(name = "logoutcommand")
-  @XmlAccessorType(XmlAccessType.FIELD)
   @XmlRootElement(name = "command")
   public static class Command extends RequestDTO.BaseCommand {
     public Command() {
-      super(DTO_SECTION.LOGOUT);
+      super(DTO_SECTION.LOGOUT, COMMAND_TYPE.LOGOUT);
     }
   }
 
   @XmlType(name = "logoutevent")
-  @XmlAccessorType(XmlAccessType.FIELD)
   @XmlRootElement(name = "event")
-  public static class Event extends RequestDTO.BaseEvent implements AbstractDTOInterfaces.NAME {
-    @XmlElement(name = "name")
+  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.NAME {
     String name;
 
     Event() {
@@ -43,6 +40,7 @@ public enum LogoutDTO {
     }
 
     @Override
+    @XmlElement(name = "name")
     public String getName() {
       return name;
     }
@@ -65,7 +63,6 @@ public enum LogoutDTO {
   }
 
   @XmlType(name = "logoutsuccess")
-
   @XmlRootElement(name = "success")
   public static class Success extends RequestDTO.BaseSuccessResponse {
     public Success() {

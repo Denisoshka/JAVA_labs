@@ -5,6 +5,7 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
+import dto.interfaces.XMLDTOConverterManager;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -42,14 +43,14 @@ public class Connection implements Runnable, AutoCloseable {
           continue;
         }
         var tree = dtoConverterManager.getXMLTree(msg);
-        final RequestDTO.DTO_TYPE type = dtoConverterManager.getDTOType(tree);
+        final RequestDTO.DTO_TYPE type = XMLDTOConverterManager.getDTOType(tree);
         if (type == null) {
           continue;
         }
         log.info("message with type {}", type);
         try {
           if (type == RequestDTO.DTO_TYPE.EVENT) {
-            RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(dtoConverterManager.getDTOEvent(tree));
+            RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(XMLDTOConverterManager.getDTOEvent(tree));
             if (section == null) {
               continue;
             }

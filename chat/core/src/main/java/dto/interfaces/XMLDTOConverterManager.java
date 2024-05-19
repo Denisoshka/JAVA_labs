@@ -5,11 +5,11 @@ import dto.exceptions.UnableToDeserialize;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
+public interface XMLDTOConverterManager extends DTOConverter {
   /**
    * return {@code RequestDTO.DTO_TYPE} which specified in root node if {@code RequestDTO.DTO_TYPE} exists, else {@code null}
    */
-  default RequestDTO.DTO_TYPE getDTOType(Document root) {
+  static RequestDTO.DTO_TYPE getDTOType(Document root) {
     try {
       return RequestDTO.DTO_TYPE.valueOf(root.getDocumentElement().getNodeName().toUpperCase());
     } catch (IllegalArgumentException e) {
@@ -20,7 +20,7 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
   /**
    * return {@code RequestDTO.DTO_SECTION} which specified in root node if {@code RequestDTO.DTO_SECTION} exists, else {@code null}
    */
-  default RequestDTO.DTO_SECTION getDTOSection(Document root) {
+  static RequestDTO.DTO_SECTION getDTOSection(Document root) {
     try {
       return RequestDTO.DTO_SECTION.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
     } catch (IllegalArgumentException e) {
@@ -28,9 +28,17 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
     }
   }
 
-  default RequestDTO.BaseEvent.EVENT_TYPE getDTOEvent(Document root) {
+  static RequestDTO.COMMAND_TYPE getDTOCommand(Document root) {
     try {
-      return RequestDTO.BaseEvent.EVENT_TYPE.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
+      return RequestDTO.COMMAND_TYPE.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  static RequestDTO.EVENT_TYPE getDTOEvent(Document root) {
+    try {
+      return RequestDTO.EVENT_TYPE.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
     } catch (IllegalArgumentException e) {
       return null;
     }
@@ -46,5 +54,5 @@ public interface AbstractXMLDTOConverterManager extends AbstractDTOConverter {
     return root.getAttributes().getNamedItem("name").getNodeValue();
   }
 
-  RequestDTO.BaseDTOConverter getConverter(RequestDTO.DTO_SECTION section);
+  DTOConverter getConverter(RequestDTO.DTO_SECTION section);
 }

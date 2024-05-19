@@ -4,12 +4,9 @@ import dto.exceptions.UnableToCreateXMLContextManager;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.exceptions.UnsupportedDTOType;
-import dto.interfaces.AbstractDTOConverter;
-import dto.interfaces.AbstractXMLDTOConverterManager;
-import dto.subtypes.ListDTO;
-import dto.subtypes.LoginDTO;
-import dto.subtypes.LogoutDTO;
-import dto.subtypes.MessageDTO;
+import dto.interfaces.DTOConverter;
+import dto.interfaces.XMLDTOConverterManager;
+import dto.subtypes.*;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBException;
@@ -22,8 +19,8 @@ import java.util.Properties;
 
 import static java.util.Objects.requireNonNull;
 
-public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTOConverterManager {
-  private final Map<RequestDTO.DTO_SECTION, RequestDTO.BaseDTOConverter> converters;
+public class DTOConverterManager implements DTOConverter, XMLDTOConverterManager {
+  private final Map<RequestDTO.DTO_SECTION, DTOConverter> converters;
   private final Map<RequestDTO.BaseEvent.EVENT_TYPE, RequestDTO.DTO_SECTION> sectionEventDisplay;
   private final DocumentBuilder builder;
 
@@ -37,11 +34,13 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
       converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
-      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.BASE, RequestDTO.DTO_SECTION.BASE);
-      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
-      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.USERLOGIN, RequestDTO.DTO_SECTION.LOGIN);
-      sectionEventDisplay.put(RequestDTO.BaseEvent.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
-
+      converters.put(RequestDTO.DTO_SECTION.FILE, new FileDTO.FileDTOConverter());
+//      todo put heer FILE section
+      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.BASE, RequestDTO.DTO_SECTION.BASE);
+      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.MESSAGE, RequestDTO.DTO_SECTION.MESSAGE);
+      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGIN, RequestDTO.DTO_SECTION.LOGIN);
+      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.USERLOGOUT, RequestDTO.DTO_SECTION.LOGOUT);
+      sectionEventDisplay.put(RequestDTO.EVENT_TYPE.FILE, RequestDTO.DTO_SECTION.FILE);
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = requireNonNull(factory.newDocumentBuilder());
     } catch (JAXBException | IllegalArgumentException |
@@ -62,7 +61,9 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
   @Override
   public RequestDTO deserialize(Document root) throws UnableToDeserialize {
     try {
-      RequestDTO.DTO_SECTION type = getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ? sectionEventDisplay.get(getDTOEvent(root)) : getDTOSection(root);
+      RequestDTO.DTO_SECTION type = XMLDTOConverterManager.getDTOType(root) == RequestDTO.DTO_TYPE.EVENT ?
+              sectionEventDisplay.get(XMLDTOConverterManager.getDTOEvent(root))
+              : XMLDTOConverterManager.getDTOSection(root);
       return requireNonNull(converters.get(type).deserialize(root));
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new UnsupportedDTOType(e);
@@ -85,7 +86,7 @@ public class DTOConverterManager implements AbstractDTOConverter, AbstractXMLDTO
   }
 
   @Override
-  public RequestDTO.BaseDTOConverter getConverter(RequestDTO.DTO_SECTION section) {
+  public DTOConverter getConverter(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
   }
 }
