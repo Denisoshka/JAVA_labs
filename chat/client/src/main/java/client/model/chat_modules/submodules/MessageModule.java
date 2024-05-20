@@ -9,7 +9,6 @@ import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
 
 public class MessageModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
@@ -23,11 +22,11 @@ public class MessageModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
-    this.converter = (MessageDTO.MessageDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.MESSAGE);
+    this.converter = (MessageDTO.MessageDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE);
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
+  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
     modulelogger.info(STR."sending msg: \{((MessageDTO.Command) command).getMessage()}");
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     var converter = chatSessionExecutor.getDTOConverterManager();

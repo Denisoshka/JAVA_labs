@@ -65,7 +65,7 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
         section = sectionEventDisplay.get(DTOConverterManagerInterface.getDTOEvent(root));
       } else if (type == RequestDTO.DTO_TYPE.COMMAND) {
         section = sectionCommandDisplay.get(DTOConverterManagerInterface.getDTOCommand(root));
-      } else throw new UnableToDeserialize("unsupported DTO type: " + type);
+      } else throw new UnableToDeserialize(STR."unsupported DTO type: \{type}");
       return converters.get(section).deserialize(root);
     } catch (IllegalArgumentException | NullPointerException e) {
       throw new UnableToDeserialize(e);
@@ -88,7 +88,7 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
   }
 
   @Override
-  public DTOConverter getConverter(RequestDTO.DTO_SECTION section) {
+  public DTOConverter getConverterBySection(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
   }
 

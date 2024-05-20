@@ -19,15 +19,15 @@ public class SectionFactory implements CommandSupplier {
     this.commands = new HashMap<>(3);
     this.commands.put(
             RequestDTO.DTO_SECTION.LIST,
-            new ListSection((ListDTO.ListDTOConverter) manager.getConverter(RequestDTO.DTO_SECTION.LIST), server)
+            new ListSection((ListDTO.ListDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LIST), server)
     );
     this.commands.put(
             RequestDTO.DTO_SECTION.MESSAGE,
-            new MessageSection((MessageDTO.MessageDTOConverter) manager.getConverter(RequestDTO.DTO_SECTION.MESSAGE), server)
+            new MessageSection((MessageDTO.MessageDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE), server)
     );
     this.commands.put(
             RequestDTO.DTO_SECTION.LOGOUT,
-            new LogoutSection((LogoutDTO.LogoutDTOConverter) manager.getConverter(RequestDTO.DTO_SECTION.LOGOUT), server)
+            new LogoutSection((LogoutDTO.LogoutDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT), server)
     );
   }
 

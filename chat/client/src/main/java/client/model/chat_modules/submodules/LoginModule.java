@@ -11,7 +11,6 @@ import dto.subtypes.LoginDTO;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
 
 public class LoginModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
@@ -27,12 +26,12 @@ public class LoginModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLogger = chatSessionExecutor.getDefaultLogger();
-    this.converter = (LoginDTO.LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LOGIN);
+    this.converter = (LoginDTO.LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
-    DataDTO.LoginData data = (DataDTO.LoginData) args.getFirst();
+  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
+    DataDTO.LoginData data = (DataDTO.LoginData) additionalArg.getFirst();
     String hostname = data.getHostname();
     int port = data.getPort();
     if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port && chatSessionExecutor.isConnected()) {

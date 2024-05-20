@@ -2,10 +2,8 @@ package client.model.chat_modules.interfaces;
 
 import dto.RequestDTO;
 
-import java.util.List;
-
 public interface ChatModule {
-  void commandAction(RequestDTO.BaseCommand command, List<Object> args);
+  void commandAction(RequestDTO.BaseCommand command, Object additionalArg);
 
   void responseActon(RequestDTO.BaseCommand command);
 

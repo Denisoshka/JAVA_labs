@@ -5,6 +5,8 @@ import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.FileDTO;
+import file_section.FileManager;
+import file_section.SimpleFileManager;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -20,15 +22,15 @@ public class FileSection implements AbstractSection {
   private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
   private final Logger moduleLogger;
   private final Server server;
-  private final FileManager fileManager;
+  private final SimpleFileManager simpleFileManager;
 
   public FileSection(Server server) throws IOException {
-    FileDTO.FileDTOConverter mainConverter = (FileDTO.FileDTOConverter) server.getConverterManager().getConverter(RequestDTO.DTO_SECTION.FILE);
+    FileDTO.FileDTOConverter mainConverter = (FileDTO.FileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
     this.server = server;
     this.moduleLogger = server.getModuleLogger();
     this.uploadDTOConverter = mainConverter.getFileUploadDTOConverter();
     this.downloadDTOConverter = mainConverter.getFileDownloadDTOConverter();
-    this.fileManager = new FileManager(".saved_files");
+    this.simpleFileManager = new SimpleFileManager(".saved_files");
   }
 
 
@@ -52,7 +54,7 @@ public class FileSection implements AbstractSection {
   private void onUploadRequest(Document root, ServerConnection connection) {
     try {
       FileDTO.UploadCommand command = (FileDTO.UploadCommand) uploadDTOConverter.deserialize(root);
-      AbstractFileManager.SaveRet ret = fileManager.saveFileEntry(command);
+      FileManager.SaveRet ret = simpleFileManager.saveFileEntry(command);
       if (ret.exmessage() == null) {
         connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.UploadSuccess(ret.id())).getBytes());
 
@@ -94,7 +96,7 @@ public class FileSection implements AbstractSection {
   private void onDownloadRequest(Document root, ServerConnection connection) {
     try {
       FileDTO.DownloadCommand command = (FileDTO.DownloadCommand) downloadDTOConverter.deserialize(root);
-      AbstractFileManager.FileEntry entry = fileManager.getFileEntry(command.getId());
+      FileManager.StorageFileEntry entry = simpleFileManager.getFileEntry(command.getId());
       if (entry == null) {
         connection.sendMessage(downloadDTOConverter.serialize(
                 new FileDTO.Error(STR."file with ID: \{command.getId()} not avalibe")

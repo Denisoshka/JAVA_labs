@@ -17,15 +17,7 @@ public class ChatMessage extends VBox implements ChatRecord {
     var recordMessage = new Text(messageText);
     var messageFlow = new TextFlow(recordMessage);
     super(recordAgent, messageFlow, recordDate);
-
     this.type = type;
-    if (type == ChatSession.ChatEventType.SEND) {
-      recordMessage.getStyleClass().add("sentMessageContent");
-      messageFlow.getStyleClass().addAll("sentMessage", "message");
-    } else if (type == ChatSession.ChatEventType.RECEIVE) {
-      recordMessage.getStyleClass().add("receivedMessageContent");
-      messageFlow.getStyleClass().addAll("receivedMessage", "message");
-    }
   }
 
   @Override

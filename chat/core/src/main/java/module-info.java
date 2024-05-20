@@ -11,5 +11,6 @@ module core {
 
   opens dto.subtypes to java.xml.bind;
   exports io_processing;
+  exports file_section;
 
 }

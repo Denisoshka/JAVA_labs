@@ -9,7 +9,6 @@ import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
 
 public class LogoutModule implements ChatModule {
 
@@ -25,11 +24,11 @@ public class LogoutModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
-    this.converter = (LogoutDTO.LogoutDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LOGOUT);
+    this.converter = (LogoutDTO.LogoutDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT);
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
+  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
       try {

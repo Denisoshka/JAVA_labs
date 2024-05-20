@@ -3,6 +3,7 @@ package server.model.server_sections;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
+import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.LoginDTO;
 import io_processing.IOProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,13 +48,12 @@ public class ConnectionAccepter implements Runnable {
   /**
    * close {@code socket} if exceptions occurs during {@code run()} or {@code ConnectionAccepter()} else submit new connection to {@code server} connections
    */
-
   public ConnectionAccepter(Server server, Socket socket) throws IOException {
     this.ioProcessor = new IOProcessor(socket, 10_000);
     this.socket = socket;
     this.server = server;
     this.manager = server.getConverterManager();
-    this.converter = (LoginDTO.LoginDTOConverter) manager.getConverter(RequestDTO.DTO_SECTION.LOGIN);
+    this.converter = (LoginDTO.LoginDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
   }
 
   @Override
@@ -77,8 +77,8 @@ public class ConnectionAccepter implements Runnable {
           }
 
           root = manager.getXMLTree(msg);
-          RequestDTO.DTO_SECTION dtoSection = manager.getDTOSection(root);
-          RequestDTO.DTO_TYPE dtoType = manager.getDTOType(root);
+          RequestDTO.DTO_SECTION dtoSection = DTOConverterManagerInterface.getDTOSection(root);
+          RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(root);
 
           if ((registrationState = handleLoginRequest(dtoSection, dtoType, root)) == RegistrationState.SUCCESS) {
             break;
@@ -105,7 +105,9 @@ public class ConnectionAccepter implements Runnable {
     }
   }
 
-  private RegistrationState handleLoginRequest(RequestDTO.DTO_SECTION dtoSection, RequestDTO.DTO_TYPE dtoType, Document root) throws IOException {
+  private RegistrationState handleLoginRequest(RequestDTO.DTO_SECTION dtoSection,
+                                               RequestDTO.DTO_TYPE dtoType,
+                                               Document root) throws IOException {
     if (dtoSection != RequestDTO.DTO_SECTION.LOGIN || dtoType != RequestDTO.DTO_TYPE.COMMAND) {
       var errMsg = STR."excepted name=LOGIN actual: \{dtoSection}\n excepted type=COMMAND actual: \{dtoType}";
       server.getModuleLogger().info(errMsg);

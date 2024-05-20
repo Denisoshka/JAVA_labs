@@ -54,5 +54,7 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     return root.getAttributes().getNamedItem("name").getNodeValue();
   }
 
-  DTOConverter getConverter(RequestDTO.DTO_SECTION section);
+  DTOConverter getConverterBySection(RequestDTO.DTO_SECTION section);
+
+//  DTOConverter getConverterByCommand(RequestDTO.COMMAND_TYPE commandType);
 }

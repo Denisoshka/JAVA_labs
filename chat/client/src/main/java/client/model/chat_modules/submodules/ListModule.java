@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.util.List;
 
 public class ListModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
@@ -21,14 +20,14 @@ public class ListModule implements ChatModule {
 
   public ListModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
-    this.converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LIST);
+    this.converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LIST);
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
     this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
+  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
 //    final var converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LIST);
     chatSessionExecutor.executeModuleAction(() -> {
