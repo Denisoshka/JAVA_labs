@@ -1,6 +1,7 @@
 package client.view;
 
 import client.facade.ChatSessionController;
+import client.view.chat_session.ChatSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.SplitPane;

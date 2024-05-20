@@ -31,7 +31,7 @@ public class ListModule implements ChatModule {
   public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
 //    final var converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LIST);
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
               try {
                 responseActon(null);
                 ioProcessor.sendMessage(converter.serialize(new ListDTO.Command()).getBytes());
@@ -44,7 +44,7 @@ public class ListModule implements ChatModule {
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         var docResponse = chatSessionExecutor.getModuleExchanger().take();
         final var response = (RequestDTO.BaseResponse) converter.deserialize(docResponse);

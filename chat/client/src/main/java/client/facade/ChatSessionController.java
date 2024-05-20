@@ -6,16 +6,17 @@ import client.model.chat_modules.submodules.LogoutModule;
 import client.model.chat_modules.submodules.MessageModule;
 import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
-import client.view.ChatSession;
 import client.view.ChatSessionView;
 import client.view.ChatUsersInfo;
 import client.view.RegistrationBlock;
+import client.view.chat_session.ChatMessage;
+import client.view.chat_session.ChatSession;
+import client.view.chat_session.events.FileEvent;
+import client.view.chat_session.events.LoginEvent;
+import client.view.chat_session.events.LogoutEvent;
 import dto.DataDTO;
 import dto.RequestDTO;
-import dto.subtypes.ListDTO;
-import dto.subtypes.LoginDTO;
-import dto.subtypes.LogoutDTO;
-import dto.subtypes.MessageDTO;
+import dto.subtypes.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
@@ -97,17 +98,6 @@ public class ChatSessionController {
     registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
   }
 
-  public void onMessageResponse(MessageDTO.Command message, RequestDTO.BaseResponse response) {
-    chatSession.addNewChatRecord(
-            /*todo make for server sender desc and time*/
-            new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.SEND, "you =)",
-//   todo remove this on release
-                    message.getMessage(), ZonedDateTime.now()
-            )
-    );
-  }
-
   public void onConnectResponse(ConnectionModule.ConnectionState state) {
     registrationBlock.setConnectionStatus(state);
   }
@@ -128,38 +118,49 @@ public class ChatSessionController {
     chatUsersInfo.onReloadUsers(usersInfo);
   }
 
+  public void onMessageResponse(MessageDTO.Command message, RequestDTO.BaseResponse response) {
+    /*todo make for server sender desc and time*/
+    /*todo remove this on release*/
+    chatSession.addNewChatRecord(new ChatMessage(
+            ChatSession.ChatEventType.SEND, "you =)",
+            message.getMessage(), ZonedDateTime.now()
+    ));
+  }
+
   public void onMessageEvent(MessageDTO.Event event) {
-    chatSession.addNewChatRecord(
-            /*todo make for server sender desc and time*/
-            new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.RECEIVE, event.getFrom(),
-                    event.getMessage(), ZonedDateTime.now()
-            )
-    );
+    /*todo make for server sender desc and time*/
+    chatSession.addNewChatRecord(new ChatMessage(
+            ChatSession.ChatEventType.RECEIVE, event.getFrom(),
+            event.getMessage(), ZonedDateTime.now()
+    ));
   }
 
   public void onLogoutEvent(LogoutDTO.Event event) {
-    chatSession.addNewChatRecord(
-            /*todo make for server sender desc and time*/
-            new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.EVENT, "",
-                    STR."logout user: \{event.getName()}",
-                    ZonedDateTime.now()
-            )
-    );
+    /*todo make for server sender desc and time*/
+    chatSession.addNewChatRecord(new LogoutEvent(event.getName(), ZonedDateTime.now()));
     chatUsersInfo.removeUser(new UserInfo(event.getName()));
   }
 
   public void onLoginEvent(LoginDTO.Event event) {
-    chatSession.addNewChatRecord(
-            /*todo make for server sender desc and time*/
-            new ChatSession.ChatRecord(
-                    ChatSession.ChatEventType.EVENT, "",
-                    STR."login user: \{event.getName()}",
-                    ZonedDateTime.now()
-            )
-    );
+    /*todo make for server sender desc and time*/
+    chatSession.addNewChatRecord(new LoginEvent(event.getName(), ZonedDateTime.now()));
     chatUsersInfo.addUser(new UserInfo(event.getName()));
+  }
+
+  public void onFileUploadResponse(FileDTO.Event event) {
+    addFileEvent(ChatSession.ChatEventType.SEND, event);
+  }
+
+  public void onFileUploadEvent(FileDTO.Event event) {
+    addFileEvent(ChatSession.ChatEventType.RECEIVE, event);
+  }
+
+  private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
+    chatSession.addNewChatRecord(new FileEvent(
+            eventType, event.getId(), event.getFrom(),
+            event.getName(), event.getSize(),
+            event.getMimeType(), ZonedDateTime.now()
+    ));
   }
 
   public static class UserInfo {

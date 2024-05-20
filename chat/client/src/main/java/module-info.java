@@ -29,4 +29,8 @@ module client_application {
   exports client.model.main_context;
   exports client.model.main_context.interfaces;
   exports client to javafx.graphics;
+  exports client.view.chat_session;
+  opens client.view.chat_session to javafx.fxml;
+  exports client.view.chat_session.events;
+  opens client.view.chat_session.events to javafx.fxml;
 }

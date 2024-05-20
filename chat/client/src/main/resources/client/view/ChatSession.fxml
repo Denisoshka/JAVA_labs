@@ -24,6 +24,7 @@
     </ScrollPane>
     <HBox spacing="10" alignment="CENTER_LEFT">
         <TextField fx:id="messageTextField" HBox.hgrow="ALWAYS"/>
-        <Button fx:id="sendButton" text="=>"/>
+        <Button fx:id="selectFileButton" text="F#"/>
+        <Button fx:id="sendMessageButton" text="=>"/>
     </HBox>
 </fx:root>

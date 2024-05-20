@@ -20,12 +20,17 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
+
 @Slf4j
 public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule {
   private final Logger defaultLogger = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class.getName());
   private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
 
-  private final ExecutorService actionExecutor = Executors.newSingleThreadExecutor();
+  public ExecutorService getChatModuleExecutor() {
+    return chatModuleExecutor;
+  }
+
+  private final ExecutorService chatModuleExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService responseExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
   private final DTOConverterManager DTOConverterManager;
@@ -66,9 +71,9 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
     }
   }
 
-  public void executeAction(Runnable task) {
+  public void executeModuleAction(Runnable task) {
     log.info(STR."new task \{task}");
-    actionExecutor.execute(task);
+    chatModuleExecutor.execute(task);
   }
 
   @Override

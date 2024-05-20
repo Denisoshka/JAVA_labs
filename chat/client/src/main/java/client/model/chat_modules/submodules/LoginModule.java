@@ -41,7 +41,7 @@ public class LoginModule implements ChatModule {
       return;
     }
 
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         if (!chatSessionExecutor.isConnected()) {
           loginData = data;
@@ -61,7 +61,7 @@ public class LoginModule implements ChatModule {
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
 //      final var event = (LoginDTO.Event) converter.deserialize(tree);
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       String nodeName = null;
       try {
         final var tree = chatSessionExecutor.getModuleExchanger().take();

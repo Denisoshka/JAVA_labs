@@ -31,7 +31,7 @@ public class MessageModule implements ChatModule {
     modulelogger.info(STR."sending msg: \{((MessageDTO.Command) command).getMessage()}");
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     var converter = chatSessionExecutor.getDTOConverterManager();
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         responseActon(command);
         ioProcessor.sendMessage(converter.serialize(command).getBytes());
@@ -44,7 +44,7 @@ public class MessageModule implements ChatModule {
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();

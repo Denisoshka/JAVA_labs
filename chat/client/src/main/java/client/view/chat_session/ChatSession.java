@@ -1,23 +1,23 @@
-package client.view;
+package client.view.chat_session;
 
 import client.facade.ChatSessionController;
+import client.view.ControllerIntroduce;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class ChatSession extends VBox implements ControllerIntroduce {
   private static final int OTHERS_COLUMN_INDEX = 0;
@@ -28,12 +28,16 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   @FXML
   private TextField messageTextField;
   @FXML
-  private Button sendButton;
+  private Button sendMessageButton;
   @FXML
   private ScrollPane chatScrollPane;
   @FXML
   private GridPane chatGridPane;
+
   @FXML
+  private Button selectFileButton;
+  private File selectedFile;
+
   private ChatSessionController chatSessionController;
 
   public enum ChatEventType {
@@ -52,10 +56,12 @@ public class ChatSession extends VBox implements ControllerIntroduce {
     } catch (IOException exception) {
       throw new RuntimeException(exception);
     }
+    initialize();
   }
 
   public void initialize() {
-    sendButton.setOnAction(this::sendMessage);
+    sendMessageButton.setOnAction(this::sendMessage);
+    selectFileButton.setOnAction(this::selectFile);
     chatGridPane.heightProperty().addListener((_, _, _) -> chatScrollPane.setVvalue(1.0));
   }
 
@@ -66,13 +72,35 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   @FXML
   private void sendMessage(ActionEvent actionEvent) {
-    log.info("Sending chat message");
-    chatSessionController.messageCommand(messageTextField.getText());
-    messageTextField.clear();
+    if (selectedFile == null) {
+      log.info("Sending chat message");
+      chatSessionController.messageCommand(messageTextField.getText());
+      messageTextField.clear();
+    } else {
+
+    }
   }
 
-  public void addNewChatRecord(ChatRecord chatRecord) {
-    ChatEventType type = chatRecord.type;
+  @FXML
+  private void selectFile(ActionEvent actionEvent) {
+    if (selectedFile == null) {
+      log.info("Selecting file");
+      FileChooser fileChooser = new FileChooser();
+      File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+      if (selectedFile != null) {
+
+//      todo implenent this;
+//      selectedFileLabel.setText("Selected file: " + selectedFile.getName());
+//      selectedFileLabel.setVisible(true);
+//      messageField.setVisible(false);
+      }
+    } else {
+      selectedFile = null;
+    }
+  }
+
+  public <T extends Node & ChatRecord> void addNewChatRecord(T chatRecord) {
+    ChatEventType type = chatRecord.getType();
     final var columnIndex = type == ChatEventType.EVENT ? EVENT_COLUMN_INDEX :
             (type == ChatEventType.SEND ? USER_COLUMN_INDEX : OTHERS_COLUMN_INDEX);
     final var columnSpan = 2;
@@ -81,32 +109,8 @@ public class ChatSession extends VBox implements ControllerIntroduce {
     Platform.runLater(() -> chatGridPane.add(chatRecord, columnIndex, rowIndex, columnSpan, rowSpan));
   }
 
-  public static class ChatRecord extends VBox {
-    private final ChatEventType type;
 
-    public ChatRecord(ChatEventType type, String recordSender, String messageText, ZonedDateTime zdt) {
-      var recordAgent = new Text(recordSender);
-      var recordDate = new Text(zdt.format(DateTimeFormatter.ofPattern("hh : mm a ")));
-      var recordMessage = new Text(messageText);
-      var messageFlow = new TextFlow(recordMessage);
-      super(recordAgent, messageFlow, recordDate);
-
-      this.type = type;
-      if (type == ChatEventType.SEND) {
-        recordMessage.getStyleClass().add("sentMessageContent");
-        messageFlow.getStyleClass().addAll("sentMessage", "message");
-      } else if (type == ChatEventType.RECEIVE) {
-        recordMessage.getStyleClass().add("receivedMessageContent");
-        messageFlow.getStyleClass().addAll("receivedMessage", "message");
-      }
-    }
-
-    public ChatEventType getType() {
-      return type;
-    }
-  }
-
-  public void clearSession(){
-    Platform.runLater(()->chatGridPane.getChildren().clear());
+  public void clearSession() {
+    Platform.runLater(() -> chatGridPane.getChildren().clear());
   }
 }

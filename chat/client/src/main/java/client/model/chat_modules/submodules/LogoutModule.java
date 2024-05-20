@@ -31,7 +31,7 @@ public class LogoutModule implements ChatModule {
   @Override
   public void commandAction(RequestDTO.BaseCommand command, List<Object> args) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         responseActon(null);
         ioProcessor.sendMessage(converter.serialize(new LogoutDTO.Command()).getBytes());
@@ -43,7 +43,7 @@ public class LogoutModule implements ChatModule {
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-    chatSessionExecutor.executeAction(() -> {
+    chatSessionExecutor.executeModuleAction(() -> {
       try {
         final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
         if (response.getResponseType() == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
