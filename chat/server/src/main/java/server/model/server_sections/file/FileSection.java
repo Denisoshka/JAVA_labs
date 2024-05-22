@@ -52,41 +52,51 @@ public class FileSection implements AbstractSection {
   }
 
   private void onUploadRequest(Document root, ServerConnection connection) {
+    FileDTO.UploadCommand command = null;
+    String id = null;
     try {
-      FileDTO.UploadCommand command = (FileDTO.UploadCommand) uploadDTOConverter.deserialize(root);
-      FileManager.SaveRet ret = simpleFileManager.saveFileEntry(command);
-      if (ret.exmessage() == null) {
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.UploadSuccess(ret.id())).getBytes());
-
-        try {
-          byte[] serEvent = uploadDTOConverter.serialize(
-                  new FileDTO.Event(
-                          ret.id(), connection.getConnectionName(), command.getName(),
-                          command.getContent().length, command.getMimeType())
-          ).getBytes();
-          for (var conn : server.getConnections()) {
-            try {
-              if (!conn.isExpired()) conn.sendMessage(serEvent);
-            } catch (IOException e) {
-              server.submitExpiredConnection(connection);
-            }
-          }
-        } catch (UnableToSerialize e) {
-          moduleLogger.error(e.getMessage(), e);
-        }
-
-      } else {
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(ret.exmessage())).getBytes());
-      }
+      command = (FileDTO.UploadCommand) uploadDTOConverter.deserialize(root);
     } catch (UnableToDeserialize e) {
       try {
         connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
-      } catch (UnableToDeserialize _) {
-        moduleLogger.error(e.getMessage(), e);
-      } catch (IOException e1) {
-        moduleLogger.error(e1.getMessage(), e1);
-        server.submitExpiredConnection(connection);
+      } catch (IOException ioe) {
+        moduleLogger.error(ioe.getMessage(), ioe);
       }
+      moduleLogger.error(e.getMessage(), e);
+      return;
+    }
+    try {
+      id = simpleFileManager.saveFileEntry(command.getName(), command.getMimeType(), command.getEncoding(), command.getContent());
+    } catch (IOException e) {
+      try {
+        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+      } catch (IOException ioe) {
+        moduleLogger.error(ioe.getMessage(), ioe);
+      }
+      moduleLogger.error(e.getMessage(), e);
+      return;
+    }
+    try {
+      byte[] serEvent = uploadDTOConverter.serialize(new FileDTO.Event(
+              id, connection.getConnectionName(), command.getName(),
+              command.getContent().length, command.getMimeType()
+      )).getBytes();
+
+      for (var conn : server.getConnections()) {
+        try {
+          if (!conn.isExpired()) conn.sendMessage(serEvent);
+        } catch (IOException e) {
+          server.submitExpiredConnection(connection);
+        }
+      }
+      connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.UploadSuccess(id)).getBytes());
+    } catch (UnableToSerialize e) {
+      try {
+        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+      } catch (IOException ioe) {
+        moduleLogger.error(ioe.getMessage(), ioe);
+      }
+      moduleLogger.error(e.getMessage(), e);
     } catch (IOException e) {
       moduleLogger.error(e.getMessage(), e);
       server.submitExpiredConnection(connection);

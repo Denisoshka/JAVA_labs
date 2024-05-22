@@ -2,22 +2,23 @@ package client.view.chat_session;
 
 import client.facade.ChatSessionController;
 import client.view.ControllerIntroduce;
+import client.view.chat_session.events.ChatRecord;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class ChatSession extends VBox implements ControllerIntroduce {
   private static final int OTHERS_COLUMN_INDEX = 0;
@@ -33,10 +34,8 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private ScrollPane chatScrollPane;
   @FXML
   private GridPane chatGridPane;
-
   @FXML
   private Button selectFileButton;
-  private File selectedFile;
 
   private ChatSessionController chatSessionController;
 
@@ -59,6 +58,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
     initialize();
   }
 
+  @FXML
   public void initialize() {
     sendMessageButton.setOnAction(this::sendMessage);
     selectFileButton.setOnAction(this::selectFile);
@@ -72,30 +72,30 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   @FXML
   private void sendMessage(ActionEvent actionEvent) {
-    if (selectedFile == null) {
-      log.info("Sending chat message");
-      chatSessionController.messageCommand(messageTextField.getText());
-      messageTextField.clear();
-    } else {
-
-    }
+    log.info("Sending chat message");
+    chatSessionController.messageCommand(messageTextField.getText());
+    messageTextField.clear();
   }
 
   @FXML
   private void selectFile(ActionEvent actionEvent) {
-    if (selectedFile == null) {
-      log.info("Selecting file");
-      FileChooser fileChooser = new FileChooser();
-      File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
-      if (selectedFile != null) {
+    log.info("Selecting file");
+    FileChooser fileChooser = new FileChooser();
+    File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+    if (selectedFile != null) {
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.initModality(Modality.APPLICATION_MODAL);
+      alert.initOwner(this.getScene().getWindow());
+      alert.setTitle("Confirmation Dialog");
+      alert.setContentText(STR." send file: \{selectedFile.getName()}");
 
-//      todo implenent this;
-//      selectedFileLabel.setText("Selected file: " + selectedFile.getName());
-//      selectedFileLabel.setVisible(true);
-//      messageField.setVisible(false);
+      ButtonType sendButtonType = new ButtonType("Send", ButtonBar.ButtonData.OK_DONE);
+      ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+      alert.getButtonTypes().setAll(sendButtonType, cancelButtonType);
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.isPresent() && result.get() == sendButtonType) {
+        chatSessionController.uploadFile(selectedFile);
       }
-    } else {
-      selectedFile = null;
     }
   }
 

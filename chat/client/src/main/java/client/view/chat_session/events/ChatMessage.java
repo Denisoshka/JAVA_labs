@@ -1,5 +1,6 @@
-package client.view.chat_session;
+package client.view.chat_session.events;
 
+import client.view.chat_session.ChatSession;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;

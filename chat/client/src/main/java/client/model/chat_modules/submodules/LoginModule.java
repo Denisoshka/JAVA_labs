@@ -31,7 +31,7 @@ public class LoginModule implements ChatModule {
 
   @Override
   public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
-    DataDTO.LoginData data = (DataDTO.LoginData) additionalArg.getFirst();
+    DataDTO.LoginData data = (DataDTO.LoginData) additionalArg;
     String hostname = data.getHostname();
     int port = data.getPort();
     if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port && chatSessionExecutor.isConnected()) {
@@ -76,7 +76,7 @@ public class LoginModule implements ChatModule {
         }
       } catch (UnableToDeserialize e) {
         modulelogger.warn(STR."Node name \{nodeName}");
-        modulelogger.warn(e.getMessage() , e);
+        modulelogger.warn(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });

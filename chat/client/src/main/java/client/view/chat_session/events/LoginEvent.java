@@ -1,6 +1,5 @@
 package client.view.chat_session.events;
 
-import client.view.chat_session.ChatRecord;
 import client.view.chat_session.ChatSession;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;

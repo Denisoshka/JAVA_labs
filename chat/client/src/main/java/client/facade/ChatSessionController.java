@@ -1,16 +1,13 @@
 package client.facade;
 
-import client.model.chat_modules.submodules.ListModule;
-import client.model.chat_modules.submodules.LoginModule;
-import client.model.chat_modules.submodules.LogoutModule;
-import client.model.chat_modules.submodules.MessageModule;
+import client.model.chat_modules.submodules.*;
 import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
 import client.view.ChatSessionView;
 import client.view.ChatUsersInfo;
 import client.view.RegistrationBlock;
-import client.view.chat_session.ChatMessage;
 import client.view.chat_session.ChatSession;
+import client.view.chat_session.events.ChatMessage;
 import client.view.chat_session.events.FileEvent;
 import client.view.chat_session.events.LoginEvent;
 import client.view.chat_session.events.LogoutEvent;
@@ -19,6 +16,7 @@ import dto.RequestDTO;
 import dto.subtypes.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +34,14 @@ public class ChatSessionController {
   private ChatSession chatSession;
   private RegistrationBlock registrationBlock;
   private ChatUsersInfo chatUsersInfo;
+  private FileModule fileModule;
 
   public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
     logoutModule = (LogoutModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGOUT);
     loginModule = (LoginModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGIN);
     listModule = (ListModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LIST);
+    fileModule = (FileModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.FILE);
   }
 
 
@@ -145,6 +145,14 @@ public class ChatSessionController {
     /*todo make for server sender desc and time*/
     chatSession.addNewChatRecord(new LoginEvent(event.getName(), ZonedDateTime.now()));
     chatUsersInfo.addUser(new UserInfo(event.getName()));
+  }
+
+  public void uploadFile(File file) {
+    fileModule.uploadAction(file.toPath());
+  }
+
+  public void downloadFile() {
+//    fileModule.downloadAction(/*todo*/);
   }
 
   public void onFileUploadResponse(FileDTO.Event event) {

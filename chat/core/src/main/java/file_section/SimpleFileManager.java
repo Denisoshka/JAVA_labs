@@ -36,24 +36,21 @@ public class SimpleFileManager implements FileManager {
    */
   public String saveFileEntry(String fileName, String mimeType,
                               String encoding, byte[] content) throws IOException {
-    if (!encoding.equals(SUPPORTED_ENCODING)) {
-      throw new IOException(STR."Unsupported encoding: \{encoding}");
-    }
+//    if (!encoding.equals(SUPPORTED_ENCODING)) {
+//      return null;
+//      throw new IOException(STR."Unsupported encoding: \{encoding}");
+//    }
 
     StorageFileEntry tmp;
     String fileID = null;
     if (existingFiles.get(fileName) != null) {
       fileID = STR."\{fileName}_\{idCounter.getAndIncrement()}";
     } else fileID = fileName;
-
     Path filePath = Paths.get(fileSectionPath, fileID);
 
     try (BufferedOutputStream writer = new BufferedOutputStream(Files.newOutputStream(filePath))) {
       writer.write(content);
-      existingFiles.put(
-              fileID,
-              new StorageFileEntry(fileName, mimeType, encoding, content.length, filePath)
-      );
+      existingFiles.put(fileID, new StorageFileEntry(fileName, mimeType, encoding, content.length, filePath));
     }
     return fileID;
   }

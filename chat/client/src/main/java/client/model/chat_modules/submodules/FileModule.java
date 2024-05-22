@@ -47,25 +47,25 @@ public class FileModule implements ChatModule {
 
   @Override
   public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
-    executor.execute(() -> {
+    /*executor.execute(() -> {
       responseActon(command);
       if (command.getCommandType() == RequestDTO.COMMAND_TYPE.UPLOAD) {
         uploadAction((FileDTO.UploadCommand) command, (Path) additionalArg);
       } else if (command.getCommandType() == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
         downloadAction((FileDTO.DownloadCommand) command);
       }
-    });
+    });*/
   }
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-    executor.execute(() -> {
+    /*executor.execute(() -> {
       if (command.getCommandType() == RequestDTO.COMMAND_TYPE.UPLOAD) {
         uploadResponse((FileDTO.UploadCommand) command);
       } else if (command.getCommandType() == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
         downloadResponse((FileDTO.DownloadCommand) command);
       }
-    });
+    });*/
   }
 
   @Override
@@ -78,89 +78,95 @@ public class FileModule implements ChatModule {
     ));
   }
 
-  private void uploadResponse(FileDTO.UploadCommand command) {
-    try {
-      RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) uploadDTOConverter.deserialize(moduleExchanger.take());
-      if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-        FileDTO.UploadSuccess responseSuccess = (FileDTO.UploadSuccess) response;
-        sessionController.onFileUploadResponse(new FileDTO.Event(
-                responseSuccess.getId(), null,
-                command.getName(), command.getContent().length,
-                command.getMimeType()
-        ));
-      } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-        moduleLogger.info(STR."Upload failed\{((FileDTO.Error) response).getMessage()}");
-      } else {
-        moduleLogger.info(STR."Unknown response type\{response.getResponseType()}");
-      }
-    } catch (UnableToDeserialize e) {
-      moduleLogger.error(e.getMessage(), e);
-    } catch (InterruptedException _) {
-    }
-  }
-
-  private void downloadResponse(FileDTO.DownloadCommand command) {
-    try {
-      RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) downloadDTOConverter.deserialize(moduleExchanger.take());
-      if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-        FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
-        try {
-          fileManager.saveFileEntry(new FileDTO.UploadCommand(
-                  responseSuccess.getName(), responseSuccess.getMimeType(),
-                  responseSuccess.getEncoding(), responseSuccess.getContent())
-          );
-        } catch (IOException e) {
-          moduleLogger.error(e.getMessage(), e);
-        }
-      } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-        moduleLogger.error("Download failed");
-      } else {
-        moduleLogger.error("Unknown response type");
-      }
-    } catch (UnableToDeserialize e) {
-      moduleLogger.error(e.getMessage(), e);
-    } catch (InterruptedException _) {
-    }
-  }
-
-  private void uploadAction(FileDTO.UploadCommand command, Path path) {
-    IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
-    try {
-      byte[] content = Base64.getEncoder().encode(Files.readAllBytes(path));
-      String name = path.getFileName().toString();
-      String mimeType = Files.probeContentType(path);
+  public void uploadResponse(FileDTO.UploadCommand command) {
+    executor.execute(() -> {
       try {
-        ioProcessor.sendMessage(uploadDTOConverter.serialize(
-                new FileDTO.UploadCommand(name, mimeType, FILE_REQUEST_ENCODING, content)).getBytes()
-        );
+        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) uploadDTOConverter.deserialize(moduleExchanger.take());
+        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+          FileDTO.UploadSuccess responseSuccess = (FileDTO.UploadSuccess) response;
+          sessionController.onFileUploadResponse(new FileDTO.Event(
+                  responseSuccess.getId(), null,
+                  command.getName(), command.getContent().length,
+                  command.getMimeType()
+          ));
+        } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
+          moduleLogger.info(STR."Upload failed\{((FileDTO.Error) response).getMessage()}");
+        } else {
+          moduleLogger.info(STR."Unknown response type\{response.getResponseType()}");
+        }
+      } catch (UnableToDeserialize e) {
+        moduleLogger.error(e.getMessage(), e);
+      } catch (InterruptedException _) {
+      }
+    });
+  }
+
+  public void downloadResponse(FileDTO.DownloadCommand command) {
+    executor.execute(() -> {
+      try {
+        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) downloadDTOConverter.deserialize(moduleExchanger.take());
+        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+          FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
+          try {
+            fileManager.saveFileEntry(
+                    responseSuccess.getName(), responseSuccess.getMimeType(),
+                    responseSuccess.getEncoding(), responseSuccess.getContent()
+            );
+          } catch (IOException e) {
+            moduleLogger.error(e.getMessage(), e);
+          }
+        } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
+          moduleLogger.error("Download failed");
+        } else {
+          moduleLogger.error("Unknown response type");
+        }
+      } catch (UnableToDeserialize e) {
+        moduleLogger.error(e.getMessage(), e);
+      } catch (InterruptedException _) {
+      }
+    });
+  }
+
+  public void uploadAction(Path path) {
+    executor.execute(() -> {
+      try {
+        IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
+        byte[] content = Base64.getEncoder().encode(Files.readAllBytes(path));
+        String name = path.getFileName().toString();
+        String mimeType = Files.probeContentType(path);
+        try {
+          final FileDTO.UploadCommand uploadCommand = new FileDTO.UploadCommand(name, mimeType, FILE_REQUEST_ENCODING, content);
+          ioProcessor.sendMessage(uploadDTOConverter.serialize(uploadCommand).getBytes());
+          uploadResponse(uploadCommand);
+
+        } catch (IOException e) {
+          try {
+            sessionExecutor.shutdownConnection();
+          } catch (IOException e1) {
+            moduleLogger.error(e1.getMessage(), e1);
+          }
+        }
+      } catch (IOException e) {
+        moduleLogger.error(e.getMessage(), e);
+      }
+    });
+  }
+
+  public void downloadAction(FileDTO.DownloadCommand command) {
+    executor.execute(() -> {
+      IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
+      try {
+        ioProcessor.sendMessage(downloadDTOConverter.serialize(command).getBytes());
+      } catch (UnableToSerialize e) {
+        moduleLogger.error(e.getMessage(), e);
       } catch (IOException e) {
         try {
           sessionExecutor.shutdownConnection();
         } catch (IOException e1) {
           moduleLogger.error(e1.getMessage(), e1);
         }
+        moduleLogger.error(e.getMessage(), e);
       }
-    } catch (UnableToSerialize e) {
-      moduleLogger.error(e.getMessage(), e);
-    } catch (IOException e) {
-
-      moduleLogger.error(e.getMessage(), e);
-    }
-  }
-
-  private void downloadAction(FileDTO.DownloadCommand command) {
-    IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
-    try {
-      ioProcessor.sendMessage(downloadDTOConverter.serialize(command).getBytes());
-    } catch (UnableToSerialize e) {
-      moduleLogger.error(e.getMessage(), e);
-    } catch (IOException e) {
-      try {
-        sessionExecutor.shutdownConnection();
-      } catch (IOException e1) {
-        moduleLogger.error(e1.getMessage(), e1);
-      }
-      moduleLogger.error(e.getMessage(), e);
-    }
+    });
   }
 }

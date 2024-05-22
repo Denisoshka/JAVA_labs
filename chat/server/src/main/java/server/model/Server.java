@@ -3,6 +3,7 @@ package server.model;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
+import dto.interfaces.DTOConverterManagerInterface;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.io_processing.ServerConnection;
@@ -99,8 +100,8 @@ public class Server implements Runnable {
             byte[] msg = con.receiveMessage();
             log.info(STR."new message \{new String(msg)}");
             final Document xmlTree = XMLDTOConverterManager.getXMLTree(msg);
-            final RequestDTO.DTO_TYPE dtoType = XMLDTOConverterManager.getDTOType(xmlTree);
-            final RequestDTO.DTO_SECTION dtoSection = XMLDTOConverterManager.getDTOSection(xmlTree);
+            final RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(xmlTree);
+            final RequestDTO.DTO_SECTION dtoSection = DTOConverterManagerInterface.getDTOSection(xmlTree);
 //            todo not support events getting
             log.info(STR."new message for \{dtoSection} with type \{dtoType}");
             if (dtoType == null || dtoSection == null) {
