@@ -47,25 +47,10 @@ public class FileModule implements ChatModule {
 
   @Override
   public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
-    /*executor.execute(() -> {
-      responseActon(command);
-      if (command.getCommandType() == RequestDTO.COMMAND_TYPE.UPLOAD) {
-        uploadAction((FileDTO.UploadCommand) command, (Path) additionalArg);
-      } else if (command.getCommandType() == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
-        downloadAction((FileDTO.DownloadCommand) command);
-      }
-    });*/
   }
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-    /*executor.execute(() -> {
-      if (command.getCommandType() == RequestDTO.COMMAND_TYPE.UPLOAD) {
-        uploadResponse((FileDTO.UploadCommand) command);
-      } else if (command.getCommandType() == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
-        downloadResponse((FileDTO.DownloadCommand) command);
-      }
-    });*/
   }
 
   @Override
@@ -154,6 +139,7 @@ public class FileModule implements ChatModule {
 
   public void downloadAction(FileDTO.DownloadCommand command) {
     executor.execute(() -> {
+      downloadResponse(command);
       IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
       try {
         ioProcessor.sendMessage(downloadDTOConverter.serialize(command).getBytes());

@@ -36,11 +36,6 @@ public class SimpleFileManager implements FileManager {
    */
   public String saveFileEntry(String fileName, String mimeType,
                               String encoding, byte[] content) throws IOException {
-//    if (!encoding.equals(SUPPORTED_ENCODING)) {
-//      return null;
-//      throw new IOException(STR."Unsupported encoding: \{encoding}");
-//    }
-
     StorageFileEntry tmp;
     String fileID = null;
     if (existingFiles.get(fileName) != null) {

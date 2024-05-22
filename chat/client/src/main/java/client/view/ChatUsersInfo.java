@@ -41,7 +41,7 @@ public class ChatUsersInfo extends VBox implements ControllerIntroduce {
     connectedUsers.setItems(users);
     usersReloadButton.setOnAction(this::reloadUsers);
 
-    connectedUsers.setCellFactory(param -> new ListCell<>() {
+    connectedUsers.setCellFactory(_ -> new ListCell<>() {
       @Override
       protected void updateItem(ChatSessionController.UserInfo user, boolean empty) {
         super.updateItem(user, empty);

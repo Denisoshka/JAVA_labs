@@ -5,14 +5,17 @@ import client.view.ControllerIntroduce;
 import client.view.chat_session.events.ChatRecord;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +30,8 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private static final Logger log = LoggerFactory.getLogger(ChatSession.class);
 
   @FXML
+  private Button fileChoseWindowButton;
+  @FXML
   private TextField messageTextField;
   @FXML
   private Button sendMessageButton;
@@ -38,6 +43,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private Button selectFileButton;
 
   private ChatSessionController chatSessionController;
+  private Stage fileChoseWindowStage;
 
   public enum ChatEventType {
     SEND,
@@ -62,6 +68,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   public void initialize() {
     sendMessageButton.setOnAction(this::sendMessage);
     selectFileButton.setOnAction(this::selectFile);
+    fileChoseWindowButton.setOnAction(this::showFileChoseWindow);
     chatGridPane.heightProperty().addListener((_, _, _) -> chatScrollPane.setVvalue(1.0));
   }
 
@@ -97,6 +104,18 @@ public class ChatSession extends VBox implements ControllerIntroduce {
         chatSessionController.uploadFile(selectedFile);
       }
     }
+  }
+
+  private void showFileChoseWindow(Event event) {
+    log.info("Showing file chose window");
+    if (fileChoseWindowStage == null) {
+      fileChoseWindowStage = new Stage();
+      fileChoseWindowStage.initModality(Modality.APPLICATION_MODAL);
+      fileChoseWindowStage.initOwner(this.getScene().getWindow());
+      Scene scene = new Scene(new FileChooseWindow(chatSessionController));
+      fileChoseWindowStage.setScene(scene);
+    }
+    fileChoseWindowStage.showAndWait();
   }
 
   public <T extends Node & ChatRecord> void addNewChatRecord(T chatRecord) {

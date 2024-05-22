@@ -151,16 +151,18 @@ public class ChatSessionController {
     fileModule.uploadAction(file.toPath());
   }
 
-  public void downloadFile() {
-//    fileModule.downloadAction(/*todo*/);
+  public void downloadFile(String fileId) {
+    fileModule.downloadAction(new FileDTO.DownloadCommand(fileId));
   }
 
   public void onFileUploadResponse(FileDTO.Event event) {
     addFileEvent(ChatSession.ChatEventType.SEND, event);
+    addFilePreview(event);
   }
 
   public void onFileUploadEvent(FileDTO.Event event) {
     addFileEvent(ChatSession.ChatEventType.RECEIVE, event);
+    addFilePreview(event);
   }
 
   private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
@@ -169,6 +171,10 @@ public class ChatSessionController {
             event.getName(), event.getSize(),
             event.getMimeType(), ZonedDateTime.now()
     ));
+  }
+
+  private void addFilePreview(FileDTO.Event event) {
+
   }
 
   public static class UserInfo {
