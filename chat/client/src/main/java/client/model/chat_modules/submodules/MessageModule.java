@@ -48,7 +48,7 @@ public class MessageModule implements ChatModule<Object> {
         final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
-          chatSessionController.onMessageResponse((MessageDTO.Command) command, null);
+//          chatSessionController.onMessageResponse((MessageDTO.Command) command, null);
         } else {
           modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
         }

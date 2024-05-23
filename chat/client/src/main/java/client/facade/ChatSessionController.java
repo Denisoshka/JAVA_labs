@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class ChatSessionController {
@@ -149,6 +148,7 @@ public class ChatSessionController {
   }
 
   public void downloadFile(String fileId) {
+    log.info(STR."Download request of \{fileId}");
     fileModule.downloadAction(new FileDTO.DownloadCommand(fileId));
   }
 
@@ -158,7 +158,7 @@ public class ChatSessionController {
   }
 
   public void onFileUploadEvent(FileDTO.Event event) {
-    addFileEvent(ChatSession.ChatEventType.RECEIVE, event);
+    addFileEvent(ChatSession.ChatEventType.EVENT, event);
     addFilePreview(event);
   }
 
@@ -172,7 +172,7 @@ public class ChatSessionController {
 
   private void addFilePreview(FileDTO.Event event) {
     chatSession.getFileChoseWindow()
-            .onFileUpload(new FilePreview(event.getId(), event.getName(),
+            .onFileUpload(new FileMetadata(event.getId(), event.getName(),
                     (int) event.getSize(), event.getMimeType())
             );
   }

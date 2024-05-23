@@ -37,17 +37,18 @@ public class Connection implements Runnable, AutoCloseable {
     try {
       while (!socket.isClosed()
               && !Thread.currentThread().isInterrupted()) {
-        byte[] msg = ioProcessor.receiveMessage();
-        if (msg == null) {
-          continue;
-        }
-        var tree = dtoConverterManager.getXMLTree(msg);
-        final RequestDTO.DTO_TYPE type = DTOConverterManagerInterface.getDTOType(tree);
-        if (type == null) {
-          continue;
-        }
-        log.info("message with type {}", type);
         try {
+          byte[] msg = ioProcessor.receiveMessage();
+          if (msg == null) {
+            continue;
+          }
+          var tree = dtoConverterManager.getXMLTree(msg);
+          final RequestDTO.DTO_TYPE type = DTOConverterManagerInterface.getDTOType(tree);
+          if (type == null) {
+            continue;
+          }
+          log.info("message with type {}", type);
+
           if (type == RequestDTO.DTO_TYPE.EVENT) {
             RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(DTOConverterManagerInterface.getDTOEvent(tree));
             if (section == null) {
@@ -59,12 +60,11 @@ public class Connection implements Runnable, AutoCloseable {
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
             log.debug(new String(msg));
             log.info("response {}", type);
-            log.error(type.toString());
+            log.info(type.toString());
             moduleExchanger.put(tree);
           }
         } catch (UnableToDeserialize e) {
           log.warn(e.getMessage(), e);
-          return;
         }
       }
     } catch (IOException e) {

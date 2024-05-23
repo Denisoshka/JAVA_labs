@@ -69,11 +69,11 @@ public class FileModule implements ChatModule {
         RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) uploadDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.UploadSuccess responseSuccess = (FileDTO.UploadSuccess) response;
-          sessionController.onFileUploadResponse(new FileDTO.Event(
+          /*sessionController.onFileUploadResponse(new FileDTO.Event(
                   responseSuccess.getId(), null,
                   command.getName(), command.getContent().length,
                   command.getMimeType()
-          ));
+          ));*/
         } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
           moduleLogger.info(STR."Upload failed \{((FileDTO.Error) response).getMessage()}");
         } else {
@@ -90,8 +90,10 @@ public class FileModule implements ChatModule {
     executor.execute(() -> {
       try {
         RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) downloadDTOConverter.deserialize(moduleExchanger.take());
+        moduleLogger.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
+          moduleLogger.info(STR."successfully downloaded file \{responseSuccess.toString()}");
           try {
             fileManager.saveFileEntry(
                     responseSuccess.getName(), responseSuccess.getMimeType(),
@@ -139,6 +141,7 @@ public class FileModule implements ChatModule {
 
   public void downloadAction(FileDTO.DownloadCommand command) {
     executor.execute(() -> {
+      moduleLogger.info(STR."Download request \{command.getId()}");
       downloadResponse(command);
       IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
       try {

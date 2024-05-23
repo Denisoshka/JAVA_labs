@@ -11,9 +11,9 @@ import java.io.IOException;
 public class ClientApplication extends javafx.application.Application {
 
   @Override
-  public void start(Stage stage) throws IOException {
+  public void start(Stage primaryStage) throws IOException {
     ChatSessionController chatSessionController = new ChatSessionController();
-    ChatSessionView chatSessionView = new ChatSessionView();
+    ChatSessionView chatSessionView = new ChatSessionView(primaryStage);
     ChatSessionExecutor chatSessionExecutor = new ChatSessionExecutor(chatSessionController);
 
     chatSessionController.setChatSessionExecutorDependence(chatSessionExecutor);
@@ -21,8 +21,8 @@ public class ClientApplication extends javafx.application.Application {
     chatSessionView.setChatSessionController(chatSessionController);
 
     Scene scene = new Scene(chatSessionView);
-    stage.setScene(scene);
-    stage.show();
+    primaryStage.setScene(scene);
+    primaryStage.show();
   }
 
   public static void main(String[] args) {

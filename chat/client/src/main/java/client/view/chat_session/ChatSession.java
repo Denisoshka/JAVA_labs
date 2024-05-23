@@ -42,10 +42,13 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   @FXML
   private Button selectFileButton;
 
-  private ChatSessionController chatSessionController;
+  private Stage primaryStage;
 
+  private ChatSessionController chatSessionController;
   private Stage fileChoseWindowStage;
+
   private FileChooseWindow fileChoseWindow;
+
 
   public enum ChatEventType {
     SEND,
@@ -77,6 +80,7 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   @Override
   public void setChatSessionController(ChatSessionController chatSessionController) {
     this.chatSessionController = chatSessionController;
+    this.fileChoseWindow.setChatSessionController(chatSessionController);
   }
 
   @FXML
@@ -110,14 +114,6 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   private void showFileChoseWindow(Event event) {
     log.info("Showing file chose window");
-    if (fileChoseWindowStage == null) {
-      fileChoseWindow = new FileChooseWindow(chatSessionController);
-      fileChoseWindowStage = new Stage();
-      fileChoseWindowStage.initModality(Modality.APPLICATION_MODAL);
-      fileChoseWindowStage.initOwner(this.getScene().getWindow());
-      Scene scene = new Scene(fileChoseWindow);
-      fileChoseWindowStage.setScene(scene);
-    }
     fileChoseWindowStage.showAndWait();
   }
 
@@ -138,5 +134,15 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   public FileChooseWindow getFileChoseWindow() {
     return fileChoseWindow;
+  }
+
+  public void setPrimaryStage(Stage primaryStage) {
+    fileChoseWindow = new FileChooseWindow();
+    fileChoseWindowStage = new Stage();
+    fileChoseWindowStage.initModality(Modality.APPLICATION_MODAL);
+    fileChoseWindowStage.initOwner(primaryStage);
+    Scene scene = new Scene(fileChoseWindow);
+    fileChoseWindowStage.setScene(scene);
+    this.primaryStage = primaryStage;
   }
 }

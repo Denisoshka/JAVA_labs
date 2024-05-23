@@ -2,7 +2,7 @@ package client.view.chat_session.events;
 
 
 public interface FileChoseContext {
-  void onFileDownloadChoose(FilePreview fileMetadata);
+  void onFileDownloadChoose(String fileId);
 
-  void onFileUpload(FilePreview fileMetadata);
+  void onFileUpload(FileMetadata fileMetadata);
 }

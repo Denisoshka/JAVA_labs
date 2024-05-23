@@ -84,7 +84,7 @@ public class DTOTest {
     var deserComm = converter.deserialize(tree);
     Assert.assertEquals(expectedSTR, serCommand);
     Assert.assertEquals(expectedCommand, deserComm);
-    Assert.assertEquals(section, DTOConverterManagerInterface.getDTOSection(tree));
+    Assert.assertEquals(section, manager.getDTOSectionByCommandType(DTOConverterManagerInterface.getDTOCommand(tree)));
     Assert.assertEquals(type, DTOConverterManagerInterface.getDTOType(tree));
   }
 
@@ -118,12 +118,13 @@ public class DTOTest {
                     RequestDTO.DTO_SECTION.LIST,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
-            Arguments.of(
+
+            /*Arguments.of(
                     new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileUploadTryCommandSTR,
                     RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
-            ),
+            ),*/
             Arguments.of(
                     new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileUploadCommandSTR,

@@ -148,6 +148,7 @@ public class FileDTO {
 
   @XmlType(name = "downloadfilecommand")
   @XmlRootElement(name = "command")
+  @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadCommand extends Command implements DTOInterfaces.ID {
     private String id;
 
@@ -161,7 +162,7 @@ public class FileDTO {
     }
 
     @Override
-    @XmlElement(name = "id")
+//    @XmlElement(name = "id")
     public String getId() {
       return id;
     }
@@ -182,6 +183,7 @@ public class FileDTO {
 
   @XmlType(propOrder = {"id", "from", "name", "size", "mimeType"})
   @XmlRootElement(name = "event")
+  @XmlAccessorType(XmlAccessType.FIELD)
   public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.ID, DTOInterfaces.FROM, DTOInterfaces.NAME, DTOInterfaces.SIZE, DTOInterfaces.MIME_TYPE {
     private String id;
     private String from;
@@ -203,38 +205,47 @@ public class FileDTO {
     }
 
     @Override
-    @XmlElement(name = "id")
     public String getId() {
       return id;
     }
 
     @Override
-    @XmlElement(name = "name")
     public String getName() {
       return name;
     }
 
     @Override
-    @XmlElement(name = "from")
     public String getFrom() {
       return from;
     }
 
     @Override
-    @XmlElement(name = "size")
     public long getSize() {
       return size;
     }
 
     @Override
-    @XmlElement(name = "mimeType")
     public String getMimeType() {
       return mimeType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof Event event)) return false;
+      if (!super.equals(o)) return false;
+      return size == event.size && Objects.equals(id, event.id) && Objects.equals(from, event.from) && Objects.equals(name, event.name) && Objects.equals(mimeType, event.mimeType);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(super.hashCode(), id, from, name, size, mimeType);
     }
   }
 
   @XmlType(name = "uploadsuccess")
   @XmlRootElement(name = "success")
+  @XmlAccessorType(XmlAccessType.FIELD)
   public static class UploadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID {
     private String id;
 
@@ -248,27 +259,19 @@ public class FileDTO {
     }
 
     @Override
-    @XmlElement(name = "id")
+//    @XmlElement(name = "id")
     public String getId() {
       return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof UploadSuccess that)) return false;
-      if (!super.equals(o)) return false;
-      return Objects.equals(id, that.id);
-    }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(super.hashCode(), id);
-    }
+
+
   }
 
   @XmlType(name = "downloadsuccess", propOrder = {"id", "name", "mimeType", "encoding", "content"})
   @XmlRootElement(name = "success")
+  @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
     private String id;
     private String name;
@@ -296,31 +299,31 @@ public class FileDTO {
 
 
     @Override
-    @XmlElement(name = "id")
+//    @XmlElement(name = "id")
     public String getId() {
       return id;
     }
 
     @Override
-    @XmlElement(name = "content")
+//    @XmlElement(name = "content")
     public byte[] getContent() {
       return content;
     }
 
     @Override
-    @XmlElement(name = "encoding")
+//    @XmlElement(name = "encoding")
     public String getEncoding() {
       return encoding;
     }
 
     @Override
-    @XmlElement(name = "mimeType")
+//    @XmlElement(name = "mimeType")
     public String getMimeType() {
       return mimeType;
     }
 
     @Override
-    @XmlElement(name = "name")
+//    @XmlElement(name = "name")
     public String getName() {
       return name;
     }
@@ -336,6 +339,17 @@ public class FileDTO {
     @Override
     public int hashCode() {
       return Objects.hash(super.hashCode(), id, name, mimeType, encoding, Arrays.hashCode(content));
+    }
+
+    @Override
+    public String toString() {
+      return "DownloadSuccess{" +
+              "id='" + id + '\'' +
+              ", name='" + name + '\'' +
+              ", mimeType='" + mimeType + '\'' +
+              ", encoding='" + encoding + '\'' +
+              ", content=" + Arrays.toString(content) +
+              '}';
     }
   }
 

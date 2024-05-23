@@ -5,6 +5,7 @@ import client.view.chat_session.ChatSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.SplitPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -16,7 +17,9 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
   @FXML
   private ChatUsersInfo chatUsersInfo;
 
-  public ChatSessionView() {
+  private final Stage primaryStage;
+
+  public ChatSessionView(Stage primaryStage) {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ChatSessionView.fxml"));
     fxmlloader.setRoot(this);
     fxmlloader.setController(this);
@@ -25,6 +28,8 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
     } catch (IOException exception) {
       throw new RuntimeException(exception);
     }
+    this.primaryStage = primaryStage;
+    chatSession.setPrimaryStage(primaryStage);
   }
 
   @Override

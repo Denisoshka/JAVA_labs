@@ -77,10 +77,10 @@ public class FileSection implements AbstractSection {
       return;
     }
     try {
-      byte[] serEvent = uploadDTOConverter.serialize(new FileDTO.Event(
-              id, connection.getConnectionName(), command.getName(),
-              command.getContent().length, command.getMimeType()
-      )).getBytes();
+      var event = new FileDTO.Event(id, connection.getConnectionName(),
+              command.getName(), command.getContent().length, command.getMimeType());
+      var strEvent = uploadDTOConverter.serialize(event);
+      byte[] serEvent = strEvent.getBytes();
 
       for (var conn : server.getConnections()) {
         try {
@@ -106,6 +106,7 @@ public class FileSection implements AbstractSection {
   private void onDownloadRequest(Document root, ServerConnection connection) {
     try {
       FileDTO.DownloadCommand command = (FileDTO.DownloadCommand) downloadDTOConverter.deserialize(root);
+      moduleLogger.info(STR."Download request \{command.getId()} from \{connection.getConnectionName()}");
       FileManager.StorageFileEntry entry = simpleFileManager.getFileEntry(command.getId());
       if (entry == null) {
         connection.sendMessage(downloadDTOConverter.serialize(

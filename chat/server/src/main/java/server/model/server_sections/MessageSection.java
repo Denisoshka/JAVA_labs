@@ -44,7 +44,7 @@ public class MessageSection implements AbstractSection {
               messageDTO.getMessage()
       )).getBytes();
       for (var conn : server.getConnections()) {
-        if (connection.equals(conn) || conn.isExpired()) {
+        if (conn.isExpired()) {
           continue;
         }
         try {
