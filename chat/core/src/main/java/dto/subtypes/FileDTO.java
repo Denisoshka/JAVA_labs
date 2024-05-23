@@ -7,11 +7,14 @@ import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 import org.w3c.dom.Document;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.*;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -71,13 +74,13 @@ public class FileDTO {
 
   public static class FileUploadDTOConverter extends RequestDTO.BaseDTOConverter {
     public FileUploadDTOConverter() throws JAXBException {
-      super(JAXBContext.newInstance( Event.class,UploadCommand.class, UploadSuccess.class, Error.class));
+      super(JAXBContext.newInstance(Event.class, UploadCommand.class, UploadSuccess.class, Error.class));
     }
   }
 
   public static class FileDownloadDTOConverter extends RequestDTO.BaseDTOConverter {
     public FileDownloadDTOConverter() throws JAXBException {
-      super(JAXBContext.newInstance( DownloadSuccess.class,DownloadCommand.class, Error.class));
+      super(JAXBContext.newInstance(DownloadSuccess.class, DownloadCommand.class, Error.class));
     }
   }
 
@@ -85,9 +88,13 @@ public class FileDTO {
     public Command(COMMAND_TYPE commandType) {
       super(DTO_SECTION.FILE, commandType);
     }
+
+    public Command() {
+      super(DTO_SECTION.FILE, null);
+    }
   }
 
-  @XmlType(name = "uploadfilecommand"/*, propOrder = {"name", "mimeType", "encoding", "content"}*/)
+  @XmlType(name = "ploadfilecommand"/*, propOrder = {"name", "mimeType", "encoding", "content"}*/)
   @XmlRootElement(name = "command")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class UploadCommand extends Command implements DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
@@ -146,7 +153,7 @@ public class FileDTO {
     }
   }
 
-  @XmlType(name = "downloadfilecommand")
+  @XmlType(name = "ownloadfilecommand")
   @XmlRootElement(name = "command")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadCommand extends Command implements DTOInterfaces.ID {
@@ -263,8 +270,6 @@ public class FileDTO {
     public String getId() {
       return id;
     }
-
-
 
 
   }

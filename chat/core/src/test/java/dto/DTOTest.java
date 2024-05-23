@@ -12,8 +12,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.util.List;
@@ -61,9 +60,9 @@ public class DTOTest {
 
   @BeforeAll
   public void prepare() throws JAXBException {
-    listDTOConverter = new ListDTO.ListDTOConverter();
     loginDTOConverter = new LoginDTO.LoginDTOConverter();
     logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
+    listDTOConverter = new ListDTO.ListDTOConverter();
     fileUploadConverter = new FileDTO.FileUploadDTOConverter();
     fileDownloadDTOConverter = new FileDTO.FileDownloadDTOConverter();
     messageDTOConverter = new MessageDTO.MessageDTOConverter();

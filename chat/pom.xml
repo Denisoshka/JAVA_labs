@@ -19,4 +19,13 @@
         <module>client</module>
         <module>core</module>
     </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ru.nsu.ccfit.zhdanov.chat</groupId>
+                <artifactId>core</artifactId>
+                <version>1.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

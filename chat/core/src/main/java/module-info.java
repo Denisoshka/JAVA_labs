@@ -3,14 +3,14 @@ module core {
   exports dto;
   exports dto.exceptions;
   exports dto.interfaces;
-  opens dto to java.xml.bind;  // Открытие пакета для JAXB
-
+//  opens dto to jakarta.xml.bind;  // Открытие пакета для JAXB
+//  opens dto to com.sun.xml.bind;
+//  opens dto to jakarta.xml.bind;
+  opens dto to org.glassfish.jaxb.runtime;
   requires java.xml;
-  requires java.xml.bind;
   requires static lombok;
-
-  opens dto.subtypes to java.xml.bind;
+  requires jakarta.xml.bind;
+  opens dto.subtypes to jakarta.xml.bind;
   exports io_processing;
   exports file_section;
-
 }

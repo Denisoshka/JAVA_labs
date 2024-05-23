@@ -9,7 +9,7 @@ import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.*;
 import org.w3c.dom.Document;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,7 +30,6 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
     this.converters = new HashMap<>();
     try {
       converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.BASE, new RequestDTO.BaseDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());

@@ -13,9 +13,6 @@ module client_application {
   requires com.almasb.fxgl.all;
   requires org.slf4j;
   requires annotations;
-  requires com.fasterxml.jackson.core;
-  requires com.fasterxml.jackson.databind;
-  requires java.xml.bind;
   requires core;
 
   opens client.view to javafx.fxml;

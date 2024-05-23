@@ -6,7 +6,6 @@ import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.LoginDTO;
 import io_processing.IOProcessor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -16,8 +15,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-@Slf4j
 public class ConnectionAccepter implements Runnable {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(ConnectionAccepter.class);
+
   public enum RegistrationState {
     SUCCESS("Success"),
     TIMEOUT_EXPIRED("Timeout expired"),

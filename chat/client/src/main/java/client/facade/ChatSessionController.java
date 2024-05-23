@@ -11,17 +11,17 @@ import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.subtypes.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
-@Slf4j
 public class ChatSessionController {
   private static final String USER_LOGIN = "userlogin";
   private static final String USER_LOGOUT = "userlogout";
   private static final String USER_MESSAGE = "message";
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionController.class);
 
   private MessageModule messageModule;
   private LoginModule loginModule;

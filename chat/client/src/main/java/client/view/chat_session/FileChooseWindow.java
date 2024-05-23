@@ -16,12 +16,12 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
-@Slf4j
 public class FileChooseWindow extends VBox implements FileChoseContext, ControllerIntroduce {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileChooseWindow.class);
   @FXML
   private ListView<FileMetadata> filePreviews;
   private ChatSessionController controller;

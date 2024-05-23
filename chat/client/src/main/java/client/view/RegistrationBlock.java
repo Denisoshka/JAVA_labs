@@ -14,12 +14,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
-@Slf4j
 public class RegistrationBlock extends VBox implements ControllerIntroduce {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(RegistrationBlock.class);
   @FXML
   private TextField hostname;
   @FXML

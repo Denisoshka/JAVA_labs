@@ -10,7 +10,6 @@ import client.model.main_context.interfaces.ConnectionModule;
 import dto.DTOConverterManager;
 import dto.RequestDTO;
 import io_processing.IOProcessor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -21,8 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 
-@Slf4j
 public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class);
   private final Logger defaultLogger = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class.getName());
   private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
 
