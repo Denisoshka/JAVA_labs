@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-public class LogoutModule implements ChatModule {
+public class LogoutModule implements ChatModule<Object> {
 
   private final ChatSessionExecutor chatSessionExecutor;
 

@@ -55,6 +55,7 @@ public class FileChooseWindow extends VBox implements FileChoseContext {
 
   @Override
   public void onFileUpload(FilePreview fileMetadata) {
+    fileMetadata.setFileChoseContext(this);
     filePreviews.getItems().add(fileMetadata);
   }
 }

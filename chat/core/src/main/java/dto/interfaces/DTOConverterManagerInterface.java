@@ -44,8 +44,6 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     }
   }
 
-  RequestDTO.DTO_SECTION getDTOSectionByEventType(RequestDTO.BaseEvent.EVENT_TYPE eventType);
-
   Node getXMLTree(byte[] data) throws UnableToDeserialize;
 
   Node getXMLTree(String data) throws UnableToDeserialize;
@@ -54,7 +52,11 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     return root.getAttributes().getNamedItem("name").getNodeValue();
   }
 
+  RequestDTO.DTO_SECTION getDTOSectionByEventType(RequestDTO.BaseEvent.EVENT_TYPE eventType);
+
+  RequestDTO.DTO_SECTION getDTOSectionByCommandType(RequestDTO.COMMAND_TYPE commandType);
+
   DTOConverter getConverterBySection(RequestDTO.DTO_SECTION section);
 
-//  DTOConverter getConverterByCommand(RequestDTO.COMMAND_TYPE commandType);
+  DTOConverter getConverterByCommand(RequestDTO.COMMAND_TYPE commandType);
 }

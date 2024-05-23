@@ -5,29 +5,36 @@ import dto.subtypes.ListDTO;
 import dto.subtypes.LogoutDTO;
 import dto.subtypes.MessageDTO;
 import server.model.Server;
+import server.model.server_sections.file.FileSection;
 import server.model.server_sections.interfaces.AbstractSection;
 import server.model.server_sections.interfaces.CommandSupplier;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SectionFactory implements CommandSupplier {
   private final Map<RequestDTO.DTO_SECTION, AbstractSection> commands;
 
-  public SectionFactory(Server server) {
+  public SectionFactory(Server server) throws IOException {
     var manager = server.getConverterManager();
-    this.commands = new HashMap<>(3);
-    this.commands.put(
+    commands = new HashMap<>(3);
+    commands.put(
             RequestDTO.DTO_SECTION.LIST,
             new ListSection((ListDTO.ListDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LIST), server)
     );
-    this.commands.put(
+    commands.put(
             RequestDTO.DTO_SECTION.MESSAGE,
             new MessageSection((MessageDTO.MessageDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE), server)
     );
-    this.commands.put(
+    commands.put(
             RequestDTO.DTO_SECTION.LOGOUT,
             new LogoutSection((LogoutDTO.LogoutDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT), server)
+    );
+    commands.put(
+            RequestDTO.DTO_SECTION.FILE,
+            new FileSection(server)
     );
   }
 

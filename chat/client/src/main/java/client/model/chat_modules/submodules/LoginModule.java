@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-public class LoginModule implements ChatModule {
+public class LoginModule implements ChatModule<DataDTO.LoginData> {
   private final ChatSessionExecutor chatSessionExecutor;
   private final LoginDTO.LoginDTOConverter converter;
   private final ChatSessionController chatSessionController;
@@ -30,10 +30,9 @@ public class LoginModule implements ChatModule {
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
-    DataDTO.LoginData data = (DataDTO.LoginData) additionalArg;
-    String hostname = data.getHostname();
-    int port = data.getPort();
+  public void commandAction(RequestDTO.BaseCommand command, DataDTO.LoginData additionalArg) {
+    String hostname = additionalArg.getHostname();
+    int port = additionalArg.getPort();
     if (loginData != null && loginData.getHostname().equals(hostname) && loginData.getPort() == port && chatSessionExecutor.isConnected()) {
 //todo make on logout
       modulelogger.info("login request repeated");
@@ -43,12 +42,12 @@ public class LoginModule implements ChatModule {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         if (!chatSessionExecutor.isConnected()) {
-          loginData = data;
+          loginData = additionalArg;
         }
         chatSessionExecutor.introduceConnection(hostname, port);
         var ioProcessor = chatSessionExecutor.getIOProcessor();
         responseActon(null);
-        ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(data.getName(), data.getPassword())).getBytes());
+        ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(additionalArg.getName(), additionalArg.getPassword())).getBytes());
       } catch (UnableToSerialize e) {
         modulelogger.info(e.getMessage(), e);
       } catch (IOException e) {
@@ -59,7 +58,6 @@ public class LoginModule implements ChatModule {
 
   @Override
   public void responseActon(RequestDTO.BaseCommand command) {
-//      final var event = (LoginDTO.Event) converter.deserialize(tree);
     chatSessionExecutor.executeModuleAction(() -> {
       String nodeName = null;
       try {

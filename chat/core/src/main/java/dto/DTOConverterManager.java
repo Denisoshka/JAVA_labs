@@ -78,6 +78,11 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
   }
 
   @Override
+  public RequestDTO.DTO_SECTION getDTOSectionByCommandType(RequestDTO.COMMAND_TYPE commandType) {
+    return sectionCommandDisplay.get(commandType);
+  }
+
+  @Override
   public Document getXMLTree(byte[] data) throws UnableToDeserialize {
     return getXMLTree(builder, data);
   }
@@ -90,6 +95,11 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
   @Override
   public DTOConverter getConverterBySection(RequestDTO.DTO_SECTION section) {
     return converters.get(section);
+  }
+
+  @Override
+  public DTOConverter getConverterByCommand(RequestDTO.COMMAND_TYPE commandType) {
+    return converters.get(sectionCommandDisplay.get(commandType));
   }
 
   private void fillEventDisplay() {

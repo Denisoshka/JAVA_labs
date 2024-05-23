@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-public class MessageModule implements ChatModule {
+public class MessageModule implements ChatModule<Object> {
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
   private final MessageDTO.MessageDTOConverter converter;

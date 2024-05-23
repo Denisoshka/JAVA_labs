@@ -26,7 +26,7 @@ public class DTOTest {
   static String ListSuccessSTR2 = "<success><users><user><name>6</name></user></users></success>";
   static String ListErrorSTR = "<error><message>XYI</message></error>";
 
-  static String LoginEventSTR = "<event name=\"userlogin\"><name>USER_NAME</name></event>";
+  static String LoginEventSTR = "<event name=\"userlogin\"><name>USER NAME</name></event>";
   static String LoginCommandSTR = "<command name=\"login\"><name>USER_NAME</name><password>PASSWORD</password></command>";
   static String LoginSuccessSTR = "<success/>";
   static String LoginErrorSTR = "<error><message>XYI</message></error>";
@@ -41,6 +41,7 @@ public class DTOTest {
   static String MessageSuccessSTR = "<success/>";
   static String MessageErrorSTR = "<error><message>XYI</message></error>";
 
+  static String FileUploadTryCommandSTR = "<command name=\"upload\"><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content><encoding>base64</encoding><mimeType>text/plain</mimeType><name>file name</name></command>";
   static String FileUploadCommandSTR = "<command name=\"upload\"><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></command>";
   static String FileDownloadCommandSTR = "<command name=\"download\"><id>unique file ID</id></command>";
   static String FileUploadSuccessSTR = "<success><id>unique file ID</id></success>";
@@ -77,10 +78,12 @@ public class DTOTest {
   @MethodSource("CommandDTOTest")
   public void CommandTest(RequestDTO.BaseCommand expectedCommand, String expectedSTR,
                           RequestDTO.DTO_SECTION section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
-    var serCommand = manager.serialize(expectedCommand);
+    var converter = manager.getConverterByCommand(expectedCommand.getCommandType());
+    var serCommand = converter.serialize(expectedCommand);
     var tree = manager.getXMLTree(serCommand.getBytes());
+    var deserComm = converter.deserialize(tree);
     Assert.assertEquals(expectedSTR, serCommand);
-    Assert.assertEquals(expectedCommand, manager.deserialize(tree));
+    Assert.assertEquals(expectedCommand, deserComm);
     Assert.assertEquals(section, DTOConverterManagerInterface.getDTOSection(tree));
     Assert.assertEquals(type, DTOConverterManagerInterface.getDTOType(tree));
   }
@@ -115,7 +118,12 @@ public class DTOTest {
                     RequestDTO.DTO_SECTION.LIST,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
-
+            Arguments.of(
+                    new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    FileUploadTryCommandSTR,
+                    RequestDTO.DTO_SECTION.FILE,
+                    RequestDTO.DTO_TYPE.COMMAND
+            ),
             Arguments.of(
                     new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileUploadCommandSTR,
@@ -161,7 +169,7 @@ public class DTOTest {
                     RequestDTO.DTO_TYPE.EVENT,
                     logoutDTOConverter
             ), Arguments.of(
-                    new LoginDTO.Event("USER_NAME"),
+                    new LoginDTO.Event("USER NAME"),
                     LoginEventSTR,
                     RequestDTO.EVENT_TYPE.USERLOGIN,
                     RequestDTO.DTO_TYPE.EVENT,

@@ -8,20 +8,23 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class FilePreview extends VBox implements FileMetadata {
-  private String fileId;
+  private final String fileId;
   private Button downloadButton;
+
   private FileChoseContext fileChoseContext;
 
-  public FilePreview(FileChoseContext fileChoseContext, String fileId, String fileName, int Size, String mimeType) {
+  public FilePreview(FileChoseContext fileChoseContext, String fileId, String fileName, int size, String mimeType) {
+    this(fileId, fileName, size, mimeType);
+    this.fileChoseContext = fileChoseContext;
+  }
+
+  public FilePreview(String fileId, String fileName, int size, String mimeType) {
     Label fileIdLabel = new Label(fileId);
     Label fileNameLabel = new Label(fileName);
-    Label fileSizeLabel = new Label(String.valueOf(Size));
+    Label fileSizeLabel = new Label(String.valueOf(size));
     Label fileMimeTypeLabel = new Label(mimeType);
     Button downloadButton = new Button("download");
-
     super(fileNameLabel, new HBox(fileSizeLabel, fileMimeTypeLabel, fileIdLabel), downloadButton);
-
-    this.fileChoseContext = fileChoseContext;
     this.fileId = fileId;
     this.setSpacing(10);
     fileIdLabel.setMaxWidth(10);
@@ -41,5 +44,9 @@ public class FilePreview extends VBox implements FileMetadata {
   @Override
   public String getFileId() {
     return fileId;
+  }
+
+  public void setFileChoseContext(FileChoseContext fileChoseContext) {
+    this.fileChoseContext = fileChoseContext;
   }
 }

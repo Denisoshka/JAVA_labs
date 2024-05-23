@@ -4,6 +4,7 @@ import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
+import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.io_processing.ServerConnection;
@@ -80,7 +81,7 @@ public class Server implements Runnable {
 
   private static class ServerWorker implements Runnable {
     private final ServerConnection connection;
-    private final DTOConverterManager XMLDTOConverterManager;
+    private final DTOConverterManager DTOConverterManager;
     private final CommandSupplier commandSupplier;
     private final Server server;
 
@@ -88,7 +89,7 @@ public class Server implements Runnable {
       this.server = server;
       this.connection = connection;
       this.commandSupplier = server.commandSupplier;
-      this.XMLDTOConverterManager = server.converterManager;
+      this.DTOConverterManager = server.converterManager;
     }
 
     @Override
@@ -99,29 +100,28 @@ public class Server implements Runnable {
           try {
             byte[] msg = con.receiveMessage();
             log.info(STR."new message \{new String(msg)}");
-            final Document xmlTree = XMLDTOConverterManager.getXMLTree(msg);
+            final Document xmlTree = DTOConverterManager.getXMLTree(msg);
             final RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(xmlTree);
-            final RequestDTO.DTO_SECTION dtoSection = DTOConverterManagerInterface.getDTOSection(xmlTree);
+            RequestDTO.DTO_SECTION dtoSection = null;
 //            todo not support events getting
-            log.info(STR."new message for \{dtoSection} with type \{dtoType}");
-            if (dtoType == null || dtoSection == null) {
-//            todo make in XMLDTOConverterManager support of base commands
-              connection.sendMessage(XMLDTOConverterManager.serialize(
-                      new RequestDTO.BaseErrorResponse("unhandled message in server protocol")
-              ).getBytes());
-            } else {
-              var section = commandSupplier.getSection(dtoSection);
-              log.info(STR."section \{section} started");
-              section.perform(connection, xmlTree, dtoType, dtoSection);
-            }
 
+            if (dtoType == RequestDTO.DTO_TYPE.COMMAND) {
+              dtoSection = DTOConverterManager.getDTOSectionByCommandType(DTOConverterManagerInterface.getDTOCommand(xmlTree));
+              log.info(STR."new message for section: \{dtoSection} with type: \{dtoType}");
+              commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+            } else {
+//              todo make in XMLDTOConverterManager support of base commands
+              connection.sendMessage(DTOConverterManager.serialize(
+                      new MessageDTO.Error(STR."unhandled message in server protocol <\{dtoType} name=\"\{dtoSection}\"")
+              ).getBytes());
+            }
           } catch (UnableToDeserialize e) {
             log.info(e.getMessage(), e);
           } catch (SocketTimeoutException _) {
             /*todo handle ex*/
           }
         }
-      } catch (IOException e) {
+      } catch (Exception e) {
         log.warn(e.getMessage(), e);
       } finally {
         log.info(STR."server worker: \{connection.getConnectionName()} finish session");

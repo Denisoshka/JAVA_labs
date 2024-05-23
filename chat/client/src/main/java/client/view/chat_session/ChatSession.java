@@ -43,7 +43,9 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private Button selectFileButton;
 
   private ChatSessionController chatSessionController;
+
   private Stage fileChoseWindowStage;
+  private FileChooseWindow fileChoseWindow;
 
   public enum ChatEventType {
     SEND,
@@ -109,10 +111,11 @@ public class ChatSession extends VBox implements ControllerIntroduce {
   private void showFileChoseWindow(Event event) {
     log.info("Showing file chose window");
     if (fileChoseWindowStage == null) {
+      fileChoseWindow = new FileChooseWindow(chatSessionController);
       fileChoseWindowStage = new Stage();
       fileChoseWindowStage.initModality(Modality.APPLICATION_MODAL);
       fileChoseWindowStage.initOwner(this.getScene().getWindow());
-      Scene scene = new Scene(new FileChooseWindow(chatSessionController));
+      Scene scene = new Scene(fileChoseWindow);
       fileChoseWindowStage.setScene(scene);
     }
     fileChoseWindowStage.showAndWait();
@@ -131,5 +134,9 @@ public class ChatSession extends VBox implements ControllerIntroduce {
 
   public void clearSession() {
     Platform.runLater(() -> chatGridPane.getChildren().clear());
+  }
+
+  public FileChooseWindow getFileChoseWindow() {
+    return fileChoseWindow;
   }
 }

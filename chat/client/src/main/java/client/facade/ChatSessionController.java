@@ -7,10 +7,7 @@ import client.view.ChatSessionView;
 import client.view.ChatUsersInfo;
 import client.view.RegistrationBlock;
 import client.view.chat_session.ChatSession;
-import client.view.chat_session.events.ChatMessage;
-import client.view.chat_session.events.FileEvent;
-import client.view.chat_session.events.LoginEvent;
-import client.view.chat_session.events.LogoutEvent;
+import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.subtypes.*;
@@ -78,7 +75,7 @@ public class ChatSessionController {
   }
 
   public void loginCommand(String login, String password, String hostname, int port) {
-    loginModule.commandAction(null, List.of(new DataDTO.LoginData(login, hostname, password, port)));
+    loginModule.commandAction(null, new DataDTO.LoginData(login, hostname, password, port));
   }
 
   public void onLoginCommand(RequestDTO.BaseResponse.RESPONSE_TYPE responseType) {
@@ -174,7 +171,10 @@ public class ChatSessionController {
   }
 
   private void addFilePreview(FileDTO.Event event) {
-
+    chatSession.getFileChoseWindow()
+            .onFileUpload(new FilePreview(event.getId(), event.getName(),
+                    (int) event.getSize(), event.getMimeType())
+            );
   }
 
   public static class UserInfo {

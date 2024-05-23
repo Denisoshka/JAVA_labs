@@ -29,7 +29,6 @@ public class ListModule implements ChatModule {
   @Override
   public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
-//    final var converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverter(RequestDTO.DTO_SECTION.LIST);
     chatSessionExecutor.executeModuleAction(() -> {
               try {
                 responseActon(null);

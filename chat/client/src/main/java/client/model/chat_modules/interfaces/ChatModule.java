@@ -2,8 +2,8 @@ package client.model.chat_modules.interfaces;
 
 import dto.RequestDTO;
 
-public interface ChatModule {
-  void commandAction(RequestDTO.BaseCommand command, Object additionalArg);
+public interface ChatModule<T> {
+  void commandAction(RequestDTO.BaseCommand command, T additionalArg);
 
   void responseActon(RequestDTO.BaseCommand command);
 

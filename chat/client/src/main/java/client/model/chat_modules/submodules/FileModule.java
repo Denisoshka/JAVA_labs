@@ -75,9 +75,9 @@ public class FileModule implements ChatModule {
                   command.getMimeType()
           ));
         } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-          moduleLogger.info(STR."Upload failed\{((FileDTO.Error) response).getMessage()}");
+          moduleLogger.info(STR."Upload failed \{((FileDTO.Error) response).getMessage()}");
         } else {
-          moduleLogger.info(STR."Unknown response type\{response.getResponseType()}");
+          moduleLogger.info(STR."Unknown response type \{response.getResponseType()}");
         }
       } catch (UnableToDeserialize e) {
         moduleLogger.error(e.getMessage(), e);
