@@ -93,11 +93,16 @@ public class FileModule implements ChatModule {
         moduleLogger.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
-          moduleLogger.info(STR."successfully downloaded file \{responseSuccess.toString()}");
+          moduleLogger.info(STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, " +
+                  STR."mimeType: \{responseSuccess.getMimeType()}, encoding \{responseSuccess.getEncoding()}");
+          if (!responseSuccess.getEncoding().equals(FILE_REQUEST_ENCODING)) {
+            moduleLogger.info(STR."not supported encoding\{responseSuccess.getEncoding()}");
+            return;
+          }
           try {
             fileManager.saveFileEntry(
                     responseSuccess.getName(), responseSuccess.getMimeType(),
-                    responseSuccess.getEncoding(), responseSuccess.getContent()
+                    "", Base64.getDecoder().decode(responseSuccess.getContent())
             );
           } catch (IOException e) {
             moduleLogger.error(e.getMessage(), e);

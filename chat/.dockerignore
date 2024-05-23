@@ -1,0 +1,13 @@
+.idea/
+.saved_files/
+client/
+logs/
+out/
+java_chat.iml
+.gitignore
+*.log
+Task 5 - Chat.md
+**/target/
+.git
+.idea
+*.md
