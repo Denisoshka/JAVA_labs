@@ -5,4 +5,5 @@ module server_application {
   requires org.apache.commons.cli;
   requires org.slf4j;
   requires java.xml;
+  requires org.apache.commons.collections4;
 }

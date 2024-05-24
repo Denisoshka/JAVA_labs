@@ -5,6 +5,7 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.MessageDTO;
+
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.io_processing.ServerConnection;
@@ -32,7 +33,6 @@ public class Server implements Runnable {
   private static final long DELETER_DELAY = 30_000;
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Server.class);
   private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("moduleLogger");
-
   private final ConcurrentHashMap<String, Integer> registeredUsers = new ConcurrentHashMap<>();
 
   private final ConcurrentHashMap.KeySetView<ServerConnection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
