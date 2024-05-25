@@ -17,6 +17,7 @@ import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
+
 public class ChatSessionController {
   private static final String USER_LOGIN = "userlogin";
   private static final String USER_LOGOUT = "userlogout";
@@ -147,7 +148,7 @@ public class ChatSessionController {
     fileModule.uploadAction(file.toPath());
   }
 
-  public void downloadFile(String fileId) {
+  public void downloadFile(Long fileId) {
     log.info(STR."Download request of \{fileId}");
     fileModule.downloadAction(new FileDTO.DownloadCommand(fileId));
   }
@@ -164,7 +165,7 @@ public class ChatSessionController {
 
   private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
     chatSession.addNewChatRecord(new FileEvent(
-            eventType, event.getId(), event.getFrom(),
+            eventType, String.valueOf(event.getId()), event.getFrom(),
             event.getName(), event.getSize(),
             event.getMimeType(), ZonedDateTime.now()
     ));
@@ -172,7 +173,7 @@ public class ChatSessionController {
 
   private void addFilePreview(FileDTO.Event event) {
     chatSession.getFileChoseWindow()
-            .onFileUpload(new FileMetadata(event.getId(), event.getName(),
+            .onFileUpload(new FileMetadata(String.valueOf(event.getId()), event.getName(),
                     (int) event.getSize(), event.getMimeType())
             );
   }

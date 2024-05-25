@@ -4,9 +4,10 @@ import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.ListDTO;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
-import server.model.io_processing.ServerConnection;
+import server.model.connection_section.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListSection implements AbstractSection {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(ListSection.class);
   private final ListDTO.ListDTOConverter converter;
   private final Server server;
 
@@ -48,7 +50,7 @@ public class ListSection implements AbstractSection {
         connection.sendMessage(converter.serialize(new ListDTO.Error(e1.getMessage())).getBytes());
       } catch (UnableToSerialize e2) {
 //        todo handle this
-        Server.getLog().warn(e1.getMessage(), e1);
+        log.warn(e1.getMessage(), e1);
       } catch (IOException e2) {
         server.submitExpiredConnection(connection);
       }

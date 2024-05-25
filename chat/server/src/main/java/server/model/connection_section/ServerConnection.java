@@ -1,4 +1,4 @@
-package server.model.io_processing;
+package server.model.connection_section;
 
 import io_processing.IOProcessor;
 import org.slf4j.Logger;

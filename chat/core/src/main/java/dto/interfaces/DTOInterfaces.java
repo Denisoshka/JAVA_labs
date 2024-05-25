@@ -67,7 +67,7 @@ public interface DTOInterfaces {
   }
 
   interface ID {
-    String getId();
+    Long getId();
   }
 
   interface SIZE {

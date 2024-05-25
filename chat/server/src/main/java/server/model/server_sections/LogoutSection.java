@@ -5,7 +5,7 @@ import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LogoutDTO;
 import org.w3c.dom.Document;
 import server.model.Server;
-import server.model.io_processing.ServerConnection;
+import server.model.connection_section.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;

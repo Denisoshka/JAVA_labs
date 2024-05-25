@@ -1,15 +1,11 @@
 package server.model;
 
 import dto.DTOConverterManager;
-import dto.RequestDTO;
-import dto.exceptions.UnableToDeserialize;
-import dto.interfaces.DTOConverterManagerInterface;
-import dto.subtypes.MessageDTO;
-
 import org.slf4j.Logger;
-import org.w3c.dom.Document;
-import server.model.io_processing.ServerConnection;
-import server.model.server_sections.ConnectionAccepter;
+import server.model.connection_section.ChatUsersDAO;
+import server.model.connection_section.ServerConnection;
+import server.model.connection_section.ServerWorker;
+import server.model.connection_section.ConnectionAccepter;
 import server.model.server_sections.SectionFactory;
 import server.model.server_sections.interfaces.CommandSupplier;
 
@@ -17,7 +13,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -25,26 +20,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Server implements Runnable {
   private static final String IP_ADDRESS = "ip_address";
   private static final String PORT = "port";
-  private static final long DELETER_DELAY = 30_000;
+  private static final long DELETER_DELAY = 60_000;
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Server.class);
   private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("moduleLogger");
-  private final ConcurrentHashMap<String, Integer> registeredUsers = new ConcurrentHashMap<>();
 
+  private final ChatUsersDAO chatUsersDAO = new ChatUsersDAO();
   private final ConcurrentHashMap.KeySetView<ServerConnection, Boolean> expiredConnections = ConcurrentHashMap.newKeySet();
   private final CopyOnWriteArrayList<ServerConnection> connections = new CopyOnWriteArrayList<>();
   private final DTOConverterManager converterManager;
   private final CommandSupplier commandSupplier;
-  private final ServerSocket serverSocket;
-  private final ExecutorService connectionsAccepterExecutor = Executors.newFixedThreadPool(2);
 
+  private final ServerSocket serverSocket;
+
+  private final ExecutorService connectionsAccepterExecutor = Executors.newFixedThreadPool(2);
   private final ExecutorService connectionsPool = Executors.newCachedThreadPool();
   private final ExecutorService expiredConnectionsDeleter = Executors.newSingleThreadExecutor();
-  private AtomicBoolean serveryPizda = new AtomicBoolean(false);
 
   public Server(Properties properties) throws IOException {
     serverSocket = new ServerSocket();
@@ -79,57 +73,6 @@ public class Server implements Runnable {
     }
   }
 
-  private static class ServerWorker implements Runnable {
-    private final ServerConnection connection;
-    private final DTOConverterManager DTOConverterManager;
-    private final CommandSupplier commandSupplier;
-    private final Server server;
-
-    public ServerWorker(ServerConnection connection, Server server) {
-      this.server = server;
-      this.connection = connection;
-      this.commandSupplier = server.commandSupplier;
-      this.DTOConverterManager = server.converterManager;
-    }
-
-    @Override
-    public void run() {
-      try (ServerConnection con = connection) {
-        log.info(STR."serwer worker: \{con.getConnectionName()} started");
-        while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
-          try {
-            byte[] msg = con.receiveMessage();
-            log.info(STR."new message \{new String(msg)}");
-            final Document xmlTree = DTOConverterManager.getXMLTree(msg);
-            final RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(xmlTree);
-            RequestDTO.DTO_SECTION dtoSection = null;
-//            todo not support events getting
-
-            if (dtoType == RequestDTO.DTO_TYPE.COMMAND) {
-              dtoSection = DTOConverterManager.getDTOSectionByCommandType(DTOConverterManagerInterface.getDTOCommand(xmlTree));
-              log.info(STR."new message for section: \{dtoSection} with type: \{dtoType}");
-              commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
-            } else {
-//              todo make in XMLDTOConverterManager support of base commands
-              connection.sendMessage(DTOConverterManager.serialize(
-                      new MessageDTO.Error(STR."unhandled message in server protocol <\{dtoType} name=\"\{dtoSection}\"")
-              ).getBytes());
-            }
-          } catch (UnableToDeserialize e) {
-            log.info(e.getMessage(), e);
-          } catch (SocketTimeoutException _) {
-            /*todo handle ex*/
-          }
-        }
-      } catch (Exception e) {
-        log.warn(e.getMessage(), e);
-      } finally {
-        log.info(STR."server worker: \{connection.getConnectionName()} finish session");
-        server.submitExpiredConnection(connection);
-      }
-    }
-
-  }
 
   private static class ConnectionDeleter implements Runnable {
 
@@ -169,16 +112,13 @@ public class Server implements Runnable {
     }
 
   }
-
   public void submitExpiredConnection(ServerConnection connection) {
-    log.info(STR."try submit expired connection \{connection.getConnectionName()}");
     connection.markAsExpired();
     expiredConnections.add(connection);
     log.info(STR."\{connection} submit expired connection");
   }
 
   public void submitNewConnection(ServerConnection connection) {
-    log.info(STR."try submit new connection \{connection.getConnectionName()}");
     connections.add(connection);
     connectionsPool.submit(new ServerWorker(connection, this));
     log.info(STR."submit new connection \{connection.getConnectionName()}");
@@ -186,10 +126,6 @@ public class Server implements Runnable {
 
   public CopyOnWriteArrayList<ServerConnection> getConnections() {
     return connections;
-  }
-
-  public AtomicBoolean getServeryPizda() {
-    return serveryPizda;
   }
 
   public ConcurrentHashMap.KeySetView<ServerConnection, Boolean> getExpiredConnections() {
@@ -200,16 +136,15 @@ public class Server implements Runnable {
     return converterManager;
   }
 
-  public ConcurrentHashMap<String, Integer> getRegisteredUsers() {
-    return registeredUsers;
-  }
-
-
   public Logger getModuleLogger() {
     return moduleLogger;
   }
 
-  public static Logger getLog() {
-    return Server.log;
+  public CommandSupplier getCommandSupplier() {
+    return commandSupplier;
+  }
+
+  public ChatUsersDAO getChatUsersDAO() {
+    return chatUsersDAO;
   }
 }

@@ -58,7 +58,7 @@ public class FileChooseWindow extends VBox implements FileChoseContext, Controll
   @Override
   public void onFileDownloadChoose(String fileId) {
     log.info(STR."choose file \{fileId} ");
-    this.controller.downloadFile(fileId);
+    this.controller.downloadFile(Long.valueOf(fileId));
   }
 
   @Override

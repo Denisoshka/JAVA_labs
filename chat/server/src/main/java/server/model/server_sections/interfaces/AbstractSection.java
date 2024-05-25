@@ -2,7 +2,7 @@ package server.model.server_sections.interfaces;
 
 import dto.RequestDTO;
 import org.w3c.dom.Document;
-import server.model.io_processing.ServerConnection;
+import server.model.connection_section.ServerConnection;
 
 import java.io.IOException;
 

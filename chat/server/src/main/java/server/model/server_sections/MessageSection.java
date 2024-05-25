@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import server.model.Server;
-import server.model.io_processing.ServerConnection;
+import server.model.connection_section.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;
@@ -54,8 +54,7 @@ public class MessageSection implements AbstractSection {
         }
       }
     } catch (UnableToSerialize e) {
-//      todo maybe make server shutdown when this occurs
-      Server.getLog().warn(e.getMessage());
+      log.warn(e.getMessage());
     }
   }
 }

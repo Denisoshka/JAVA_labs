@@ -5,6 +5,7 @@ import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.*;
+import jakarta.xml.bind.JAXBException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import jakarta.xml.bind.JAXBException;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.util.List;
@@ -42,11 +43,11 @@ public class DTOTest {
 
   static String FileUploadTryCommandSTR = "<command name=\"upload\"><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content><encoding>base64</encoding><mimeType>text/plain</mimeType><name>file name</name></command>";
   static String FileUploadCommandSTR = "<command name=\"upload\"><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></command>";
-  static String FileDownloadCommandSTR = "<command name=\"download\"><id>unique file ID</id></command>";
-  static String FileUploadSuccessSTR = "<success><id>unique file ID</id></success>";
-  static String FileDownloadSuccessSTR = "<success><id>unique file ID</id><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></success>";
+  static String FileDownloadCommandSTR = "<command name=\"download\"><id>0</id></command>";
+  static String FileUploadSuccessSTR = "<success><id>0</id></success>";
+  static String FileDownloadSuccessSTR = "<success><id>0</id><name>file name</name><mimeType>text/plain</mimeType><encoding>base64</encoding><content>QmFzZTY0LWVuY29kZWQgZmlsZSBjb250ZW50</content></success>";
   static String FileErrorSTR = "<error><message>REASON</message></error>";
-  static String FileEventSTR = "<event name=\"file\"><id>unique file ID</id><from>CHAT_NAME_FROM</from><name>file name</name><size>0</size><mimeType>text/plain</mimeType></event>";
+  static String FileEventSTR = "<event name=\"file\"><id>0</id><from>CHAT_NAME_FROM</from><name>file name</name><size>0</size><mimeType>text/plain</mimeType></event>";
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
   static ListDTO.ListDTOConverter listDTOConverter;
@@ -130,7 +131,7 @@ public class DTOTest {
                     RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
             ), Arguments.of(
-                    new FileDTO.DownloadCommand("unique file ID"),
+                    new FileDTO.DownloadCommand(0L),
                     FileDownloadCommandSTR,
                     RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
@@ -175,7 +176,7 @@ public class DTOTest {
                     RequestDTO.DTO_TYPE.EVENT,
                     loginDTOConverter
             ), Arguments.of(
-                    new FileDTO.Event("unique file ID", "CHAT_NAME_FROM", "file name", 0, "text/plain"),
+                    new FileDTO.Event(0L, "CHAT_NAME_FROM", "file name", 0, "text/plain"),
                     FileEventSTR,
                     RequestDTO.EVENT_TYPE.FILE,
                     RequestDTO.DTO_TYPE.EVENT,
@@ -243,10 +244,10 @@ public class DTOTest {
             ),*/
 
             Arguments.of(
-                    new FileDTO.UploadSuccess("unique file ID"),
+                    new FileDTO.UploadSuccess(0L),
                     FileUploadSuccessSTR, fileUploadConverter
             ), Arguments.of(
-                    new FileDTO.DownloadSuccess("unique file ID", "file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    new FileDTO.DownloadSuccess(0L, "file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileDownloadSuccessSTR, fileDownloadDTOConverter
             ), Arguments.of(new FileDTO.Error("REASON"), FileErrorSTR, fileUploadConverter)
     );

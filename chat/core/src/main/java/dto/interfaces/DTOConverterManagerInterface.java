@@ -44,6 +44,7 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     }
   }
 
+
   Node getXMLTree(byte[] data) throws UnableToDeserialize;
 
   Node getXMLTree(String data) throws UnableToDeserialize;

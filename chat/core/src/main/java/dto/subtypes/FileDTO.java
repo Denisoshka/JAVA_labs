@@ -94,7 +94,7 @@ public class FileDTO {
     }
   }
 
-  @XmlType(name = "ploadfilecommand"/*, propOrder = {"name", "mimeType", "encoding", "content"}*/)
+  @XmlType(name = "uploadfilecommand"/*, propOrder = {"name", "mimeType", "encoding", "content"}*/)
   @XmlRootElement(name = "command")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class UploadCommand extends Command implements DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
@@ -157,20 +157,20 @@ public class FileDTO {
   @XmlRootElement(name = "command")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadCommand extends Command implements DTOInterfaces.ID {
-    private String id;
+    private Long id;
 
     public DownloadCommand() {
       super(COMMAND_TYPE.DOWNLOAD);
     }
 
-    public DownloadCommand(String id) {
+    public DownloadCommand(Long id) {
       this();
       this.id = id;
     }
 
     @Override
 //    @XmlElement(name = "id")
-    public String getId() {
+    public Long getId() {
       return id;
     }
 
@@ -192,7 +192,7 @@ public class FileDTO {
   @XmlRootElement(name = "event")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.ID, DTOInterfaces.FROM, DTOInterfaces.NAME, DTOInterfaces.SIZE, DTOInterfaces.MIME_TYPE {
-    private String id;
+    private Long id;
     private String from;
     private String name;
     private long size;
@@ -202,7 +202,7 @@ public class FileDTO {
       super(EVENT_TYPE.FILE, DTO_SECTION.FILE);
     }
 
-    public Event(String id, String from, String name, long size, String mimeType) {
+    public Event(Long id, String from, String name, long size, String mimeType) {
       this();
       this.id = id;
       this.from = from;
@@ -212,7 +212,7 @@ public class FileDTO {
     }
 
     @Override
-    public String getId() {
+    public Long getId() {
       return id;
     }
 
@@ -254,20 +254,20 @@ public class FileDTO {
   @XmlRootElement(name = "success")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class UploadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID {
-    private String id;
+    private Long id;
 
     public UploadSuccess() {
       super(DTO_SECTION.FILE);
     }
 
-    public UploadSuccess(String id) {
+    public UploadSuccess(Long id) {
       this();
       this.id = id;
     }
 
     @Override
 //    @XmlElement(name = "id")
-    public String getId() {
+    public Long getId() {
       return id;
     }
 
@@ -278,7 +278,7 @@ public class FileDTO {
   @XmlRootElement(name = "success")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
-    private String id;
+    private Long id;
     private String name;
     private String mimeType;
     private String encoding;
@@ -288,12 +288,12 @@ public class FileDTO {
       super(DTO_SECTION.FILE);
     }
 
-    public DownloadSuccess(String id) {
+    public DownloadSuccess(Long id) {
       this();
       this.id = id;
     }
 
-    public DownloadSuccess(String id, String name, String mimeType, String encoding, byte[] content) {
+    public DownloadSuccess(Long id, String name, String mimeType, String encoding, byte[] content) {
       this();
       this.id = id;
       this.name = name;
@@ -305,7 +305,7 @@ public class FileDTO {
 
     @Override
 //    @XmlElement(name = "id")
-    public String getId() {
+    public Long getId() {
       return id;
     }
 
@@ -344,17 +344,6 @@ public class FileDTO {
     @Override
     public int hashCode() {
       return Objects.hash(super.hashCode(), id, name, mimeType, encoding, Arrays.hashCode(content));
-    }
-
-    @Override
-    public String toString() {
-      return "DownloadSuccess{" +
-              "id='" + id + '\'' +
-              ", name='" + name + '\'' +
-              ", mimeType='" + mimeType + '\'' +
-              ", encoding='" + encoding + '\'' +
-              ", content=" + Arrays.toString(content) +
-              '}';
     }
   }
 
