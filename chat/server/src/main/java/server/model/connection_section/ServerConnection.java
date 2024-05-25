@@ -59,20 +59,20 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
     expired = true;
   }
 
+  public String getConnectionName() {
+    return connectionName;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof ServerConnection that)) return false;
-    return Objects.equals(connectionName, that.connectionName);
+    return expired == that.expired && Objects.equals(connectionName, that.connectionName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(connectionName);
-  }
-
-  public String getConnectionName() {
-    return connectionName;
+    return Objects.hash(connectionName, expired);
   }
 }
 

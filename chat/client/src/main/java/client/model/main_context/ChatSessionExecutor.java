@@ -81,7 +81,7 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   }
 
   public boolean isConnected() {
-    return connection != null;
+    return connection != null && !connection.isClosed();
   }
 
   @Override

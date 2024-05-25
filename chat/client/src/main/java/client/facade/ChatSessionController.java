@@ -10,6 +10,7 @@ import client.view.chat_session.ChatSession;
 import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.*;
 import org.slf4j.Logger;
 
@@ -49,15 +50,15 @@ public class ChatSessionController {
     this.chatUsersInfo = chatSessionView.getChatUsersInfo();
   }
 
-  public void showMessage(RequestDTO requestDTO, RequestDTO.BaseResponse response) {
-    if (requestDTO.getDTOType() == RequestDTO.DTO_TYPE.EVENT) {
-      onEvent((RequestDTO.BaseEvent) requestDTO);
-    } else if (requestDTO.getDTOType() == RequestDTO.DTO_TYPE.COMMAND) {
-      onCommand((RequestDTO.BaseCommand) requestDTO, response);
+ /* public void showMessage(RequestDTO requestDTO, DTOInterfaces.COMMAND_DTO response) {
+    if (requestDTO.getDTOtype() == RequestDTO.DTO_TYPE.EVENT) {
+      onEvent((DTOInterfaces.EVENT_DTO) requestDTO);
+    } else if (requestDTO.getDTOtype() == RequestDTO.DTO_TYPE.COMMAND) {
+      onCommand((DTOInterfaces.COMMAND_DTO) requestDTO, response);
     }
-  }
+  }*/
 
-  private void onEvent(RequestDTO.BaseEvent event) {
+  private void onEvent(DTOInterfaces.EVENT_DTO event) {
     switch (event.getNameAttribute()) {
       case USER_MESSAGE -> onMessageEvent((MessageDTO.Event) event);
       case USER_LOGIN -> onLoginEvent((LoginDTO.Event) event);
@@ -65,9 +66,9 @@ public class ChatSessionController {
     }
   }
 
-  private void onCommand(RequestDTO.BaseCommand event, RequestDTO.BaseResponse response) {
-    switch (event.geDTOSection()) {
-      case MESSAGE -> onMessageResponse((MessageDTO.Command) event, null);
+  private void onCommand(DTOInterfaces.COMMAND_DTO command, DTOInterfaces.RESPONSE_DTO response) {
+    switch (command.getDTOSection()) {
+      case MESSAGE -> onMessageResponse((MessageDTO.Command) command, null);
     }
   }
 
@@ -79,8 +80,8 @@ public class ChatSessionController {
     loginModule.commandAction(null, new DataDTO.LoginData(login, hostname, password, port));
   }
 
-  public void onLoginCommand(RequestDTO.BaseResponse.RESPONSE_TYPE responseType) {
-    if (responseType != RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+  public void onLoginCommand(RequestDTO.RESPONSE_TYPE responseType) {
+    if (responseType != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }
     registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
@@ -91,7 +92,7 @@ public class ChatSessionController {
     logoutModule.commandAction(null, null);
   }
 
-  public void onLogoutCommand(RequestDTO.BaseResponse response) {
+  public void onLogoutCommand(DTOInterfaces.RESPONSE_DTO response) {
     chatSession.clearSession();
     registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
   }
@@ -104,8 +105,8 @@ public class ChatSessionController {
     listModule.commandAction(null, null);
   }
 
-  public void onListResponse(ListDTO.Command command, RequestDTO.BaseResponse response) {
-    if (response.getResponseType() != RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+  public void onListResponse(ListDTO.Command command, DTOInterfaces.RESPONSE_DTO response) {
+    if (response.getResponseType() != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }
     ListDTO.Success successResponse = (ListDTO.Success) response;
@@ -116,7 +117,7 @@ public class ChatSessionController {
     chatUsersInfo.onReloadUsers(usersInfo);
   }
 
-  public void onMessageResponse(MessageDTO.Command message, RequestDTO.BaseResponse response) {
+  public void onMessageResponse(MessageDTO.Command message, DTOInterfaces.RESPONSE_DTO response) {
     /*todo make for server sender desc and time*/
     /*todo remove this on release*/
     chatSession.addNewChatRecord(new ChatMessage(
@@ -206,6 +207,5 @@ public class ChatSessionController {
     public void setName(String name) {
       this.name = name;
     }
-
   }
 }

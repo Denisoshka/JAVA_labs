@@ -6,6 +6,7 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.FileDTO;
 import file_section.FileManager;
 import file_section.SimpleFileManager;
@@ -48,15 +49,15 @@ public class FileModule implements ChatModule {
 
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
+  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
   }
 
   @Override
-  public void responseActon(RequestDTO.BaseCommand command) {
+  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
   }
 
   @Override
-  public void eventAction(RequestDTO.BaseEvent event) {
+  public void eventAction(DTOInterfaces.EVENT_DTO event) {
     FileDTO.Event fileEvent = (FileDTO.Event) event;
     sessionController.onFileUploadEvent(new FileDTO.Event(
             fileEvent.getId(), fileEvent.getFrom(),
@@ -68,7 +69,7 @@ public class FileModule implements ChatModule {
   public void uploadResponse(FileDTO.UploadCommand command) {
     executor.execute(() -> {
       try {
-        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) uploadDTOConverter.deserialize(moduleExchanger.take());
+        DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) uploadDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.UploadSuccess responseSuccess = (FileDTO.UploadSuccess) response;
           /*sessionController.onFileUploadResponse(new FileDTO.Event(
@@ -91,7 +92,7 @@ public class FileModule implements ChatModule {
   public void downloadResponse(FileDTO.DownloadCommand command) {
     executor.execute(() -> {
       try {
-        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) downloadDTOConverter.deserialize(moduleExchanger.take());
+        DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) downloadDTOConverter.deserialize(moduleExchanger.take());
         log.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
@@ -190,7 +191,7 @@ public class FileModule implements ChatModule {
   public void fileListResponse() {
     executor.execute(() -> {
       try {
-        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) listFileDTOConverter.deserialize(moduleExchanger.take());
+        DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) listFileDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.ListFileSuccess responseSuccess = (FileDTO.ListFileSuccess) response;
           log.debug(responseSuccess.getFiles().toString());

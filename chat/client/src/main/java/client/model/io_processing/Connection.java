@@ -5,6 +5,7 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
+import dto.interfaces.DTOInterfaces;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -50,17 +51,17 @@ public class Connection implements Runnable, AutoCloseable {
           log.info("message with type {}", type);
 
           if (type == RequestDTO.DTO_TYPE.EVENT) {
-            RequestDTO.DTO_SECTION section = dtoConverterManager.getDTOSectionByEventType(DTOConverterManagerInterface.getDTOEvent(tree));
+            String strsection = DTOConverterManagerInterface.getSTRDTOEvent(tree);
+            RequestDTO.EVENT_TYPE section = DTOConverterManagerInterface.getDTOEvent(tree);
             if (section == null) {
+              log.info("unsupported event {}", strsection);
               continue;
             }
-            log.info("event {}", section);
-            RequestDTO.BaseEvent event = (RequestDTO.BaseEvent) dtoConverterManager.deserialize(tree);
-            chatModuleManager.getChatModule(section).eventAction(event);
+            log.info("perform event {}", strsection);
+            DTOInterfaces.EVENT_DTO event = (DTOInterfaces.EVENT_DTO) dtoConverterManager.deserialize(tree);
+            chatModuleManager.getChatModule(section.geDTOSection()).eventAction(event);
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
-            log.debug(new String(msg));
             log.info("response {}", type);
-            log.info(type.toString());
             moduleExchanger.put(tree);
           }
         } catch (UnableToDeserialize e) {

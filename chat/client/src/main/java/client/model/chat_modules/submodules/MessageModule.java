@@ -5,6 +5,7 @@ import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 
@@ -26,7 +27,7 @@ public class MessageModule implements ChatModule<Object> {
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
+  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     modulelogger.info(STR."sending msg: \{((MessageDTO.Command) command).getMessage()}");
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     var converter = chatSessionExecutor.getDTOConverterManager();
@@ -42,15 +43,13 @@ public class MessageModule implements ChatModule<Object> {
   }
 
   @Override
-  public void responseActon(RequestDTO.BaseCommand command) {
+  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
-        RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
-        if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
-//          chatSessionController.onMessageResponse((MessageDTO.Command) command, null);
-        } else {
-          modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
+        final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
+        RequestDTO.RESPONSE_TYPE status = response.getResponseType();
+        if (status != RequestDTO.RESPONSE_TYPE.SUCCESS) {
+          modulelogger.info(((DTOInterfaces.ERROR_RESPONSE_DTO) response).getMessage());
         }
       } catch (InterruptedException _) {
       } catch (UnableToDeserialize e) {
@@ -60,7 +59,7 @@ public class MessageModule implements ChatModule<Object> {
   }
 
   @Override
-  public void eventAction(RequestDTO.BaseEvent event) {
+  public void eventAction(DTOInterfaces.EVENT_DTO event) {
     chatSessionController.onMessageEvent((MessageDTO.Event) event);
   }
 }

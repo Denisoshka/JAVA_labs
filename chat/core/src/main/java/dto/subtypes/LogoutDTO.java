@@ -1,17 +1,18 @@
 package dto.subtypes;
 
+import dto.BaseDTOConverter;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.*;
+
 import java.util.Objects;
 
 public enum LogoutDTO {
   ;
 
-  public static class LogoutDTOConverter extends RequestDTO.BaseDTOConverter {
+  public static class LogoutDTOConverter extends BaseDTOConverter {
     public LogoutDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
@@ -19,28 +20,70 @@ public enum LogoutDTO {
 
   @XmlType(name = "logoutcommand")
   @XmlRootElement(name = "command")
-  public static class Command extends RequestDTO.BaseCommand {
-    public Command() {
-      super(DTO_SECTION.LOGOUT, COMMAND_TYPE.LOGOUT);
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Command implements DTOInterfaces.COMMAND_DTO {
+    @XmlAttribute(name = "name")
+    private final String nameAttribute = RequestDTO.COMMAND_TYPE.LOGOUT.getName();
+
+    @Override
+    public String getNameAttribute() {
+      return nameAttribute;
+    }
+
+    @Override
+    public RequestDTO.COMMAND_TYPE getCommandType() {
+      return RequestDTO.COMMAND_TYPE.LOGOUT;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.LOGOUT;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof Command command)) return false;
+      return Objects.equals(nameAttribute, command.nameAttribute);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(nameAttribute);
     }
   }
 
   @XmlType(name = "logoutevent")
   @XmlRootElement(name = "event")
-  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.NAME {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Event implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME {
+    @XmlAttribute(name = "name")
+    private final String nameAttribute = RequestDTO.EVENT_TYPE.USERLOGOUT.getName();
     String name;
 
     Event() {
-      super(EVENT_TYPE.USERLOGOUT, DTO_SECTION.LOGOUT);
     }
 
     public Event(String name) {
-      this();
       this.name = name;
     }
 
     @Override
-    @XmlElement(name = "name")
+    public RequestDTO.EVENT_TYPE getEventType() {
+      return RequestDTO.EVENT_TYPE.USERLOGOUT;
+    }
+
+    @Override
+    public String getNameAttribute() {
+      return nameAttribute;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.EVENT_TYPE.USERLOGOUT.geDTOSection();
+    }
+
+    @Override
     public String getName() {
       return name;
     }
@@ -53,32 +96,75 @@ public enum LogoutDTO {
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Event event)) return false;
-      return Objects.equals(name, event.name);
+      return Objects.equals(nameAttribute, event.nameAttribute) && Objects.equals(name, event.name);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(name);
+      return Objects.hash(nameAttribute, name);
     }
   }
 
   @XmlType(name = "logoutsuccess")
   @XmlRootElement(name = "success")
-  public static class Success extends RequestDTO.BaseSuccessResponse {
-    public Success() {
-      super(DTO_SECTION.LOGOUT);
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Success implements DTOInterfaces.SUCCESS_RESPONSE_DTO {
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.LOGOUT;
+    }
+
+    public boolean equals(final Object o) {
+      if (o == this) return true;
+      if (!(o instanceof Success)) return false;
+      final Success other = (Success) o;
+      if (!other.canEqual((Object) this)) return false;
+      return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+      return other instanceof Success;
+    }
+
+    public int hashCode() {
+      int result = 1;
+      return result;
     }
   }
 
   @XmlType(name = "logouterror")
   @XmlRootElement(name = "error")
-  public static class Error extends RequestDTO.BaseErrorResponse {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Error implements DTOInterfaces.ERROR_RESPONSE_DTO {
+    private String message;
+
     public Error() {
-      super(DTO_SECTION.LOGOUT);
     }
 
     public Error(String message) {
-      super(DTO_SECTION.LOGOUT, message);
+      this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+      return message;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.LOGOUT;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof Error error)) return false;
+      return Objects.equals(message, error.message);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(message);
     }
   }
 }

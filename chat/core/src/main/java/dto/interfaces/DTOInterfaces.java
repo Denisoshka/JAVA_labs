@@ -39,7 +39,7 @@ public interface DTOInterfaces {
     List<DataDTO.User> getUsers();
   }
 
-  interface FILES{
+  interface FILES {
     List<FileDTO.FileEntity> getFiles();
   }
 
@@ -48,11 +48,11 @@ public interface DTOInterfaces {
   }
 
   interface EVENT_TYPE {
-    RequestDTO.BaseEvent.EVENT_TYPE getEventType();
+    RequestDTO.EVENT_TYPE getEventType();
   }
 
   interface RESPONSE_TYPE {
-    RequestDTO.BaseResponse.RESPONSE_TYPE getResponseType();
+    RequestDTO.RESPONSE_TYPE getResponseType();
   }
 
   interface COMMAND_TYPE {
@@ -81,5 +81,59 @@ public interface DTOInterfaces {
 
   interface DTO_SECTION {
     RequestDTO.DTO_SECTION geDTOSection();
+  }
+
+  interface REQUEST_DTO {
+    RequestDTO.DTO_TYPE getDTOType();
+
+    RequestDTO.DTO_SECTION getDTOSection();
+  }
+
+  interface COMMAND_DTO extends REQUEST_DTO, NAME_ATTRIBUTE {
+    String getNameAttribute();
+
+    @Override
+    default RequestDTO.DTO_TYPE getDTOType() {
+      return RequestDTO.DTO_TYPE.COMMAND;
+    }
+
+    RequestDTO.COMMAND_TYPE getCommandType();
+  }
+
+  interface EVENT_DTO extends REQUEST_DTO, NAME_ATTRIBUTE {
+    RequestDTO.EVENT_TYPE getEventType();
+
+    @Override
+    default RequestDTO.DTO_TYPE getDTOType() {
+      return RequestDTO.DTO_TYPE.EVENT;
+    }
+  }
+
+  interface RESPONSE_DTO extends REQUEST_DTO {
+    RequestDTO.RESPONSE_TYPE getResponseType();
+  }
+
+  interface SUCCESS_RESPONSE_DTO extends RESPONSE_DTO {
+    @Override
+    default RequestDTO.DTO_TYPE getDTOType() {
+      return RequestDTO.DTO_TYPE.RESPONSE;
+    }
+
+    @Override
+    default RequestDTO.RESPONSE_TYPE getResponseType() {
+      return RequestDTO.RESPONSE_TYPE.SUCCESS;
+    }
+  }
+
+  interface ERROR_RESPONSE_DTO extends RESPONSE_DTO, MESSAGE {
+    @Override
+    default RequestDTO.DTO_TYPE getDTOType() {
+      return RequestDTO.DTO_TYPE.RESPONSE;
+    }
+
+    @Override
+    default RequestDTO.RESPONSE_TYPE getResponseType() {
+      return RequestDTO.RESPONSE_TYPE.ERROR;
+    }
   }
 }

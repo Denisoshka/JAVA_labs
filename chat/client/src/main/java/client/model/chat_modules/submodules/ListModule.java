@@ -5,84 +5,59 @@ import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.ListDTO;
 import org.slf4j.Logger;
 
-import javax.xml.transform.TransformerException;
 import java.io.IOException;
 
 public class ListModule implements ChatModule {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(ListModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
   private final ListDTO.ListDTOConverter converter;
-  private final Logger modulelogger;
   private final Logger defaultLoger;
 
   public ListModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LIST);
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.modulelogger = chatSessionExecutor.getModuleLogger();
     this.defaultLoger = chatSessionExecutor.getDefaultLogger();
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
+  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
               try {
                 responseActon(null);
                 ioProcessor.sendMessage(converter.serialize(new ListDTO.Command()).getBytes());
               } catch (IOException e) {
-                modulelogger.info(e.getMessage(), e);
+                log.info(e.getMessage(), e);
               }
             }
     );
   }
 
   @Override
-  public void responseActon(RequestDTO.BaseCommand command) {
+  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
+
         var docResponse = chatSessionExecutor.getModuleExchanger().take();
-        final var response = (RequestDTO.BaseResponse) converter.deserialize(docResponse);
-
-        try {
-          javax.xml.transform.TransformerFactory transformerFactory = javax.xml.transform.TransformerFactory.newInstance();
-          // Создаем Transformer
-          javax.xml.transform.Transformer transformer = transformerFactory.newTransformer();
-
-          // Настраиваем преобразователь для удобного чтения
-//          transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
-//          transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-          // Создаем строковый Writer для сохранения результата
-          java.io.StringWriter writer = new java.io.StringWriter();
-
-          // Преобразуем Document в StreamResult
-          javax.xml.transform.dom.DOMSource domSource = new javax.xml.transform.dom.DOMSource(docResponse);
-          javax.xml.transform.stream.StreamResult result = new javax.xml.transform.stream.StreamResult(writer);
-
-          // Преобразуем DOM в строку
-          transformer.transform(domSource, result);
-
-          // Возвращаем строковое представление XML
-          modulelogger.debug(writer.toString());
-        } catch (TransformerException _) {
-        }
-
-        modulelogger.info(response.toString());
+        final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(docResponse);
+        log.info(response.toString());
         chatSessionController.onListResponse(null, response);
       } catch (InterruptedException _) {
       } catch (UnableToDeserialize e) {
-        modulelogger.warn(e.getMessage(), e);
+        log.warn(e.getMessage(), e);
       }
     });
   }
 
   @Override
-  public void eventAction(RequestDTO.BaseEvent event) {
-    modulelogger.warn("unimplemented event");
+  public void eventAction(DTOInterfaces.EVENT_DTO event) {
+    log.warn("unimplemented event");
 //    unhandle list event
   }
 }

@@ -4,6 +4,7 @@ import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.*;
 import jakarta.xml.bind.JAXBException;
 import org.junit.Assert;
@@ -76,15 +77,14 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("CommandDTOTest")
-  public void CommandTest(RequestDTO.BaseCommand expectedCommand, String expectedSTR,
+  public void CommandTest(DTOInterfaces.COMMAND_DTO expectedCommand, String expectedSTR,
                           RequestDTO.DTO_SECTION section, RequestDTO.DTO_TYPE type) throws UnableToSerialize, UnableToDeserialize {
-    var converter = manager.getConverterByCommand(expectedCommand.getCommandType());
+    var converter = manager.getConverterBySection(expectedCommand.getCommandType().geDTOSection());
     var serCommand = converter.serialize(expectedCommand);
     var tree = manager.getXMLTree(serCommand.getBytes());
     var deserComm = converter.deserialize(tree);
     Assert.assertEquals(expectedSTR, serCommand);
     Assert.assertEquals(expectedCommand, deserComm);
-    Assert.assertEquals(section, manager.getDTOSectionByCommandType(DTOConverterManagerInterface.getDTOCommand(tree)));
     Assert.assertEquals(type, DTOConverterManagerInterface.getDTOType(tree));
   }
 
@@ -141,8 +141,8 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("EventsDTOTest")
-  public void EventsTest(RequestDTO.BaseEvent expectedEvent, String expectedSTR,
-                         RequestDTO.BaseEvent.EVENT_TYPE section,
+  public void EventsTest(DTOInterfaces.EVENT_DTO expectedEvent, String expectedSTR,
+                         RequestDTO.EVENT_TYPE section,
                          RequestDTO.DTO_TYPE type,
                          DTOConverter converter) throws UnableToSerialize, UnableToDeserialize {
     var serEvent = converter.serialize(expectedEvent);
@@ -187,7 +187,7 @@ public class DTOTest {
 
   @ParameterizedTest
   @MethodSource("ResponseDTOTest")
-  public void ResponseTest(RequestDTO.BaseResponse expectedResponse,
+  public void ResponseTest(DTOInterfaces.RESPONSE_DTO expectedResponse,
                            String expectedStr, DTOConverter converter) throws IOException {
     var serEvent = converter.serialize(expectedResponse);
     var serResp = converter.deserialize(manager.getXMLTree(serEvent));

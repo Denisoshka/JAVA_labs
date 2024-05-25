@@ -5,6 +5,7 @@ import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
 import dto.RequestDTO;
+import dto.interfaces.DTOInterfaces;
 import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
 
@@ -28,7 +29,7 @@ public class LogoutModule implements ChatModule<Object> {
   }
 
   @Override
-  public void commandAction(RequestDTO.BaseCommand command, Object additionalArg) {
+  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
       try {
@@ -41,14 +42,14 @@ public class LogoutModule implements ChatModule<Object> {
   }
 
   @Override
-  public void responseActon(RequestDTO.BaseCommand command) {
+  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
-        final var response = (RequestDTO.BaseResponse) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
-        if (response.getResponseType() == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
+        final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
+        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.CONNECTED);
         } else {
-          modulelogger.info(((RequestDTO.BaseErrorResponse) response).getMessage());
+          modulelogger.info(((DTOInterfaces.ERROR_RESPONSE_DTO)response).getMessage());
         }
         chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
         chatSessionController.onLogoutCommand(response);
@@ -61,7 +62,7 @@ public class LogoutModule implements ChatModule<Object> {
   }
 
   @Override
-  public void eventAction(RequestDTO.BaseEvent event) {
+  public void eventAction(DTOInterfaces.EVENT_DTO event) {
     chatSessionController.onLogoutEvent((LogoutDTO.Event) event);
   }
 }

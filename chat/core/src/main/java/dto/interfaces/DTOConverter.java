@@ -1,6 +1,5 @@
 package dto.interfaces;
 
-import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import org.w3c.dom.Document;
@@ -31,8 +30,8 @@ public interface DTOConverter {
     }
   }
 
-  String serialize(RequestDTO dto) throws UnableToSerialize;
+  String serialize(DTOInterfaces.REQUEST_DTO dto) throws UnableToSerialize;
 
-  RequestDTO deserialize(Document root) throws UnableToDeserialize;
+  DTOInterfaces.REQUEST_DTO deserialize(Document root) throws UnableToDeserialize;
 }
 

@@ -1,19 +1,18 @@
 package dto.subtypes;
 
+import dto.BaseDTOConverter;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.*;
+
 import java.util.Objects;
 
 public enum MessageDTO {
   ;
 
-  public static class MessageDTOConverter extends RequestDTO.BaseDTOConverter {
+  public static class MessageDTOConverter extends BaseDTOConverter {
     public MessageDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Command.class, Event.class, Error.class, Success.class));
     }
@@ -21,49 +20,62 @@ public enum MessageDTO {
 
   @XmlType(name = "messagecommand")
   @XmlRootElement(name = "command")
-  public static class Command extends RequestDTO.BaseCommand implements DTOInterfaces.MESSAGE {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Command implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.MESSAGE {
+    @XmlAttribute(name = "name")
+    private final String nameAttribute = RequestDTO.EVENT_TYPE.MESSAGE.getName();
     private String message;
 
     public Command() {
-      super(DTO_SECTION.MESSAGE, COMMAND_TYPE.MESSAGE);
     }
 
     public Command(String message) {
-      this();
       this.message = message;
     }
 
     @Override
-    @XmlElement(name = "message")
-    public String getMessage() {
-      return message;
+    public String getNameAttribute() {
+      return nameAttribute;
     }
 
-    public void setMessage(String message) {
-      this.message = message;
+    @Override
+    public RequestDTO.COMMAND_TYPE getCommandType() {
+      return RequestDTO.COMMAND_TYPE.MESSAGE;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.MESSAGE;
+    }
+
+    @Override
+    public String getMessage() {
+      return message;
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Command command)) return false;
-      return Objects.equals(message, command.message);
+      return Objects.equals(nameAttribute, command.nameAttribute) && Objects.equals(message, command.message);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(message);
+      return Objects.hash(nameAttribute, message);
     }
   }
 
   @XmlRootElement(name = "event")
   @XmlType(name = "messageevent")
-  public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Event implements DTOInterfaces.EVENT_DTO, DTOInterfaces.FROM, DTOInterfaces.MESSAGE {
+    @XmlAttribute(name = "name")
+    private final String nameAttribute = RequestDTO.EVENT_TYPE.MESSAGE.getName();
     private String from;
     private String message;
 
     public Event() {
-      super(EVENT_TYPE.MESSAGE, DTO_SECTION.MESSAGE);
     }
 
     public Event(String from, String message) {
@@ -73,53 +85,100 @@ public enum MessageDTO {
     }
 
     @Override
-    @XmlElement(name = "from")
+    public RequestDTO.EVENT_TYPE getEventType() {
+      return RequestDTO.EVENT_TYPE.MESSAGE;
+    }
+
+    @Override
+    public String getNameAttribute() {
+      return nameAttribute;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.MESSAGE;
+    }
+
+    @Override
     public String getFrom() {
       return from;
     }
 
-    public void setFrom(String from) {
-      this.from = from;
-    }
-
     @Override
-    @XmlElement(name = "message")
     public String getMessage() {
       return message;
-    }
-
-    public void setMessage(String message) {
-      this.message = message;
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof Event event)) return false;
-      return Objects.equals(from, event.from) && Objects.equals(message, event.message);
+      return Objects.equals(nameAttribute, event.nameAttribute) && Objects.equals(from, event.from) && Objects.equals(message, event.message);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(from, message);
+      return Objects.hash(nameAttribute, from, message);
     }
   }
 
   @XmlRootElement(name = "success")
-  public static class Success extends RequestDTO.BaseSuccessResponse {
-    public Success() {
-      super(DTO_SECTION.MESSAGE);
+  public static class Success implements DTOInterfaces.SUCCESS_RESPONSE_DTO {
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.MESSAGE;
+    }
+
+    public boolean equals(final Object o) {
+      if (o == this) return true;
+      if (!(o instanceof Success)) return false;
+      final Success other = (Success) o;
+      if (!other.canEqual((Object) this)) return false;
+      return true;
+    }
+
+    protected boolean canEqual(final Object other) {
+      return other instanceof Success;
+    }
+
+    public int hashCode() {
+      int result = 1;
+      return result;
     }
   }
 
   @XmlRootElement(name = "error")
-  public static class Error extends RequestDTO.BaseErrorResponse {
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Error implements DTOInterfaces.ERROR_RESPONSE_DTO {
+    private String message;
+
     public Error() {
-      super(DTO_SECTION.MESSAGE);
     }
 
     public Error(String message) {
-      super(DTO_SECTION.MESSAGE, message);
+      this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+      return message;
+    }
+
+    @Override
+    public RequestDTO.DTO_SECTION getDTOSection() {
+      return RequestDTO.DTO_SECTION.MESSAGE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof Error error)) return false;
+      return Objects.equals(message, error.message);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(message);
     }
   }
 }

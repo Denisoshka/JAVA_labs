@@ -132,7 +132,7 @@ public class ConnectionAccepter implements Runnable {
     if (ret == RegistrationState.LOGIN_SUCCESS) {
       onLoginSuccess(ioProcessor, command.getName());
     } else {
-      ioProcessor.sendMessage(converter.serialize(new MessageDTO.Error(ret.description)).getBytes());
+      ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error(ret.description)).getBytes());
     }
     return ret;
   }

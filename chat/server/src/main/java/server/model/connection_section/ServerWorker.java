@@ -38,12 +38,17 @@ public class ServerWorker implements Runnable {
           final RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(xmlTree);
           RequestDTO.DTO_SECTION dtoSection = null;
           if (dtoType == RequestDTO.DTO_TYPE.COMMAND) {
-            dtoSection = DTOConverterManager.getDTOSectionByCommandType(DTOConverterManagerInterface.getDTOCommand(xmlTree));
-            log.info(STR."new message for section: \{dtoSection} with type: \{dtoType}");
-            commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+            RequestDTO.COMMAND_TYPE commandType = DTOConverterManagerInterface.getDTOCommand(xmlTree);
+            if (commandType != null) {
+              dtoSection = commandType.geDTOSection();
+              log.info(STR."new message for section: \{dtoSection} with type: \{dtoType}");
+              commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
+            } else {
+              log.info(STR."Unrecognized command type\{DTOConverterManagerInterface.getSTRDTOCommand(xmlTree)}");
+            }
           } else {
             connection.sendMessage(DTOConverterManager.serialize(
-                    new MessageDTO.Error(STR."unhandled message in server protocol <\{dtoType} name=\"\{dtoSection}\"")
+                    new MessageDTO.Error(STR."unhandled message in server protocol <\{DTOConverterManagerInterface.getSTRDTOType(xmlTree)} />")
             ).getBytes());
           }
         } catch (UnableToDeserialize e) {

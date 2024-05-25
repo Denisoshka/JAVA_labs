@@ -1,11 +1,11 @@
 package client.model.chat_modules.interfaces;
 
-import dto.RequestDTO;
+import dto.interfaces.DTOInterfaces;
 
 public interface ChatModule<T> {
-  void commandAction(RequestDTO.BaseCommand command, T additionalArg);
+  void commandAction(DTOInterfaces.COMMAND_DTO command, T additionalArg);
 
-  void responseActon(RequestDTO.BaseCommand command);
+  void responseActon(DTOInterfaces.COMMAND_DTO command);
 
-  void eventAction(RequestDTO.BaseEvent event);
+  void eventAction(DTOInterfaces.EVENT_DTO event);
 }

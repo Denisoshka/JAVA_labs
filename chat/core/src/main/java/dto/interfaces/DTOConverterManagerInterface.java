@@ -17,6 +17,15 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     }
   }
 
+  static String getSTRDTOType(Document root) {
+    try {
+      return root.getDocumentElement().getNodeName().toUpperCase();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+
   /**
    * return {@code RequestDTO.DTO_SECTION} which specified in root node if {@code RequestDTO.DTO_SECTION} exists, else {@code null}
    */
@@ -36,9 +45,26 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     }
   }
 
+  static String getSTRDTOCommand(Document root) {
+    try {
+      return root.getDocumentElement().getAttribute("name").toUpperCase();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+
   static RequestDTO.EVENT_TYPE getDTOEvent(Document root) {
     try {
       return RequestDTO.EVENT_TYPE.valueOf(root.getDocumentElement().getAttribute("name").toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  static String getSTRDTOEvent(Document root) {
+    try {
+      return root.getDocumentElement().getAttribute("name").toUpperCase();
     } catch (IllegalArgumentException e) {
       return null;
     }
@@ -53,11 +79,5 @@ public interface DTOConverterManagerInterface extends DTOConverter {
     return root.getAttributes().getNamedItem("name").getNodeValue();
   }
 
-  RequestDTO.DTO_SECTION getDTOSectionByEventType(RequestDTO.BaseEvent.EVENT_TYPE eventType);
-
-  RequestDTO.DTO_SECTION getDTOSectionByCommandType(RequestDTO.COMMAND_TYPE commandType);
-
   DTOConverter getConverterBySection(RequestDTO.DTO_SECTION section);
-
-  DTOConverter getConverterByCommand(RequestDTO.COMMAND_TYPE commandType);
 }
