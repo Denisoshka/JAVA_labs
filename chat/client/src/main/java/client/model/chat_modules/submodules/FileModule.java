@@ -21,6 +21,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 
 public class FileModule implements ChatModule {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileModule.class);
   final static String FILE_REQUEST_ENCODING = "base64";
 
   private final BlockingQueue<Document> moduleExchanger;
@@ -29,7 +30,8 @@ public class FileModule implements ChatModule {
   private final ChatSessionController sessionController;
   private final FileDTO.FileUploadDTOConverter uploadDTOConverter;
   private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
-  private final Logger moduleLogger;
+  private final FileDTO.FileListFileDTOConverter listFileDTOConverter;
+
   private final FileManager fileManager;
 
   public FileModule(ChatSessionExecutor chatSessionExecutor) throws IOException {
@@ -41,7 +43,7 @@ public class FileModule implements ChatModule {
     FileDTO.FileDTOConverter converter = (FileDTO.FileDTOConverter) sessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
     this.uploadDTOConverter = converter.getFileUploadDTOConverter();
     this.downloadDTOConverter = converter.getFileDownloadDTOConverter();
-    this.moduleLogger = sessionExecutor.getModuleLogger();
+    this.listFileDTOConverter = converter.getListFileDTOConverter();
   }
 
 
@@ -75,12 +77,12 @@ public class FileModule implements ChatModule {
                   command.getMimeType()
           ));*/
         } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-          moduleLogger.info(STR."Upload failed \{((FileDTO.Error) response).getMessage()}");
+          log.info(STR."Upload failed \{((FileDTO.Error) response).getMessage()}");
         } else {
-          moduleLogger.info(STR."Unknown response type \{response.getResponseType()}");
+          log.info(STR."Unknown response type \{response.getResponseType()}");
         }
       } catch (UnableToDeserialize e) {
-        moduleLogger.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });
@@ -90,13 +92,13 @@ public class FileModule implements ChatModule {
     executor.execute(() -> {
       try {
         RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) downloadDTOConverter.deserialize(moduleExchanger.take());
-        moduleLogger.info(STR."download response: \{response.getResponseType()}");
+        log.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
-          moduleLogger.info(STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, " +
+          log.info(STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, " +
                   STR."mimeType: \{responseSuccess.getMimeType()}, encoding \{responseSuccess.getEncoding()}");
           if (!responseSuccess.getEncoding().equals(FILE_REQUEST_ENCODING)) {
-            moduleLogger.info(STR."not supported encoding\{responseSuccess.getEncoding()}");
+            log.info(STR."not supported encoding\{responseSuccess.getEncoding()}");
             return;
           }
           try {
@@ -105,15 +107,15 @@ public class FileModule implements ChatModule {
                     "", Base64.getDecoder().decode(responseSuccess.getContent())
             );
           } catch (IOException e) {
-            moduleLogger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
           }
         } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-          moduleLogger.error("Download failed");
+          log.error("download failed");
         } else {
-          moduleLogger.error("Unknown response type");
+          log.error("unknown response type");
         }
       } catch (UnableToDeserialize e) {
-        moduleLogger.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });
@@ -121,6 +123,7 @@ public class FileModule implements ChatModule {
 
   public void uploadAction(Path path) {
     executor.execute(() -> {
+      log.info("processing upload action");
       try {
         IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
         byte[] content = Base64.getEncoder().encode(Files.readAllBytes(path));
@@ -135,31 +138,67 @@ public class FileModule implements ChatModule {
           try {
             sessionExecutor.shutdownConnection();
           } catch (IOException e1) {
-            moduleLogger.error(e1.getMessage(), e1);
+            log.error(e1.getMessage(), e1);
           }
         }
       } catch (IOException e) {
-        moduleLogger.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     });
   }
 
   public void downloadAction(FileDTO.DownloadCommand command) {
     executor.execute(() -> {
-      moduleLogger.info(STR."Download request \{command.getId()}");
-      downloadResponse(command);
+      log.info(STR."processing download request \{command.getId()}");
       IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
       try {
         ioProcessor.sendMessage(downloadDTOConverter.serialize(command).getBytes());
+        downloadResponse(command);
       } catch (UnableToSerialize e) {
-        moduleLogger.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       } catch (IOException e) {
         try {
           sessionExecutor.shutdownConnection();
         } catch (IOException e1) {
-          moduleLogger.error(e1.getMessage(), e1);
+          log.error(e1.getMessage(), e1);
         }
-        moduleLogger.error(e.getMessage(), e);
+        log.error(e.getMessage(), e);
+      }
+    });
+  }
+
+
+  public void fileListAction() {
+    executor.execute(() -> {
+      log.info("processing file list");
+      try {
+        IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
+        ioProcessor.sendMessage(listFileDTOConverter.serialize(new FileDTO.ListFileCommand()).getBytes());
+        fileListResponse();
+      } catch (UnableToSerialize e) {
+        log.error(e.getMessage(), e);
+      } catch (IOException e) {
+        log.error(e.getMessage(), e);
+        try {
+          sessionExecutor.shutdownConnection();
+        } catch (IOException _) {
+        }
+      }
+    });
+  }
+
+  public void fileListResponse() {
+    executor.execute(() -> {
+      try {
+        RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) listFileDTOConverter.deserialize(moduleExchanger.take());
+        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+          FileDTO.ListFileSuccess responseSuccess = (FileDTO.ListFileSuccess) response;
+          sessionController.onListFileResponse(responseSuccess.getFiles());
+        } else {
+          FileDTO.Error responseError = (FileDTO.Error) response;
+        }
+      } catch (UnableToDeserialize e) {
+      } catch (InterruptedException _) {
       }
     });
   }

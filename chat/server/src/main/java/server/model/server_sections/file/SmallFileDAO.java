@@ -3,6 +3,8 @@ package server.model.server_sections.file;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
 
+import java.util.List;
+
 public class SmallFileDAO {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(SmallFileDAO.class);
   private final EntityManagerFactory entityManagerFactory;
@@ -69,4 +71,24 @@ public class SmallFileDAO {
     }
     return file;
   }
+
+  public List<SmallFileEntity> getFilesPreview() {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    List<SmallFileEntity> files = null;
+
+    try {
+      Query query = entityManager.createQuery(
+              "SELECT new SmallFileEntity(f.id, null, f.fileName, f.mimeType, f.size, null) FROM SmallFileEntity f"
+      );
+      files = (List<SmallFileEntity>) query.getResultList();
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+    } finally {
+      entityManager.close();
+    }
+
+    return files;
+  }
+
+
 }

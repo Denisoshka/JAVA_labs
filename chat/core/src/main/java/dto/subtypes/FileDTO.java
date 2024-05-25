@@ -3,19 +3,16 @@ package dto.subtypes;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
-import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.*;
 import org.w3c.dom.Document;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class FileDTO {
@@ -23,9 +20,12 @@ public class FileDTO {
     private final FileDownloadDTOConverter fileDownloadDTOConverter;
     private final FileUploadDTOConverter fileUploadDTOConverter;
 
+    private final FileListFileDTOConverter listFileDTOConverter;
+
     public FileDTOConverter() throws JAXBException {
       this.fileDownloadDTOConverter = new FileDownloadDTOConverter();
       this.fileUploadDTOConverter = new FileUploadDTOConverter();
+      this.listFileDTOConverter = new FileListFileDTOConverter();
     }
 
     @Override
@@ -37,12 +37,14 @@ public class FileDTO {
           return fileUploadDTOConverter.serialize(dto);
         } else if (commandType == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
           return fileDownloadDTOConverter.serialize(dto);
-        } else throw new UnsupportedDTOType("unrecognized dto");
+        } else if (commandType == RequestDTO.COMMAND_TYPE.LISTFILE) {
+          return listFileDTOConverter.serialize(dto);
+        } else throw new UnableToSerialize("unrecognized dto");
       } else if (type == RequestDTO.DTO_TYPE.EVENT) {
         if (((RequestDTO.BaseEvent) dto).getEventType() == RequestDTO.EVENT_TYPE.FILE) {
           return fileUploadDTOConverter.serialize(dto);
-        } else throw new UnsupportedDTOType("unrecognized dto");
-      } else throw new UnsupportedDTOType("support only DTO_TYPE=COMMAND/EVENT");
+        } else throw new UnableToSerialize("unrecognized dto");
+      } else throw new UnableToSerialize("support only DTO_TYPE=COMMAND/EVENT");
     }
 
     @Override
@@ -54,13 +56,13 @@ public class FileDTO {
           return fileUploadDTOConverter.deserialize(root);
         } else if (commandType == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
           return fileDownloadDTOConverter.deserialize(root);
-        } else throw new UnsupportedDTOType("unrecognized dto");
+        } else throw new UnableToDeserialize("unrecognized dto");
       } else if (type == RequestDTO.DTO_TYPE.EVENT) {
         var eventType = DTOConverterManagerInterface.getDTOEvent(root);
         if (eventType == RequestDTO.EVENT_TYPE.FILE) {
           return fileUploadDTOConverter.deserialize(root);
-        } else throw new UnsupportedDTOType("unrecognized dto");
-      } else throw new UnsupportedDTOType("support only DTO_TYPE=COMMAND/EVENT");
+        } else throw new UnableToDeserialize("unrecognized dto");
+      } else throw new UnableToDeserialize("support only DTO_TYPE=COMMAND/EVENT");
     }
 
     public FileDownloadDTOConverter getFileDownloadDTOConverter() {
@@ -70,9 +72,14 @@ public class FileDTO {
     public FileUploadDTOConverter getFileUploadDTOConverter() {
       return fileUploadDTOConverter;
     }
+
+    public FileListFileDTOConverter getListFileDTOConverter() {
+      return listFileDTOConverter;
+    }
   }
 
   public static class FileUploadDTOConverter extends RequestDTO.BaseDTOConverter {
+
     public FileUploadDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(Event.class, UploadCommand.class, UploadSuccess.class, Error.class));
     }
@@ -81,6 +88,12 @@ public class FileDTO {
   public static class FileDownloadDTOConverter extends RequestDTO.BaseDTOConverter {
     public FileDownloadDTOConverter() throws JAXBException {
       super(JAXBContext.newInstance(DownloadSuccess.class, DownloadCommand.class, Error.class));
+    }
+  }
+
+  public static class FileListFileDTOConverter extends RequestDTO.BaseDTOConverter {
+    public FileListFileDTOConverter() throws JAXBException {
+      super(JAXBContext.newInstance(ListFileCommand.class, ListFileSuccess.class, Error.class));
     }
   }
 
@@ -188,7 +201,7 @@ public class FileDTO {
     }
   }
 
-  @XmlType(propOrder = {"id", "from", "name", "size", "mimeType"})
+  //  @XmlType(propOrder = {"id", "from", "name", "size", "mimeType"})
   @XmlRootElement(name = "event")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class Event extends RequestDTO.BaseEvent implements DTOInterfaces.ID, DTOInterfaces.FROM, DTOInterfaces.NAME, DTOInterfaces.SIZE, DTOInterfaces.MIME_TYPE {
@@ -270,11 +283,9 @@ public class FileDTO {
     public Long getId() {
       return id;
     }
-
-
   }
 
-  @XmlType(name = "downloadsuccess", propOrder = {"id", "name", "mimeType", "encoding", "content"})
+  @XmlType(name = "downloadsuccess"/*, propOrder = {"id", "name", "mimeType", "encoding", "content"}*/)
   @XmlRootElement(name = "success")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class DownloadSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.ID, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
@@ -356,6 +367,82 @@ public class FileDTO {
 
     public Error(String message) {
       super(DTO_SECTION.FILE, message);
+    }
+  }
+
+  public static class ListFileCommand extends Command {
+    public ListFileCommand() {
+      super(COMMAND_TYPE.LISTFILE);
+    }
+  }
+
+  @XmlType(name = "fileentity")
+  @XmlRootElement(name = "file")
+  public static class FileEntity implements DTOInterfaces.ID, DTOInterfaces.FROM, DTOInterfaces.NAME, DTOInterfaces.SIZE, DTOInterfaces.MIME_TYPE {
+    private Long id;
+    private String from;
+    private String name;
+    private long size;
+    private String mimeType;
+
+    public FileEntity(Long id, String from, String name, long size, String mimeType) {
+      this.id = id;
+      this.from = from;
+      this.name = name;
+      this.size = size;
+      this.mimeType = mimeType;
+    }
+
+    public FileEntity() {
+    }
+
+    @Override
+    public String getFrom() {
+      return from;
+    }
+
+    @Override
+    public Long getId() {
+      return id;
+    }
+
+    @Override
+    public String getMimeType() {
+      return mimeType;
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public long getSize() {
+      return size;
+    }
+  }
+
+  @XmlRootElement(name = "success")
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class ListFileSuccess extends RequestDTO.BaseSuccessResponse implements DTOInterfaces.FILES {
+    @XmlElementWrapper(name = "files")
+    @XmlElement(name = "file")
+    private List<FileEntity> files;
+
+    public ListFileSuccess() {
+      super(DTO_SECTION.FILE);
+    }
+
+    public ListFileSuccess(List<FileEntity> files) {
+      this.files = files;
+    }
+
+    public List<FileEntity> getFiles() {
+      return files;
+    }
+
+    public void setFiles(List<FileEntity> files) {
+      this.files = files;
     }
   }
 }

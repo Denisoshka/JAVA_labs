@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ChatSessionController {
@@ -154,28 +155,41 @@ public class ChatSessionController {
   }
 
   public void onFileUploadResponse(FileDTO.Event event) {
+//    todo unused
     addFileEvent(ChatSession.ChatEventType.SEND, event);
     addFilePreview(event);
   }
 
   public void onFileUploadEvent(FileDTO.Event event) {
     addFileEvent(ChatSession.ChatEventType.EVENT, event);
-    addFilePreview(event);
+//    addFilePreview(event);
   }
 
   private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
     chatSession.addNewChatRecord(new FileEvent(
-            eventType, String.valueOf(event.getId()), event.getFrom(),
-            event.getName(), event.getSize(),
+            this, eventType, event.getId(),
+            event.getFrom(), event.getName(), event.getSize(),
             event.getMimeType(), ZonedDateTime.now()
     ));
   }
 
   private void addFilePreview(FileDTO.Event event) {
-    chatSession.getFileChoseWindow()
+    /*chatSession.()
             .onFileUpload(new FileMetadata(String.valueOf(event.getId()), event.getName(),
                     (int) event.getSize(), event.getMimeType())
-            );
+            );*/
+  }
+
+  public void onListFileResponse(List<FileDTO.FileEntity> files) {
+    ArrayList<FileMetadata> rez = new ArrayList<>(files.size());
+    for (var file : files) {
+      rez.add(new FileMetadata(String.valueOf(file.getId()), file.getName(), file.getSize(), file.getMimeType()));
+    }
+    chatSession.getFileChoseWindow().onListFiles(rez);
+  }
+
+  public void listFilesAction() {
+    fileModule.fileListAction();
   }
 
   public static class UserInfo {

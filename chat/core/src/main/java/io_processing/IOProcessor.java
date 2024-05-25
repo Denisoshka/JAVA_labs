@@ -10,8 +10,6 @@ import java.net.SocketException;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class IOProcessor implements AbstractIOProcessor, AutoCloseable {
-  private final ReentrantLock readLock = new ReentrantLock();
-  private final ReentrantLock writeLock = new ReentrantLock();
   private final DataInputStream inputStream;
   private final DataOutputStream outputStream;
   private final Socket socket;

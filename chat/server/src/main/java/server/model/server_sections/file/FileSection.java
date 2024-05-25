@@ -12,11 +12,16 @@ import server.model.connection_section.ServerConnection;
 import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileSection implements AbstractSection {
-  private final static String FILE_ENCODING = "base64";
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileSection.class);
+  private static final String FILE_ENCODING = "base64";
+
   private final FileDTO.FileUploadDTOConverter uploadDTOConverter;
   private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
+  private final FileDTO.FileListFileDTOConverter listFileDTOConverter;
   private final Logger moduleLogger;
   private final Server server;
   private final SmallFileDAO smallFileDAO = new SmallFileDAO();
@@ -27,6 +32,7 @@ public class FileSection implements AbstractSection {
     this.moduleLogger = server.getModuleLogger();
     this.uploadDTOConverter = mainConverter.getFileUploadDTOConverter();
     this.downloadDTOConverter = mainConverter.getFileDownloadDTOConverter();
+    this.listFileDTOConverter = mainConverter.getListFileDTOConverter();
   }
 
 
@@ -41,6 +47,8 @@ public class FileSection implements AbstractSection {
       onUploadRequest(root, connection);
     } else if (commandType == RequestDTO.COMMAND_TYPE.DOWNLOAD) {
       onDownloadRequest(root, connection);
+    } else if (commandType == RequestDTO.COMMAND_TYPE.LISTFILE) {
+      onListFileRequest(root, connection);
     } else {
 //      todo implements this
       onUnsupportedType(type, section, connection);
@@ -132,6 +140,32 @@ public class FileSection implements AbstractSection {
       }
     } catch (IOException e) {
       moduleLogger.trace(e.getMessage(), e);
+      server.submitExpiredConnection(connection);
+    }
+  }
+
+  public void onListFileRequest(Document root, ServerConnection connection) {
+    try {
+      FileDTO.ListFileCommand command = (FileDTO.ListFileCommand) listFileDTOConverter.deserialize(root);
+      List<SmallFileEntity> files = smallFileDAO.getFilesPreview();
+      if (files != null) {
+        List<FileDTO.FileEntity> rez = new ArrayList<>(files.size());
+        for (var file : files) {
+          rez.add(new FileDTO.FileEntity(file.getId(), file.getUserName(), file.getFileName(), file.getSize(), file.getMimeType()));
+        }
+        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.ListFileSuccess(rez)).getBytes());
+      } else {
+        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.Error()).getBytes());
+      }
+    } catch (UnableToDeserialize | UnableToSerialize e) {
+      try {
+        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+      } catch (UnableToSerialize e1) {
+        log.warn(e.getMessage(), e);
+      } catch (IOException e1) {
+        server.submitExpiredConnection(connection);
+      }
+    } catch (IOException e) {
       server.submitExpiredConnection(connection);
     }
   }

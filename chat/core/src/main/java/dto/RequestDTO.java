@@ -30,16 +30,6 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
       marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
     }
 
-    /*ublic BaseDTOConverter() throws JAXBException {
-      context = JAXBContext.newInstance(
-              BaseErrorResponse.class, BaseSuccessResponse.class, BaseEvent.class,
-              BaseCommand.class, BaseResponse.class
-      );
-      this.unmarshaller = context.createUnmarshaller();
-      this.marshaller = context.createMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-    }*/
-
     @Override
     public String serialize(RequestDTO dto) throws UnableToSerialize {
       try {
@@ -103,7 +93,9 @@ public class RequestDTO implements DTOInterfaces.DTO_TYPE, DTOInterfaces.DTO_SEC
     LOGIN("login"),
     LIST("list"),
     UPLOAD("upload"),
-    DOWNLOAD("download");
+    DOWNLOAD("download"),
+    LISTFILE("listfile");
+
 
     private final String type;
 
