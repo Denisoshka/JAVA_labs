@@ -9,7 +9,6 @@ import server.model.server_sections.file.FileSection;
 import server.model.server_sections.interfaces.AbstractSection;
 import server.model.server_sections.interfaces.CommandSupplier;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

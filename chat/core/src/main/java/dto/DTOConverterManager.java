@@ -7,9 +7,9 @@ import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.subtypes.*;
+import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 
-import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -115,5 +115,6 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
     sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.LIST, RequestDTO.DTO_SECTION.LIST);
     sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.DOWNLOAD, RequestDTO.DTO_SECTION.FILE);
     sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.UPLOAD, RequestDTO.DTO_SECTION.FILE);
+    sectionCommandDisplay.put(RequestDTO.COMMAND_TYPE.LISTFILE, RequestDTO.DTO_SECTION.FILE);
   }
 }

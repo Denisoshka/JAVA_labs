@@ -23,8 +23,10 @@ public class FileChooseWindow extends VBox implements ControllerIntroduce {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileChooseWindow.class);
   @FXML
   private ListView<FileMetadata> filePreviews;
+  @FXML
+  private Button listFiles;
+
   private ChatSessionController controller;
-  private final Button listFiles = new Button();
 
   public FileChooseWindow() {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("FileChoseWindow.fxml"));
@@ -64,6 +66,7 @@ public class FileChooseWindow extends VBox implements ControllerIntroduce {
   }
 
   public void listFiles(Event e) {
+    log.info("list files");
     controller.listFilesAction();
   }
 

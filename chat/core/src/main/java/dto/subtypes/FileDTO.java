@@ -370,6 +370,7 @@ public class FileDTO {
     }
   }
 
+  @XmlRootElement(name = "command")
   public static class ListFileCommand extends Command {
     public ListFileCommand() {
       super(COMMAND_TYPE.LISTFILE);

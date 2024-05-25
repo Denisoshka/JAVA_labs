@@ -193,11 +193,14 @@ public class FileModule implements ChatModule {
         RequestDTO.BaseResponse response = (RequestDTO.BaseResponse) listFileDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDTO.ListFileSuccess responseSuccess = (FileDTO.ListFileSuccess) response;
+          log.debug(responseSuccess.getFiles().toString());
           sessionController.onListFileResponse(responseSuccess.getFiles());
         } else {
           FileDTO.Error responseError = (FileDTO.Error) response;
+          log.error(responseError.getMessage());
         }
       } catch (UnableToDeserialize e) {
+        log.warn(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });

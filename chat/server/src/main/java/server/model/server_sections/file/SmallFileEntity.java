@@ -19,6 +19,15 @@ public class SmallFileEntity {
   @Column(name = "file_content", nullable = false)
   private byte[] content;
 
+  public SmallFileEntity(long id, String fileName, String userName, String mimeType, long size, byte[] content) {
+    this.id = id;
+    this.fileName = fileName;
+    this.userName = userName;
+    this.mimeType = mimeType;
+    this.size = size;
+    this.content = content;
+  }
+
   public SmallFileEntity(String fileName, String userName, String mimeType, long size, byte[] content) {
     this.fileName = fileName;
     this.userName = userName;

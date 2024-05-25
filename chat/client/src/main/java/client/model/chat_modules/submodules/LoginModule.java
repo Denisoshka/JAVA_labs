@@ -8,10 +8,12 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.LoginDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 
+@Slf4j
 public class LoginModule implements ChatModule<DataDTO.LoginData> {
   private final ChatSessionExecutor chatSessionExecutor;
   private final LoginDTO.LoginDTOConverter converter;
@@ -49,9 +51,9 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
         responseActon(null);
         ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(additionalArg.getName(), additionalArg.getPassword())).getBytes());
       } catch (UnableToSerialize e) {
-        modulelogger.info(e.getMessage(), e);
+        log.info(e.getMessage(), e);
       } catch (IOException e) {
-        defaultLogger.info(e.getMessage(), e);
+        log.info(e.getMessage(), e);
       }
     });
   }
@@ -63,18 +65,18 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
       try {
         final var tree = chatSessionExecutor.getModuleExchanger().take();
         nodeName = tree.getDocumentElement().getNodeName();
-        modulelogger.error(tree.getDocumentElement().getNodeName());
+        log.error(tree.getDocumentElement().getNodeName());
         final var response = (RequestDTO.BaseResponse) converter.deserialize(tree);
         RequestDTO.BaseResponse.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.SUCCESS) {
-          modulelogger.info("login successful");
+          log.info("login successful");
           chatSessionController.onLoginCommand(status);
         } else if (status == RequestDTO.BaseResponse.RESPONSE_TYPE.ERROR) {
-          modulelogger.info(((LoginDTO.Error) response).getMessage());
+          log.info(((LoginDTO.Error) response).getMessage());
         }
       } catch (UnableToDeserialize e) {
-        modulelogger.warn(STR."Node name \{nodeName}");
-        modulelogger.warn(e.getMessage(), e);
+        log.warn(STR."Node name \{nodeName}");
+        log.warn(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });

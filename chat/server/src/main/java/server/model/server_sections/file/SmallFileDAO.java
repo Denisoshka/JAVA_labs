@@ -60,7 +60,7 @@ public class SmallFileDAO {
 
     try {
       Query query = entityManager.createQuery(
-              "SELECT new SmallFileEntity (f.id, null, f.fileName, f.mimeType, f.size, null) FROM SmallFileEntity f WHERE f.id = :id"
+              "SELECT new SmallFileEntity (f.id, f.userName, f.fileName, f.mimeType, f.size, null) FROM SmallFileEntity f WHERE f.id = :id"
       );
       query.setParameter("id", id);
       file = (SmallFileEntity) query.getSingleResult();
@@ -78,7 +78,7 @@ public class SmallFileDAO {
 
     try {
       Query query = entityManager.createQuery(
-              "SELECT new SmallFileEntity(f.id, null, f.fileName, f.mimeType, f.size, null) FROM SmallFileEntity f"
+              "SELECT new SmallFileEntity(f.id, f.userName, f.fileName, f.mimeType, f.size, null) FROM SmallFileEntity f"
       );
       files = (List<SmallFileEntity>) query.getResultList();
     } catch (Exception e) {
