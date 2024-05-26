@@ -150,7 +150,7 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
   }
 
   private void deleteAvatarAction(Event event) {
-    chatSessionController.deleteAvatar(null);
+    chatSessionController.deleteAvatar();
   }
 
   public void onDeleteAvatar() {

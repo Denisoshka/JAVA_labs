@@ -29,7 +29,7 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
       throw new RuntimeException(exception);
     }
     this.primaryStage = primaryStage;
-    chatSession.setPrimaryStage(primaryStage);
+    this.chatSession.setPrimaryStage(primaryStage);
   }
 
   @Override

@@ -16,13 +16,11 @@ public class ListModule implements ChatModule {
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
   private final ListDTO.ListDTOConverter converter;
-  private final Logger defaultLoger;
 
   public ListModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LIST);
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.defaultLoger = chatSessionExecutor.getDefaultLogger();
   }
 
   @Override

@@ -70,8 +70,9 @@ public class UserProfileSection implements AbstractSection {
         try {
           byte[] msg = updateAvatarCommandConverter.serialize(
                   new UserProfileDTO.UpdateAvatarEvent(
-                          updateAvatarCommand.getContent(),
-                          updateAvatarCommand.getMimeType()
+                          connection.getConnectionName(),
+                          updateAvatarCommand.getMimeType(),
+                          updateAvatarCommand.getContent()
                   )
           ).getBytes();
           connection.sendBroadcastMessage(server, msg, log);
@@ -95,7 +96,9 @@ public class UserProfileSection implements AbstractSection {
     try {
       String status = chatUsersDAO.deleteProfilePictureByUserName(connection.getConnectionName());
       if (status == null) {
-        connection.sendMessage(deleteAvatarCommandConverter.serialize(new UserProfileDTO.UpdateAvatarCommandSuccess()).getBytes());
+        connection.sendMessage(deleteAvatarCommandConverter.serialize(
+                new UserProfileDTO.UpdateAvatarCommandSuccess()
+        ).getBytes());
         try {
           byte[] msg = deleteAvatarCommandConverter.serialize(
                   new UserProfileDTO.UpdateAvatarEvent()

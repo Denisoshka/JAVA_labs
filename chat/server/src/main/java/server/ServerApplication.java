@@ -4,7 +4,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import server.exceptions.ServerConfigUnavailable;
 import server.model.Server;
 
 import java.io.BufferedReader;

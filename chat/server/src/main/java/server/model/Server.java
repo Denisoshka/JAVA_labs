@@ -86,8 +86,7 @@ public class Server implements Runnable {
     public void run() {
       try {
         while (!Thread.currentThread().isInterrupted()) {
-          List<ServerConnection> exConnections = connections.stream().
-                  filter(ServerConnection::isExpired).toList();
+          List<ServerConnection> exConnections = connections.stream().filter(ServerConnection::isExpired).toList();
           exConnections.forEach(connection -> {
             try {
               connection.close();

@@ -15,19 +15,18 @@ import dto.subtypes.*;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 public class ChatSessionController {
-  private static final String USER_LOGIN = "userlogin";
-  private static final String USER_LOGOUT = "userlogout";
-  private static final String USER_MESSAGE = "message";
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionController.class);
+
 
   private MessageModule messageModule;
   private LoginModule loginModule;
@@ -38,6 +37,8 @@ public class ChatSessionController {
   private SessionInfoBlock sessionInfoBlock;
   private ChatUsersInfo chatUsersInfo;
   private FileModule fileModule;
+  private final ConcurrentMap<String, Image> userProfileImages = new ConcurrentHashMap<>();
+
 
   public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
@@ -55,35 +56,16 @@ public class ChatSessionController {
     this.chatUsersInfo = chatSessionView.getChatUsersInfo();
   }
 
- /* public void showMessage(RequestDTO requestDTO, DTOInterfaces.COMMAND_DTO response) {
-    if (requestDTO.getDTOtype() == RequestDTO.DTO_TYPE.EVENT) {
-      onEvent((DTOInterfaces.EVENT_DTO) requestDTO);
-    } else if (requestDTO.getDTOtype() == RequestDTO.DTO_TYPE.COMMAND) {
-      onCommand((DTOInterfaces.COMMAND_DTO) requestDTO, response);
-    }
-  }*/
-
-  private void onEvent(DTOInterfaces.EVENT_DTO event) {
-    switch (event.getNameAttribute()) {
-      case USER_MESSAGE -> onMessageEvent((MessageDTO.Event) event);
-      case USER_LOGIN -> onLoginEvent((LoginDTO.Event) event);
-      case USER_LOGOUT -> onLogoutEvent((LogoutDTO.Event) event);
-    }
-  }
-
-  private void onCommand(DTOInterfaces.COMMAND_DTO command, DTOInterfaces.RESPONSE_DTO response) {
-    switch (command.getDTOSection()) {
-      case MESSAGE -> onMessageResponse((MessageDTO.Command) command, null);
-    }
-  }
 
   public void messageCommand(String message) {
     messageModule.commandAction(new MessageDTO.Command(message), null);
   }
 
+
   public void loginCommand(String login, String password, String hostname, int port) {
     loginModule.commandAction(null, new DataDTO.LoginData(login, hostname, password, port));
   }
+
 
   public void onLoginCommand(RequestDTO.RESPONSE_TYPE responseType) {
     if (responseType != RequestDTO.RESPONSE_TYPE.SUCCESS) {
@@ -93,9 +75,11 @@ public class ChatSessionController {
     reloadUsers();
   }
 
+
   public void logoutCommand() {
     logoutModule.commandAction(null, null);
   }
+
 
   public void onLogoutCommand(DTOInterfaces.RESPONSE_DTO response) {
     chatSession.clearSession();
@@ -106,9 +90,11 @@ public class ChatSessionController {
     sessionInfoBlock.setConnectionStatus(state);
   }
 
+
   public void reloadUsers() {
     listModule.commandAction(null, null);
   }
+
 
   public void onListResponse(ListDTO.Command command, DTOInterfaces.RESPONSE_DTO response) {
     if (response.getResponseType() != RequestDTO.RESPONSE_TYPE.SUCCESS) {
@@ -122,6 +108,7 @@ public class ChatSessionController {
     chatUsersInfo.onReloadUsers(usersInfo);
   }
 
+
   public void onMessageResponse(MessageDTO.Command message, DTOInterfaces.RESPONSE_DTO response) {
     /*todo make for server sender desc and time*/
     /*todo remove this on release*/
@@ -131,6 +118,7 @@ public class ChatSessionController {
     ));
   }
 
+
   public void onMessageEvent(MessageDTO.Event event) {
     /*todo make for server sender desc and time*/
     chatSession.addNewChatRecord(new ChatMessage(
@@ -139,11 +127,13 @@ public class ChatSessionController {
     ));
   }
 
+
   public void onLogoutEvent(LogoutDTO.Event event) {
     /*todo make for server sender desc and time*/
     chatSession.addNewChatRecord(new LogoutEvent(event.getName(), ZonedDateTime.now()));
     chatUsersInfo.removeUser(new UserInfo(event.getName()));
   }
+
 
   public void onLoginEvent(LoginDTO.Event event) {
     /*todo make for server sender desc and time*/
@@ -160,16 +150,19 @@ public class ChatSessionController {
     fileModule.downloadAction(new FileDTO.DownloadCommand(fileId));
   }
 
+
   public void onFileUploadResponse(FileDTO.Event event) {
 //    todo unused
     addFileEvent(ChatSession.ChatEventType.SEND, event);
-    addFilePreview(event);
+//    addFilePreview(event);
   }
+
 
   public void onFileUploadEvent(FileDTO.Event event) {
     addFileEvent(ChatSession.ChatEventType.EVENT, event);
 //    addFilePreview(event);
   }
+
 
   private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
     chatSession.addNewChatRecord(new FileEvent(
@@ -179,12 +172,14 @@ public class ChatSessionController {
     ));
   }
 
+
   private void addFilePreview(FileDTO.Event event) {
     /*chatSession.()
             .onFileUpload(new FileMetadata(String.valueOf(event.getId()), event.getName(),
                     (int) event.getSize(), event.getMimeType())
             );*/
   }
+
 
   public void onListFileResponse(List<FileDTO.FileEntity> files) {
     ArrayList<FileMetadata> rez = new ArrayList<>(files.size());
@@ -194,35 +189,43 @@ public class ChatSessionController {
     chatSession.getFileChoseWindow().onListFiles(rez);
   }
 
+
   public void listFilesAction() {
     fileModule.fileListAction();
   }
+
 
   public void updateAvatar(File selectedFile) {
     userProfileModule.updateAvatarAction(selectedFile);
   }
 
-  public void onUpdateAvatar(File selectedFile, DTOInterfaces.RESPONSE_DTO responseDto) {
+
+  public void onUpdateAvatar(byte[] imageBytes, DTOInterfaces.RESPONSE_DTO responseDto) {
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
       sessionInfoBlock.onUpdateAvatar(null);
     } else {
-      try {
-        sessionInfoBlock.onUpdateAvatar(new Image(Files.newInputStream(selectedFile.toPath())));
-      } catch (IOException e) {
-        log.error(e.getMessage(), e);
-        sessionInfoBlock.onUpdateAvatar(null);
-      }
+      sessionInfoBlock.onUpdateAvatar(new Image(new ByteArrayInputStream(imageBytes)));
     }
   }
 
-  public void deleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
+
+  public void deleteAvatar() {
+    userProfileModule.deleteAvatarAction();
+  }
+
+
+  public void onDeleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
       sessionInfoBlock.onDeleteAvatar();
     }
   }
 
-  public void onDeleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
+  public void onUpdateAvatarEvent(UserProfileDTO.UpdateAvatarEvent event) {
+    userProfileImages.put(event.getName(), new Image(new ByteArrayInputStream(event.getContent())));
+  }
 
+  public void onDeleteAvatarEvent(UserProfileDTO.UpdateAvatarEvent event) {
+    userProfileImages.remove(event.getName());
   }
 
   public static class UserInfo {

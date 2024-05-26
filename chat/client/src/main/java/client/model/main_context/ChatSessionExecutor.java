@@ -22,15 +22,7 @@ import java.util.concurrent.SynchronousQueue;
 
 public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class);
-  private final Logger defaultLogger = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class.getName());
-  private final Logger moduleLogger = org.slf4j.LoggerFactory.getLogger("module_logger");
-
-  public ExecutorService getChatModuleExecutor() {
-    return chatModuleExecutor;
-  }
-
   private final ExecutorService chatModuleExecutor = Executors.newSingleThreadExecutor();
-  private final ExecutorService responseExecutor = Executors.newSingleThreadExecutor();
   private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
   private final DTOConverterManager DTOConverterManager;
   private final ChatModuleManager chatModuleManager;
@@ -54,7 +46,7 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
       try {
         connection.close();
       } catch (IOException e) {
-        defaultLogger.info(e.getMessage());
+        log.info(e.getMessage(), e);
       }
     }
     this.connection = new Connection(this, hostname, port);
@@ -63,6 +55,7 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
 
   @Override
   public void shutdownConnection() throws IOException {
+    chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
     try {
       connection.close();
     } finally {
@@ -71,7 +64,6 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   }
 
   public void executeModuleAction(Runnable task) {
-    log.info(STR."new task \{task}");
     chatModuleExecutor.execute(task);
   }
 
@@ -83,16 +75,6 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
   public boolean isConnected() {
     return connection != null && !connection.isClosed();
   }
-
-  @Override
-  public Logger getModuleLogger() {
-    return moduleLogger;
-  }
-
-  public Logger getDefaultLogger() {
-    return defaultLogger;
-  }
-
 
   public ChatSessionController getChatSessionController() {
     return chatSessionController;
@@ -114,5 +96,9 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
 
   public ChatModuleManager getChatModuleManager() {
     return chatModuleManager;
+  }
+
+  public ExecutorService getChatModuleExecutor() {
+    return chatModuleExecutor;
   }
 }

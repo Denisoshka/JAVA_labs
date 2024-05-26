@@ -119,16 +119,19 @@ public class UserProfileDTO {
 
   @XmlRootElement(name = "event")
   @XmlAccessorType(XmlAccessType.FIELD)
-  public static class UpdateAvatarEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.CONTENT, DTOInterfaces.MIME_TYPE {
+  public static class UpdateAvatarEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInterfaces.MIME_TYPE {
+
     @XmlAttribute(name = "name")
     private final String nameAttribute = RequestDTO.EVENT_TYPE.UPDATEAVATAR.getName();
     private byte[] content;
     private String mimeType;
+    private String name;
 
     public UpdateAvatarEvent() {
     }
 
-    public UpdateAvatarEvent(byte[] content, String mimeType) {
+    public UpdateAvatarEvent(String name, String mimeType, byte[] content) {
+      this.name = name;
       this.content = content;
       this.mimeType = mimeType;
     }
@@ -157,6 +160,11 @@ public class UserProfileDTO {
     public String getMimeType() {
       return mimeType;
     }
+
+    @Override
+    public String getName() {
+      return name;
+    }
   }
 
 
@@ -183,9 +191,19 @@ public class UserProfileDTO {
   }
 
 
-  public static class DeleteAvatarEvent implements DTOInterfaces.EVENT_DTO {
+  @XmlRootElement(name = "event")
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class DeleteAvatarEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME {
     @XmlAttribute(name = "name")
     private final static String nameAttribute = RequestDTO.EVENT_TYPE.DELETEAVATAR.getName();
+    private String name;
+
+    public DeleteAvatarEvent() {
+    }
+
+    public DeleteAvatarEvent(String name) {
+      this.name = name;
+    }
 
     @Override
     public RequestDTO.EVENT_TYPE getEventType() {
@@ -201,7 +219,13 @@ public class UserProfileDTO {
     public RequestDTO.DTO_SECTION getDTOSection() {
       return RequestDTO.DTO_SECTION.USERPROFILE;
     }
+
+    @Override
+    public String getName() {
+      return name;
+    }
   }
+
 
   @XmlRootElement(name = "success")
   public static class DeleteAvatarCommandSuccess implements DTOInterfaces.SUCCESS_RESPONSE_DTO {
@@ -210,6 +234,7 @@ public class UserProfileDTO {
       return RequestDTO.DTO_SECTION.USERPROFILE;
     }
   }
+
 
   @XmlRootElement(name = "error")
   @XmlAccessorType(XmlAccessType.FIELD)
