@@ -97,11 +97,11 @@ public class UserProfileSection implements AbstractSection {
       String status = chatUsersDAO.deleteProfilePictureByUserName(connection.getConnectionName());
       if (status == null) {
         connection.sendMessage(deleteAvatarCommandConverter.serialize(
-                new UserProfileDTO.UpdateAvatarCommandSuccess()
+                new UserProfileDTO.DeleteAvatarCommandSuccess()
         ).getBytes());
         try {
           byte[] msg = deleteAvatarCommandConverter.serialize(
-                  new UserProfileDTO.UpdateAvatarEvent()
+                  new UserProfileDTO.DeleteAvatarEvent(connection.getConnectionName())
           ).getBytes();
           connection.sendBroadcastMessage(server, msg, log);
         } catch (IOException e) {

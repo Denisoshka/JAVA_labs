@@ -21,7 +21,6 @@ module client_application {
   opens client.model.main_context.interfaces to javafx.fxml;
 
   exports client.view;
-  exports client.exception;
   exports client.model.io_processing;
   exports client.model.main_context;
   exports client.model.main_context.interfaces;

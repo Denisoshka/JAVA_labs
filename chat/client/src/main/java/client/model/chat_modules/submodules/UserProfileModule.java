@@ -6,6 +6,7 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
+import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.UserProfileDTO;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class UserProfileModule implements ChatModule {
       } catch (IOException e) {
         try {
           chatSessionExecutor.shutdownConnection();
-        } catch (IOException ex) {
+        } catch (IOException _) {
         }
 //        todo remove from here
         log.info(e.getMessage(), e);
@@ -74,11 +75,15 @@ public class UserProfileModule implements ChatModule {
       var deleteConverter = converter.getDeleteAvatarCommandConverter();
       try {
         ioProcessor.sendMessage(deleteConverter.serialize(new UserProfileDTO.DeleteAvatarCommand()).getBytes());
+        log.info("perform delete avatar command");
         onDeleteAvatarResponse();
       } catch (UnableToSerialize e) {
         log.warn(e.getMessage(), e);
       } catch (IOException e) {
-
+        try {
+          chatSessionExecutor.shutdownConnection();
+        } catch (IOException _) {
+        }
       }
     });
   }
@@ -88,21 +93,30 @@ public class UserProfileModule implements ChatModule {
       try {
         var root = chatSessionExecutor.getModuleExchanger().take();
         var deleteConverter = converter.getDeleteAvatarCommandConverter();
-        chatSessionController.onDeleteAvatar((DTOInterfaces.RESPONSE_DTO) deleteConverter.deserialize(root));
+        var response = (DTOInterfaces.RESPONSE_DTO) deleteConverter.deserialize(root);
+        chatSessionController.onDeleteAvatar(response);
       } catch (UnableToDeserialize e) {
-        log.warn(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });
   }
 
   @Override
-  public void eventAction(DTOInterfaces.EVENT_DTO event) {
-    if (event.getEventType() == RequestDTO.EVENT_TYPE.UPDATEAVATAR){
-      chatSessionController.onUpdateAvatarEvent((UserProfileDTO.UpdateAvatarEvent) event);
-
-    } else if (event.getEventType() == RequestDTO.EVENT_TYPE.DELETEAVATAR) {
-      chatSessionController.onDeleteAvatarEvent((UserProfileDTO.UpdateAvatarEvent) event);
+  public void eventAction(Document root) {
+    var eventType = DTOConverterManagerInterface.getDTOEvent(root);
+    try {
+      if (eventType == RequestDTO.EVENT_TYPE.UPDATEAVATAR) {
+        var event = converter.getUpdateAvatarCommandConverter().deserialize(root);
+        chatSessionController.onUpdateAvatarEvent((UserProfileDTO.UpdateAvatarEvent) event);
+      } else if (eventType == RequestDTO.EVENT_TYPE.DELETEAVATAR) {
+        var event = converter.getDeleteAvatarCommandConverter().deserialize(root);
+        chatSessionController.onDeleteAvatarEvent((UserProfileDTO.DeleteAvatarEvent) event);
+      } else {
+        log.error(DTOConverterManagerInterface.getSTRDTOEvent(root));
+      }
+    } catch (UnableToDeserialize e) {
+      log.error(e.getMessage(), e);
     }
   }
 }

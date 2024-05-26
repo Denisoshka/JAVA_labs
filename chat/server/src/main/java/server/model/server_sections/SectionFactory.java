@@ -35,6 +35,10 @@ public class SectionFactory implements CommandSupplier {
             RequestDTO.DTO_SECTION.FILE,
             new FileSection(server)
     );
+    commands.put(
+            RequestDTO.DTO_SECTION.USERPROFILE,
+            new UserProfileSection(server)
+    );
   }
 
   @Override

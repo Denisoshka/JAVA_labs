@@ -121,10 +121,11 @@ public class ChatSessionController {
 
   public void onMessageEvent(MessageDTO.Event event) {
     /*todo make for server sender desc and time*/
-    chatSession.addNewChatRecord(new ChatMessage(
-            ChatSession.ChatEventType.RECEIVE, event.getFrom(),
-            event.getMessage(), ZonedDateTime.now()
-    ));
+    Image avatar = userProfileImages.get(event.getFrom());
+    var rez = (avatar == null)
+            ? new ChatMessage(ChatSession.ChatEventType.RECEIVE, event.getFrom(), event.getMessage(), ZonedDateTime.now())
+            : new ChatMessage(ChatSession.ChatEventType.RECEIVE, avatar, event.getFrom(), event.getMessage(), ZonedDateTime.now());
+    chatSession.addNewChatRecord(rez);
   }
 
 
@@ -141,9 +142,11 @@ public class ChatSessionController {
     chatUsersInfo.addUser(new UserInfo(event.getName()));
   }
 
+
   public void uploadFile(File file) {
     fileModule.uploadAction(file.toPath());
   }
+
 
   public void downloadFile(Long fileId) {
     log.info(STR."Download request of \{fileId}");
@@ -202,9 +205,9 @@ public class ChatSessionController {
 
   public void onUpdateAvatar(byte[] imageBytes, DTOInterfaces.RESPONSE_DTO responseDto) {
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-      sessionInfoBlock.onUpdateAvatar(null);
-    } else {
       sessionInfoBlock.onUpdateAvatar(new Image(new ByteArrayInputStream(imageBytes)));
+    } else {
+      sessionInfoBlock.onUpdateAvatar(null);
     }
   }
 
@@ -215,8 +218,11 @@ public class ChatSessionController {
 
 
   public void onDeleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
+    log.debug(STR."RESPONSE_TYPE  \{responseDto.getResponseType()}");
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
       sessionInfoBlock.onDeleteAvatar();
+    } else if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
+      log.info((((DTOInterfaces.ERROR_RESPONSE_DTO) responseDto).getMessage()));
     }
   }
 
@@ -224,7 +230,7 @@ public class ChatSessionController {
     userProfileImages.put(event.getName(), new Image(new ByteArrayInputStream(event.getContent())));
   }
 
-  public void onDeleteAvatarEvent(UserProfileDTO.UpdateAvatarEvent event) {
+  public void onDeleteAvatarEvent(UserProfileDTO.DeleteAvatarEvent event) {
     userProfileImages.remove(event.getName());
   }
 

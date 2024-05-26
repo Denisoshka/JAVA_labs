@@ -8,6 +8,7 @@ import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.ListDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 
@@ -23,7 +24,6 @@ public class ListModule implements ChatModule {
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
   }
 
-  @Override
   public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
@@ -37,7 +37,6 @@ public class ListModule implements ChatModule {
     );
   }
 
-  @Override
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
@@ -52,7 +51,7 @@ public class ListModule implements ChatModule {
   }
 
   @Override
-  public void eventAction(DTOInterfaces.EVENT_DTO event) {
+  public void eventAction(Document root) {
     log.warn("unimplemented event");
 //    unhandle list event
   }

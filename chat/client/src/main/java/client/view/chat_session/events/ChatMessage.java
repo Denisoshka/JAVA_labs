@@ -1,6 +1,9 @@
 package client.view.chat_session.events;
 
 import client.view.chat_session.ChatSession;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -14,8 +17,21 @@ public class ChatMessage extends VBox implements ChatRecord {
   public ChatMessage(ChatSession.ChatEventType type, String recordSender,
                      String messageText, ZonedDateTime zdt) {
     var recordAgent = new Text(recordSender);
-    var recordDate = new Text(zdt.format(DateTimeFormatter.ofPattern("hh : mm a ")));
     var recordMessage = new Text(messageText);
+    var recordDate = new Text(zdt.format(DateTimeFormatter.ofPattern("hh : mm a ")));
+    var messageFlow = new TextFlow(recordMessage);
+    super(recordAgent, messageFlow, recordDate);
+    this.type = type;
+  }
+
+  public ChatMessage(ChatSession.ChatEventType type, Image avatar, String recordSender,
+                     String messageText, ZonedDateTime zdt) {
+    var image = new ImageView(avatar);
+    image.maxHeight(30);
+    image.maxWidth(30);
+    var recordAgent = new HBox(image, new Text(recordSender));
+    var recordMessage = new Text(messageText);
+    var recordDate = new Text(zdt.format(DateTimeFormatter.ofPattern("hh : mm a ")));
     var messageFlow = new TextFlow(recordMessage);
     super(recordAgent, messageFlow, recordDate);
     this.type = type;

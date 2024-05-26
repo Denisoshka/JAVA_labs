@@ -5,30 +5,27 @@ import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
 import dto.RequestDTO;
+import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 
 public class LogoutModule implements ChatModule<Object> {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(LogoutModule.class);
 
   private final ChatSessionExecutor chatSessionExecutor;
-
   private final ChatSessionController chatSessionController;
-  private final Logger modulelogger;
-  private final Logger defaultLoger;
   private final LogoutDTO.LogoutDTOConverter converter;
 
   public LogoutModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.modulelogger = chatSessionExecutor.getModuleLogger();
-    this.defaultLoger = chatSessionExecutor.getDefaultLogger();
     this.converter = (LogoutDTO.LogoutDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT);
   }
 
-  @Override
   public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
@@ -36,12 +33,11 @@ public class LogoutModule implements ChatModule<Object> {
         responseActon(null);
         ioProcessor.sendMessage(converter.serialize(new LogoutDTO.Command()).getBytes());
       } catch (IOException e) {
-        modulelogger.warn(e.getMessage());
+        log.warn(e.getMessage());
       }
     });
   }
 
-  @Override
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
@@ -49,20 +45,25 @@ public class LogoutModule implements ChatModule<Object> {
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.CONNECTED);
         } else {
-          modulelogger.info(((DTOInterfaces.ERROR_RESPONSE_DTO)response).getMessage());
+          log.info(((DTOInterfaces.ERROR_RESPONSE_DTO) response).getMessage());
         }
         chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
         chatSessionController.onLogoutCommand(response);
         chatSessionExecutor.shutdownConnection();
       } catch (IOException e) {
-        modulelogger.warn(e.getMessage(), e);
+        log.warn(e.getMessage(), e);
       } catch (InterruptedException _) {
       }
     });
   }
 
   @Override
-  public void eventAction(DTOInterfaces.EVENT_DTO event) {
-    chatSessionController.onLogoutEvent((LogoutDTO.Event) event);
+  public void eventAction(Document root) {
+    try {
+      var event = converter.deserialize(root);
+      chatSessionController.onLogoutEvent((LogoutDTO.Event) event);
+    } catch (UnableToDeserialize e) {
+      log.warn(e.getMessage(), e);
+    }
   }
 }

@@ -10,6 +10,7 @@ import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.LoginDTO;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
 
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
     this.converter = (LoginDTO.LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
   }
 
-  @Override
+
   public void commandAction(DTOInterfaces.COMMAND_DTO command, DataDTO.LoginData additionalArg) {
     String hostname = additionalArg.getHostname();
     int port = additionalArg.getPort();
@@ -55,7 +56,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
     });
   }
 
-  @Override
+
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       String nodeName = null;
@@ -76,9 +77,13 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
     });
   }
 
-  @Override
-  public void eventAction(DTOInterfaces.EVENT_DTO event) {
-    chatSessionController.onLoginEvent((LoginDTO.Event) event);
+  public void eventAction(Document root) {
+    try {
+      converter.deserialize(root);
+      chatSessionController.onLoginEvent((LoginDTO.Event) root);
+    } catch (UnableToDeserialize e) {
+      log.error(e.getMessage(), e);
+    }
   }
 }
 

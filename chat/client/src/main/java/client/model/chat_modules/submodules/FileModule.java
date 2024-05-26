@@ -6,6 +6,7 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
+import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.FileDTO;
 import file_section.FileManager;
@@ -47,23 +48,23 @@ public class FileModule implements ChatModule {
     this.listFileDTOConverter = converter.getListFileDTOConverter();
   }
 
-
   @Override
-  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
-  }
-
-  @Override
-  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
-  }
-
-  @Override
-  public void eventAction(DTOInterfaces.EVENT_DTO event) {
-    FileDTO.Event fileEvent = (FileDTO.Event) event;
-    sessionController.onFileUploadEvent(new FileDTO.Event(
-            fileEvent.getId(), fileEvent.getFrom(),
-            fileEvent.getName(), fileEvent.getSize(),
-            fileEvent.getMimeType()
-    ));
+  public void eventAction(Document root) {
+    try {
+      var eventType = DTOConverterManagerInterface.getDTOEvent(root);
+      if (eventType == RequestDTO.EVENT_TYPE.FILE) {
+        FileDTO.Event fileEvent = (FileDTO.Event) uploadDTOConverter.deserialize(root);
+        sessionController.onFileUploadEvent(new FileDTO.Event(
+                fileEvent.getId(), fileEvent.getFrom(),
+                fileEvent.getName(), fileEvent.getSize(),
+                fileEvent.getMimeType()
+        ));
+      } else {
+        log.debug("unsupported event type: {}", DTOConverterManagerInterface.getSTRDTOEvent(root));
+      }
+    } catch (UnableToDeserialize e) {
+      log.error(e.getMessage(), e);
+    }
   }
 
   public void uploadResponse(FileDTO.UploadCommand command) {

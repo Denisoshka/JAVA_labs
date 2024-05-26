@@ -40,9 +40,4 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ALLFILE"/>
     </root>
-
-    <logger name="moduleLogger" level="TRACE">
-        <appender-ref ref="MODULEFILE"/>
-    </logger>
-
 </configuration>

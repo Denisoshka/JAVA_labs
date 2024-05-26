@@ -34,7 +34,7 @@ public class ServerApplication {
     try (var reader = new BufferedReader(new FileReader(commandLine.getOptionValue(CONFIG)))) {
       serverProperties.load(reader);
     } catch (IOException e) {
-      throw new ServerConfigUnavailable(commandLine.getOptionValue(CONFIG), e);
+      throw new IOException(e.getMessage());
     }
     new Server(serverProperties).run();
     commandLine = null;

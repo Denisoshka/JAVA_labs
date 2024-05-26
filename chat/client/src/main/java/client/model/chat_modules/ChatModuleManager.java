@@ -20,6 +20,7 @@ public class ChatModuleManager implements AbstractChatModuleManager {
     modules.put(RequestDTO.DTO_SECTION.LOGIN, new LoginModule(chatSessionExecutor));
     modules.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutModule(chatSessionExecutor));
     modules.put(RequestDTO.DTO_SECTION.FILE, new FileModule(chatSessionExecutor));
+    modules.put(RequestDTO.DTO_SECTION.USERPROFILE, new UserProfileModule(chatSessionExecutor));
   }
 
   @Override

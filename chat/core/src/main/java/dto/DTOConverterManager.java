@@ -33,6 +33,7 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
       converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
       converters.put(RequestDTO.DTO_SECTION.FILE, new FileDTO.FileDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.USERPROFILE, new UserProfileDTO.UserProfileDTOConverter());
 
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = requireNonNull(factory.newDocumentBuilder());

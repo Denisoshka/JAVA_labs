@@ -190,7 +190,6 @@ public class UserProfileDTO {
     }
   }
 
-
   @XmlRootElement(name = "event")
   @XmlAccessorType(XmlAccessType.FIELD)
   public static class DeleteAvatarEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME {
