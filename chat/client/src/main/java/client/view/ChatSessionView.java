@@ -13,7 +13,7 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
   @FXML
   private ChatSession chatSession;
   @FXML
-  private RegistrationBlock registrationBlock;
+  private SessionInfoBlock sessionInfoBlock;
   @FXML
   private ChatUsersInfo chatUsersInfo;
 
@@ -34,7 +34,7 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
 
   @Override
   public void setChatSessionController(ChatSessionController chatSessionController) {
-    registrationBlock.setChatSessionController(chatSessionController);
+    sessionInfoBlock.setChatSessionController(chatSessionController);
     chatSession.setChatSessionController(chatSessionController);
     chatUsersInfo.setChatSessionController(chatSessionController);
   }
@@ -43,8 +43,8 @@ public class ChatSessionView extends SplitPane implements ControllerIntroduce {
     return chatSession;
   }
 
-  public RegistrationBlock getRegistrationBlock() {
-    return registrationBlock;
+  public SessionInfoBlock getRegistrationBlock() {
+    return sessionInfoBlock;
   }
 
   public ChatUsersInfo getChatUsersInfo() {

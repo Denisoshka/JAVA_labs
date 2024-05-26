@@ -99,7 +99,6 @@ public class ChatSession extends VBox implements ControllerIntroduce {
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.initModality(Modality.APPLICATION_MODAL);
       alert.initOwner(this.getScene().getWindow());
-      alert.setTitle("Confirmation Dialog");
       alert.setContentText(STR." send file: \{selectedFile.getName()}");
 
       ButtonType sendButtonType = new ButtonType("Send", ButtonBar.ButtonData.OK_DONE);

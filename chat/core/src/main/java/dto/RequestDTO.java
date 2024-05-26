@@ -1,10 +1,6 @@
 package dto;
 
 import dto.interfaces.DTOInterfaces;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlType;
-
-import java.util.Objects;
 
 public abstract class RequestDTO implements DTOInterfaces.REQUEST_DTO {
   public enum DTO_TYPE {
@@ -30,7 +26,9 @@ public abstract class RequestDTO implements DTOInterfaces.REQUEST_DTO {
     LOGOUT("logout"),
     LOGIN("login"),
     LIST("list"),
-    FILE("file");
+    FILE("file"),
+    USERPROFILE("userprofile"),
+    ;
 
     DTO_SECTION(String COMMANDName) {
       this.COMMANDName = COMMANDName;
@@ -50,7 +48,10 @@ public abstract class RequestDTO implements DTOInterfaces.REQUEST_DTO {
     LIST("list", DTO_SECTION.LIST),
     UPLOAD("upload", DTO_SECTION.FILE),
     DOWNLOAD("download", DTO_SECTION.FILE),
-    LISTFILE("listfile", DTO_SECTION.FILE);
+    LISTFILE("listfile", DTO_SECTION.FILE),
+    UPDATEAVATAR("updateavatar", DTO_SECTION.USERPROFILE),
+    DELETEAVATAR("deleteavatar", DTO_SECTION.USERPROFILE),
+    ;
 
     private final String name;
     private final DTO_SECTION section;
@@ -75,6 +76,8 @@ public abstract class RequestDTO implements DTOInterfaces.REQUEST_DTO {
     USERLOGIN("userlogin", DTO_SECTION.LOGIN),
     USERLOGOUT("userlogout", DTO_SECTION.LOGOUT),
     FILE("file", DTO_SECTION.FILE),
+    UPDATEAVATAR("updateavatar", DTO_SECTION.USERPROFILE),
+    DELETEAVATAR("deleteavatar", DTO_SECTION.USERPROFILE),
     ;
     private final DTO_SECTION section;
     private final String name;

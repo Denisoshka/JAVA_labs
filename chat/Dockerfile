@@ -1,6 +1,5 @@
 FROM maven:3.9.6-eclipse-temurin-22-alpine as build
 #FROM maven:3.8.6-openjdk-17 AS build
-ARG MAVEN_OPTS
 WORKDIR /app
 COPY . .
 RUN mvn clean install

@@ -61,7 +61,6 @@ public class Connection implements Runnable, AutoCloseable {
             DTOInterfaces.EVENT_DTO event = (DTOInterfaces.EVENT_DTO) dtoConverterManager.deserialize(tree);
             chatModuleManager.getChatModule(section.geDTOSection()).eventAction(event);
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
-            log.info("response {}", type);
             moduleExchanger.put(tree);
           }
         } catch (UnableToDeserialize e) {

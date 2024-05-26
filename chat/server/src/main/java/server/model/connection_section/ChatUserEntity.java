@@ -16,6 +16,12 @@ public class ChatUserEntity {
   @Column(name = "password_hash", nullable = false)
   int passwordHash;
 
+  @Column(name = "avatar_mime_type")
+  private String avatarMimeType;
+
+  @Column(name = "avatar")
+  private byte[] avatar;
+
   public ChatUserEntity() {
   }
 
@@ -46,5 +52,21 @@ public class ChatUserEntity {
 
   public void setPasswordHash(int passwordHash) {
     this.passwordHash = passwordHash;
+  }
+
+  public String getAvatarMimeType() {
+    return avatarMimeType;
+  }
+
+  public void setAvatarMimeType(String avatarMimeType) {
+    this.avatarMimeType = avatarMimeType;
+  }
+
+  public byte[] getAvatar() {
+    return avatar;
+  }
+
+  public void setAvatar(byte[] avatar) {
+    this.avatar = avatar;
   }
 }

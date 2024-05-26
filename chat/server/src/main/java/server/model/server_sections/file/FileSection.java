@@ -22,14 +22,12 @@ public class FileSection implements AbstractSection {
   private final FileDTO.FileUploadDTOConverter uploadDTOConverter;
   private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
   private final FileDTO.FileListFileDTOConverter listFileDTOConverter;
-  private final Logger moduleLogger;
   private final Server server;
   private final SmallFileDAO smallFileDAO = new SmallFileDAO();
 
   public FileSection(Server server) throws IOException {
     FileDTO.FileDTOConverter mainConverter = (FileDTO.FileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
     this.server = server;
-    this.moduleLogger = server.getModuleLogger();
     this.uploadDTOConverter = mainConverter.getFileUploadDTOConverter();
     this.downloadDTOConverter = mainConverter.getFileDownloadDTOConverter();
     this.listFileDTOConverter = mainConverter.getListFileDTOConverter();
@@ -56,7 +54,7 @@ public class FileSection implements AbstractSection {
   }
 
   private void onUploadRequest(Document root, ServerConnection connection) {
-    moduleLogger.info(STR."Upload request from \{connection.getConnectionName()}");
+    log.info(STR."Upload request from \{connection.getConnectionName()}");
     FileDTO.UploadCommand command = null;
     Long id = null;
     try {
@@ -65,9 +63,9 @@ public class FileSection implements AbstractSection {
       try {
         connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
       } catch (IOException ioe) {
-        moduleLogger.error(ioe.getMessage(), ioe);
+        log.error(ioe.getMessage(), ioe);
       }
-      moduleLogger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       return;
     }
 
@@ -102,12 +100,12 @@ public class FileSection implements AbstractSection {
       try {
         connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
       } catch (IOException ioe) {
-        moduleLogger.error(ioe.getMessage(), ioe);
+        log.error(ioe.getMessage(), ioe);
         server.submitExpiredConnection(connection);
       }
-      moduleLogger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     } catch (IOException e) {
-      moduleLogger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       server.submitExpiredConnection(connection);
     }
   }
@@ -115,7 +113,7 @@ public class FileSection implements AbstractSection {
   private void onDownloadRequest(Document root, ServerConnection connection) {
     try {
       FileDTO.DownloadCommand command = (FileDTO.DownloadCommand) downloadDTOConverter.deserialize(root);
-      moduleLogger.info(STR."Download request \{command.getId()} from \{connection.getConnectionName()}");
+      log.info(STR."Download request \{command.getId()} from \{connection.getConnectionName()}");
 
       SmallFileEntity fileEntity = smallFileDAO.getFile(command.getId());
       if (fileEntity != null) {
@@ -133,13 +131,13 @@ public class FileSection implements AbstractSection {
                 downloadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes()
         );
       } catch (UnableToSerialize e1) {
-        moduleLogger.trace(e1.getMessage(), e1);
+        log.trace(e1.getMessage(), e1);
       } catch (IOException e1) {
-        moduleLogger.trace(e1.getMessage(), e1);
+        log.trace(e1.getMessage(), e1);
         server.submitExpiredConnection(connection);
       }
     } catch (IOException e) {
-      moduleLogger.trace(e.getMessage(), e);
+      log.trace(e.getMessage(), e);
       server.submitExpiredConnection(connection);
     }
   }
@@ -173,11 +171,11 @@ public class FileSection implements AbstractSection {
   private void onUnsupportedType(RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section, ServerConnection connection) {
     var errmsg = STR."not support type: \{type.name()} or section \{section}";
 //    todo make get of type by str
-    moduleLogger.info(errmsg);
+    log.info(errmsg);
     try {
       connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(errmsg)).getBytes());
     } catch (IOException e) {
-      moduleLogger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
       server.submitExpiredConnection(connection);
     }
   }

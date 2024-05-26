@@ -43,10 +43,8 @@ public class ListModule implements ChatModule {
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
-
         var docResponse = chatSessionExecutor.getModuleExchanger().take();
         final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(docResponse);
-        log.info(response.toString());
         chatSessionController.onListResponse(null, response);
       } catch (InterruptedException _) {
       } catch (UnableToDeserialize e) {

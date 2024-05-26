@@ -33,7 +33,7 @@ public class ServerWorker implements Runnable {
       while (!connection.isClosed() && !Thread.currentThread().isInterrupted()) {
         try {
           byte[] msg = con.receiveMessage();
-          log.info(STR."new message \{new String(msg)}");
+          log.info(STR."new message from\{con.getConnectionName()}");
           final Document xmlTree = DTOConverterManager.getXMLTree(msg);
           final RequestDTO.DTO_TYPE dtoType = DTOConverterManagerInterface.getDTOType(xmlTree);
           RequestDTO.DTO_SECTION dtoSection = null;

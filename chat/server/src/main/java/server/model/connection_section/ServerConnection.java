@@ -2,13 +2,13 @@ package server.model.connection_section;
 
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
+import server.model.Server;
 
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Objects;
 
 public class ServerConnection implements AbstractServerConnection, AutoCloseable {
-  private final Logger log = org.slf4j.LoggerFactory.getLogger(ServerConnection.class);
 
   private final String connectionName;
   private final IOProcessor ioProcessor;
@@ -37,6 +37,18 @@ public class ServerConnection implements AbstractServerConnection, AutoCloseable
   @Override
   public void sendMessage(byte[] message) throws IOException {
     ioProcessor.sendMessage(message);
+  }
+
+  @Override
+  public void sendBroadcastMessage(Server server, byte[] msg, Logger log) {
+    for (var conn : server.getConnections()) {
+      try {
+        conn.sendMessage(msg);
+      } catch (IOException e) {
+        if (log != null) log.error(e.getMessage(), e);
+        server.submitExpiredConnection(conn);
+      }
+    }
   }
 
   @Override

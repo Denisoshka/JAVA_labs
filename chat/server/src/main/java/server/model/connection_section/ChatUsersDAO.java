@@ -114,4 +114,109 @@ public class ChatUsersDAO {
       log.error(e.getMessage(), e);
     }
   }
+
+  public String updateProfilePictureByUserName(String userName, String mimeType, byte[] fileContent) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction transaction = entityManager.getTransaction();
+    String message = null;
+    try (entityManager) {
+      transaction.begin();
+      TypedQuery<ChatUserEntity> query = entityManager.createQuery(
+              "SELECT a FROM ChatUserEntity a WHERE a.userName = :userName", ChatUserEntity.class);
+      query.setParameter("userName", userName);
+      ChatUserEntity accountEntity = query.getSingleResult();
+      if (accountEntity != null) {
+        accountEntity.setAvatarMimeType(mimeType);
+        accountEntity.setAvatar(fileContent);
+        entityManager.merge(accountEntity);
+      }
+      transaction.commit();
+    } catch (NoResultException e) {
+      log.info("No account found with userName: " + userName);
+      message = e.getMessage();
+    } catch (Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+      message = e.getMessage();
+      log.error(e.getMessage(), e);
+    }
+    return message;
+  }
+
+  public String deleteProfilePictureByUserName(String userName) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction transaction = entityManager.getTransaction();
+    String message = null;
+    try (entityManager) {
+      transaction.begin();
+      TypedQuery<ChatUserEntity> query = entityManager.createQuery(
+              "SELECT a FROM ChatUserEntity a WHERE a.userName = :userName", ChatUserEntity.class);
+      query.setParameter("userName", userName);
+      ChatUserEntity accountEntity = query.getSingleResult();
+      if (accountEntity != null) {
+        accountEntity.setAvatarMimeType(null);
+        accountEntity.setAvatar(null);
+        entityManager.merge(accountEntity);
+      }
+      transaction.commit();
+    } catch (NoResultException e) {
+      message = e.getMessage();
+      log.info("No account found with userName: " + userName);
+    } catch (Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+      message = e.getMessage();
+      log.error(e.getMessage(), e);
+    }
+    return message;
+  }
+
+  public String updateProfilePicture(Long userId, String mimeType, byte[] fileContent) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction transaction = entityManager.getTransaction();
+    String message = null;
+    try (entityManager) {
+      transaction.begin();
+      ChatUserEntity accountEntity = entityManager.find(ChatUserEntity.class, userId);
+      if (accountEntity != null) {
+        accountEntity.setAvatarMimeType(mimeType);
+        accountEntity.setAvatar(fileContent);
+        entityManager.merge(accountEntity);
+      }
+      transaction.commit();
+    } catch (Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+      log.error(e.getMessage(), e);
+      message = e.getMessage();
+    }
+    return message;
+  }
+
+  public String deleteProfilePicture(Long userId) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction transaction = entityManager.getTransaction();
+    String message = null;
+
+    try (entityManager) {
+      transaction.begin();
+      ChatUserEntity accountEntity = entityManager.find(ChatUserEntity.class, userId);
+      if (accountEntity != null) {
+        accountEntity.setAvatarMimeType(null);
+        accountEntity.setAvatar(null);
+        entityManager.merge(accountEntity);
+      }
+      transaction.commit();
+    } catch (Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+      message = e.getMessage();
+      log.error(e.getMessage(), e);
+    }
+    return message;
+  }
 }

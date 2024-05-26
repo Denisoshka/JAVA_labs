@@ -5,16 +5,19 @@ import client.model.main_context.ChatSessionExecutor;
 import client.model.main_context.interfaces.ConnectionModule;
 import client.view.ChatSessionView;
 import client.view.ChatUsersInfo;
-import client.view.RegistrationBlock;
+import client.view.SessionInfoBlock;
 import client.view.chat_session.ChatSession;
 import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.*;
+import javafx.scene.image.Image;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +33,9 @@ public class ChatSessionController {
   private LoginModule loginModule;
   private LogoutModule logoutModule;
   private ListModule listModule;
+  private UserProfileModule userProfileModule;
   private ChatSession chatSession;
-  private RegistrationBlock registrationBlock;
+  private SessionInfoBlock sessionInfoBlock;
   private ChatUsersInfo chatUsersInfo;
   private FileModule fileModule;
 
@@ -41,12 +45,13 @@ public class ChatSessionController {
     loginModule = (LoginModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LOGIN);
     listModule = (ListModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.LIST);
     fileModule = (FileModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.FILE);
+    userProfileModule = (UserProfileModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.USERPROFILE);
   }
 
 
   public void setChatSessionViewDependence(ChatSessionView chatSessionView) {
     this.chatSession = chatSessionView.getChatSession();
-    this.registrationBlock = chatSessionView.getRegistrationBlock();
+    this.sessionInfoBlock = chatSessionView.getRegistrationBlock();
     this.chatUsersInfo = chatSessionView.getChatUsersInfo();
   }
 
@@ -84,7 +89,7 @@ public class ChatSessionController {
     if (responseType != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }
-    registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
+    sessionInfoBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
     reloadUsers();
   }
 
@@ -94,11 +99,11 @@ public class ChatSessionController {
 
   public void onLogoutCommand(DTOInterfaces.RESPONSE_DTO response) {
     chatSession.clearSession();
-    registrationBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
+    sessionInfoBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
   }
 
   public void onConnectResponse(ConnectionModule.ConnectionState state) {
-    registrationBlock.setConnectionStatus(state);
+    sessionInfoBlock.setConnectionStatus(state);
   }
 
   public void reloadUsers() {
@@ -191,6 +196,33 @@ public class ChatSessionController {
 
   public void listFilesAction() {
     fileModule.fileListAction();
+  }
+
+  public void updateAvatar(File selectedFile) {
+    userProfileModule.updateAvatarAction(selectedFile);
+  }
+
+  public void onUpdateAvatar(File selectedFile, DTOInterfaces.RESPONSE_DTO responseDto) {
+    if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+      sessionInfoBlock.onUpdateAvatar(null);
+    } else {
+      try {
+        sessionInfoBlock.onUpdateAvatar(new Image(Files.newInputStream(selectedFile.toPath())));
+      } catch (IOException e) {
+        log.error(e.getMessage(), e);
+        sessionInfoBlock.onUpdateAvatar(null);
+      }
+    }
+  }
+
+  public void deleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
+    if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+      sessionInfoBlock.onDeleteAvatar();
+    }
+  }
+
+  public void onDeleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
+
   }
 
   public static class UserInfo {

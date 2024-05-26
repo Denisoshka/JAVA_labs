@@ -124,7 +124,6 @@ public class FileModule implements ChatModule {
 
   public void uploadAction(Path path) {
     executor.execute(() -> {
-      log.info("processing upload action");
       try {
         IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
         byte[] content = Base64.getEncoder().encode(Files.readAllBytes(path));
@@ -132,6 +131,7 @@ public class FileModule implements ChatModule {
         String mimeType = Files.probeContentType(path);
         try {
           final FileDTO.UploadCommand uploadCommand = new FileDTO.UploadCommand(name, mimeType, FILE_REQUEST_ENCODING, content);
+          log.info(STR."send file name: \{name}, mimeType: \{mimeType}, size: \{content.length}");
           ioProcessor.sendMessage(uploadDTOConverter.serialize(uploadCommand).getBytes());
           uploadResponse(uploadCommand);
 

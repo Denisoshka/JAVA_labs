@@ -4,22 +4,34 @@ import client.facade.ChatSessionController;
 import client.model.main_context.interfaces.ConnectionModule;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
-public class RegistrationBlock extends VBox implements ControllerIntroduce {
-  private static final Logger log = org.slf4j.LoggerFactory.getLogger(RegistrationBlock.class);
+public class SessionInfoBlock extends VBox implements ControllerIntroduce {
+  private static final Logger log = org.slf4j.LoggerFactory.getLogger(SessionInfoBlock.class);
+  @FXML
+  private ImageView profileAvatar;
+  @FXML
+  private Button updateAvatar;
+  @FXML
+  private Button deleteAvatar;
+  private File avatarFile;
+
   @FXML
   private TextField hostname;
   @FXML
@@ -55,7 +67,7 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
 
   ChatSessionController chatSessionController;
 
-  public RegistrationBlock() {
+  public SessionInfoBlock() {
     FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("RegistrationBlock.fxml"));
     fxmlloader.setRoot(this);
     fxmlloader.setController(this);
@@ -71,6 +83,8 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
   public void initialize() {
     login.setOnAction(this::performLogin);
     logout.setOnAction(this::performLogout);
+    updateAvatar.setOnAction(this::updateAvatarAction);
+    deleteAvatar.setOnAction(this::deleteAvatarAction);
     updateStatus(ConnectionStatus.Disconnected);
     hostname.setPromptText("Hostname");
     port.setPromptText("Port");
@@ -110,7 +124,39 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
     });
   }
 
-  private void setDisconnected() {
+  private void updateAvatarAction(Event event) {
+    FileChooser fileChooser = new FileChooser();
+    File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
+    if (selectedFile != null) {
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.initModality(Modality.APPLICATION_MODAL);
+      alert.initOwner(this.getScene().getWindow());
+      alert.setContentText(STR." set avatar: \{selectedFile.getName()}");
+
+      ButtonType sendButtonType = new ButtonType("Send", ButtonBar.ButtonData.OK_DONE);
+      ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+      alert.getButtonTypes().setAll(sendButtonType, cancelButtonType);
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.isPresent() && result.get() == sendButtonType) {
+        chatSessionController.updateAvatar(selectedFile);
+      }
+    }
+  }
+
+  public void onUpdateAvatar(Image image) {
+    if (image != null) {
+      Platform.runLater(() -> profileAvatar = new ImageView(image));
+    }
+  }
+
+  private void deleteAvatarAction(Event event) {
+    chatSessionController.deleteAvatar(null);
+  }
+
+  public void onDeleteAvatar() {
+    Platform.runLater(() -> {
+      profileAvatar.setImage(null);
+    });
   }
 
   @Override
@@ -141,5 +187,4 @@ public class RegistrationBlock extends VBox implements ControllerIntroduce {
   public void setUserPassword(PasswordField userPassword) {
     this.userPassword = userPassword;
   }
-
 }
