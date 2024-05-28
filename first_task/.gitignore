@@ -38,7 +38,4 @@ build/
 .DS_Store
 
 ### My own ###
-
 .idea/
-*.log
-logs/
