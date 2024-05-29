@@ -20,14 +20,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 
-public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule {
+public class ChatSessionExecutor implements AbstractChatSessionExecutor, AbstractChatModuleManager, ConnectionModule, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionExecutor.class);
+
   private final ExecutorService chatModuleExecutor = Executors.newSingleThreadExecutor();
-  private final ExecutorService IOExecutor = Executors.newSingleThreadExecutor();
+  private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
+
   private final DTOConverterManager DTOConverterManager;
   private final ChatModuleManager chatModuleManager;
   private final ChatSessionController chatSessionController;
   private final BlockingQueue<Document> moduleExchanger = new SynchronousQueue<>(true);
+
   private Connection connection;
 
   public ChatSessionExecutor(ChatSessionController chatSessionController) throws IOException {
@@ -46,11 +49,11 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
       try {
         connection.close();
       } catch (IOException e) {
-        log.info(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     }
     this.connection = new Connection(this, hostname, port);
-    IOExecutor.execute(connection);
+    ioExecutor.execute(connection);
   }
 
   @Override
@@ -63,42 +66,61 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
     }
   }
 
-  public void executeModuleAction(Runnable task) {
-    chatModuleExecutor.execute(task);
-  }
 
   @Override
   public IOProcessor getIOProcessor() {
     return connection.getIoProcessor();
   }
 
-  public boolean isConnected() {
-    return connection != null && !connection.isClosed();
-  }
-
-  public ChatSessionController getChatSessionController() {
-    return chatSessionController;
-  }
 
   @Override
   public BlockingQueue<Document> getModuleExchanger() {
     return moduleExchanger;
   }
 
-  public DTOConverterManager getDTOConverterManager() {
-    return DTOConverterManager;
-  }
 
   @Override
   public ChatModule getChatModule(RequestDTO.DTO_SECTION moduleSection) {
     return chatModuleManager.getChatModule(moduleSection);
   }
 
+
+  public void executeModuleAction(Runnable task) {
+    chatModuleExecutor.execute(task);
+  }
+
+
+  public boolean isConnected() {
+    return connection != null && !connection.isClosed();
+  }
+
+
+  public ChatSessionController getChatSessionController() {
+    return chatSessionController;
+  }
+
+
+  public DTOConverterManager getDTOConverterManager() {
+    return DTOConverterManager;
+  }
+
+
   public ChatModuleManager getChatModuleManager() {
     return chatModuleManager;
   }
 
+
   public ExecutorService getChatModuleExecutor() {
     return chatModuleExecutor;
+  }
+
+  @Override
+  public void close() {
+    ioExecutor.shutdownNow();
+    chatModuleExecutor.shutdownNow();
+    try {
+      if (connection != null) connection.close();
+    } catch (IOException _) {
+    }
   }
 }

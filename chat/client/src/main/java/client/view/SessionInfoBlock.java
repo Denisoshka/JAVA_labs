@@ -24,14 +24,13 @@ import java.util.Optional;
 
 public class SessionInfoBlock extends VBox implements ControllerIntroduce {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(SessionInfoBlock.class);
+
   @FXML
   private ImageView profileAvatar;
   @FXML
   private Button updateAvatar;
   @FXML
   private Button deleteAvatar;
-  private File avatarFile;
-
   @FXML
   private TextField hostname;
   @FXML
@@ -145,7 +144,7 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
 
   public void onUpdateAvatar(Image image) {
     if (image != null) {
-      Platform.runLater(() -> profileAvatar = new ImageView(image));
+      Platform.runLater(() -> profileAvatar.setImage(image));
     }
   }
 

@@ -3,13 +3,13 @@ package dto.subtypes.other;
 import dto.interfaces.DTOInterfaces;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 import java.util.Objects;
 
 @XmlRootElement(name = "user")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "user_type")
 public class User implements DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInterfaces.MIME_TYPE {
   private String name;
   private byte[] content;
@@ -28,11 +28,9 @@ public class User implements DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInter
     this.mimeType = mimeType;
   }
 
-  @XmlElement(name = "name")
   public String getName() {
-    return this.name;
+    return name;
   }
-
 
   @Override
   public byte[] getContent() {
@@ -59,5 +57,4 @@ public class User implements DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInter
   public int hashCode() {
     return Objects.hash(name);
   }
-
 }

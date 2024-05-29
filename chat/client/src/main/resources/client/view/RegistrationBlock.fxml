@@ -4,14 +4,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
-<fx:root xmlns="http://javafx.com/javafx"
-         xmlns:fx="http://javafx.com/fxml"
-         prefHeight="60.0" prefWidth="180.0" type="VBox">
+<fx:root prefHeight="60.0" prefWidth="180.0" type="VBox" xmlns="http://javafx.com/javafx/17.0.2-ea"
+         xmlns:fx="http://javafx.com/fxml/1">
     <HBox>
-        <ImageView fx:id="profileAvatar" fitHeight="40.0" fitWidth="40.0"/>
+        <ImageView fx:id="profileAvatar" fitHeight="60.0" fitWidth="60.0"/>
         <VBox>
-            <Button fx:id="updateAvatar" text="update" prefWidth="20"/>
-            <Button fx:id="deleteAvatar" text="delete" prefWidth="20"/>
+            <Button fx:id="updateAvatar" prefWidth="Infinity" text="update"/>
+            <Button fx:id="deleteAvatar" prefWidth="Infinity" text="delete"/>
         </VBox>
     </HBox>
     <HBox fx:id="connectionStatusBox" spacing="5">
@@ -22,6 +21,6 @@
     <TextField fx:id="port" prefWidth="Infinity"/>
     <TextField fx:id="userLogin" prefWidth="Infinity"/>
     <PasswordField fx:id="userPassword" prefWidth="Infinity"/>
-    <Button fx:id="login" text="login" prefWidth="Infinity"/>
-    <Button fx:id="logout" text="logout" prefWidth="Infinity"/>
+    <Button fx:id="login" prefWidth="Infinity" text="login"/>
+    <Button fx:id="logout" prefWidth="Infinity" text="logout"/>
 </fx:root>

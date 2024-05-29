@@ -21,6 +21,7 @@ public class ClientApplication extends javafx.application.Application {
     chatSessionView.setChatSessionController(chatSessionController);
 
     Scene scene = new Scene(chatSessionView);
+    primaryStage.setOnCloseRequest(_ -> chatSessionExecutor.close());
     primaryStage.setScene(scene);
     primaryStage.show();
   }

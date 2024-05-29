@@ -27,6 +27,7 @@ import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.ConcurrentMap;
 public class ChatSessionController {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ChatSessionController.class);
 
+  private final ConcurrentMap<String, Image> userProfileImages = new ConcurrentHashMap<>();
 
   private MessageModule messageModule;
   private LoginModule loginModule;
@@ -44,8 +46,6 @@ public class ChatSessionController {
   private SessionInfoBlock sessionInfoBlock;
   private ChatUsersInfo chatUsersInfo;
   private FileModule fileModule;
-  private final ConcurrentMap<String, Image> userProfileImages = new ConcurrentHashMap<>();
-
 
   public void setChatSessionExecutorDependence(ChatSessionExecutor chatSessionExecutor) {
     messageModule = (MessageModule) chatSessionExecutor.getChatModule(RequestDTO.DTO_SECTION.MESSAGE);
@@ -130,8 +130,12 @@ public class ChatSessionController {
     /*todo make for server sender desc and time*/
     Image avatar = userProfileImages.get(messageEvent.getFrom());
     var rez = (avatar == null)
-            ? new ChatMessage(ChatSession.ChatEventType.RECEIVE, messageEvent.getFrom(), messageEvent.getMessage(), ZonedDateTime.now())
-            : new ChatMessage(ChatSession.ChatEventType.RECEIVE, avatar, messageEvent.getFrom(), messageEvent.getMessage(), ZonedDateTime.now());
+            ? new ChatMessage(ChatSession.ChatEventType.RECEIVE, messageEvent.getFrom(),
+            messageEvent.getMessage(), ZonedDateTime.now()
+    )
+            : new ChatMessage(ChatSession.ChatEventType.RECEIVE, avatar, messageEvent.getFrom(),
+            messageEvent.getMessage(), ZonedDateTime.now()
+    );
     chatSession.addNewChatRecord(rez);
   }
 
@@ -140,6 +144,7 @@ public class ChatSessionController {
     /*todo make for server sender desc and time*/
     chatSession.addNewChatRecord(new LogoutEvent(logoutEvent.getName(), ZonedDateTime.now()));
     chatUsersInfo.removeUser(new UserInfo(logoutEvent.getName()));
+    userProfileImages.remove(logoutEvent.getName());
   }
 
 
@@ -213,8 +218,6 @@ public class ChatSessionController {
   public void onUpdateAvatar(byte[] imageBytes, DTOInterfaces.RESPONSE_DTO responseDto) {
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
       sessionInfoBlock.onUpdateAvatar(new Image(new ByteArrayInputStream(imageBytes)));
-    } else {
-      sessionInfoBlock.onUpdateAvatar(null);
     }
   }
 
@@ -254,6 +257,18 @@ public class ChatSessionController {
 
     public void setName(String name) {
       this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof UserInfo userInfo)) return false;
+      return Objects.equals(name, userInfo.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(name);
     }
   }
 }
