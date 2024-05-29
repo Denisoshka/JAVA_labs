@@ -35,7 +35,6 @@ public class MessageModule implements ChatModule<Object> {
       try {
         responseActon(command);
         ioProcessor.sendMessage(converter.serialize(command).getBytes());
-        log.info(STR."send msg: \{((MessageCommand) command).getMessage()}");
       } catch (IOException e) {
         log.warn(e.getMessage(), e);
       }
@@ -43,7 +42,7 @@ public class MessageModule implements ChatModule<Object> {
   }
 
 
-  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
+  private void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
@@ -57,6 +56,7 @@ public class MessageModule implements ChatModule<Object> {
       }
     });
   }
+
 
   @Override
   public void eventAction(Document root) {

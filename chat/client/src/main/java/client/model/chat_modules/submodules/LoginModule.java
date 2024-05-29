@@ -3,7 +3,6 @@ package client.model.chat_modules.submodules;
 import client.facade.ChatSessionController;
 import client.model.chat_modules.interfaces.ChatModule;
 import client.model.main_context.ChatSessionExecutor;
-import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
@@ -12,18 +11,20 @@ import dto.subtypes.login.LoginCommand;
 import dto.subtypes.login.LoginDTOConverter;
 import dto.subtypes.login.LoginError;
 import dto.subtypes.login.LoginEvent;
+import dto.subtypes.other.LoginData;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
 
-public class LoginModule implements ChatModule<DataDTO.LoginData> {
+public class LoginModule implements ChatModule<LoginData> {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(LoginModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final LoginDTOConverter converter;
   private final ChatSessionController chatSessionController;
 
-  private DataDTO.LoginData loginData = null;
+  private LoginData loginData = null;
+
 
   public LoginModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
@@ -32,7 +33,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
   }
 
 
-  public void commandAction(DTOInterfaces.COMMAND_DTO command, DataDTO.LoginData additionalArg) {
+  public void commandAction(DTOInterfaces.COMMAND_DTO command, LoginData additionalArg) {
     String hostname = additionalArg.getHostname();
     int port = additionalArg.getPort();
 
@@ -48,13 +49,13 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
         ioProcessor.sendMessage(converter.serialize(new LoginCommand(additionalArg.getName(), additionalArg.getPassword())).getBytes());
         responseActon(null);
       } catch (UnableToSerialize e) {
-        log.info(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       } catch (IOException e) {
         try {
           chatSessionExecutor.shutdownConnection();
         } catch (IOException _) {
         }
-        log.info(e.getMessage(), e);
+        log.error(e.getMessage(), e);
       }
     });
   }
@@ -62,7 +63,6 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
 
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
-      String nodeName = null;
       try {
         final var tree = chatSessionExecutor.getModuleExchanger().take();
         final DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(tree);
@@ -79,6 +79,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
       }
     });
   }
+
 
   public void eventAction(Document root) {
     try {

@@ -7,6 +7,9 @@ import client.model.main_context.interfaces.ConnectionModule;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
+import dto.subtypes.logout.LogoutCommand;
+import dto.subtypes.logout.LogoutDTOConverter;
+import dto.subtypes.logout.LogoutEvent;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -17,12 +20,12 @@ public class LogoutModule implements ChatModule<Object> {
 
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
-  private final LogoutDTO.LogoutDTOConverter converter;
+  private final LogoutDTOConverter converter;
 
   public LogoutModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.converter = (LogoutDTO.LogoutDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT);
+    this.converter = (LogoutDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT);
   }
 
   public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
@@ -30,14 +33,14 @@ public class LogoutModule implements ChatModule<Object> {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         responseActon(null);
-        ioProcessor.sendMessage(converter.serialize(new LogoutDTO.Command()).getBytes());
+        ioProcessor.sendMessage(converter.serialize(new LogoutCommand()).getBytes());
       } catch (IOException e) {
         log.warn(e.getMessage());
       }
     });
   }
 
-  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
+  private void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(chatSessionExecutor.getModuleExchanger().take());
@@ -60,7 +63,7 @@ public class LogoutModule implements ChatModule<Object> {
   public void eventAction(Document root) {
     try {
       var event = converter.deserialize(root);
-      chatSessionController.onLogoutEvent((LogoutDTO.Event) event);
+      chatSessionController.onLogoutEvent((LogoutEvent) event);
     } catch (UnableToDeserialize e) {
       log.warn(e.getMessage(), e);
     }

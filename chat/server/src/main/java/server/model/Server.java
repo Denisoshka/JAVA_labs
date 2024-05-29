@@ -3,9 +3,9 @@ package server.model;
 import dto.DTOConverterManager;
 import org.slf4j.Logger;
 import server.model.connection_section.ChatUsersDAO;
+import server.model.connection_section.ConnectionAccepter;
 import server.model.connection_section.ServerConnection;
 import server.model.connection_section.ServerWorker;
-import server.model.connection_section.ConnectionAccepter;
 import server.model.server_sections.SectionFactory;
 import server.model.server_sections.interfaces.CommandSupplier;
 
@@ -111,6 +111,7 @@ public class Server implements Runnable {
     }
 
   }
+
   public void submitExpiredConnection(ServerConnection connection) {
     connection.markAsExpired();
     expiredConnections.add(connection);
@@ -133,10 +134,6 @@ public class Server implements Runnable {
 
   public DTOConverterManager getConverterManager() {
     return converterManager;
-  }
-
-  public Logger getModuleLogger() {
-    return moduleLogger;
   }
 
   public CommandSupplier getCommandSupplier() {

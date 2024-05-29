@@ -1,11 +1,11 @@
 package server.model.server_sections;
 
-import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.subtypes.list.ListDTOConverter;
 import dto.subtypes.list.ListError;
 import dto.subtypes.list.ListSuccess;
+import dto.subtypes.other.User;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -30,7 +30,7 @@ public class ListSection implements AbstractSection {
   public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) {
     if (type != RequestDTO.DTO_TYPE.COMMAND) {
       var errmsg = STR."not support \{type.name()}";
-      server.getModuleLogger().info(errmsg);
+      log.info(errmsg);
       try {
         connection.sendMessage(converter.serialize(new ListError(errmsg)).getBytes());
       } catch (IOException e) {
@@ -39,14 +39,19 @@ public class ListSection implements AbstractSection {
     }
 
     final var connections = server.getConnections();
-    List<DataDTO.User> users = new ArrayList<>();
+    final var usersDao = server.getChatUsersDAO();
+
+    List<User> users = new ArrayList<>();
     for (ServerConnection conn : connections) {
-      if (!conn.isExpired()) users.add(new DataDTO.User(conn.getConnectionName()));
+      if (conn.isExpired()) continue;
+
+      var res = usersDao.findAccountByUserName(conn.getConnectionName());
+      users.add(new User(conn.getConnectionName(), res.getAvatar(), res.getAvatarMimeType()));
     }
 
     try {
       connection.sendMessage(converter.serialize(new ListSuccess(users)).getBytes());
-      server.getModuleLogger().info("ListDTO.Success");
+      log.info("ListDTO.Success");
     } catch (UnableToSerialize e1) {
       try {
         connection.sendMessage(converter.serialize(new ListError(e1.getMessage())).getBytes());

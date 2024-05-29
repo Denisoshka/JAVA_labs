@@ -23,7 +23,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 
 public class FileModule implements ChatModule {
-  private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileModule.class);
+  private final static Logger log = org.slf4j.LoggerFactory.getLogger(FileModule.class);
   final static String FILE_REQUEST_ENCODING = "base64";
 
   private final BlockingQueue<Document> moduleExchanger;
@@ -48,24 +48,26 @@ public class FileModule implements ChatModule {
     this.listFileDTOConverter = converter.getListFileDTOConverter();
   }
 
+
   @Override
   public void eventAction(Document root) {
     try {
       var eventType = DTOConverterManagerInterface.getDTOEvent(root);
-      if (eventType == RequestDTO.EVENT_TYPE.FILE) {
-        FileEvent fileEvent = (FileEvent) uploadDTOConverter.deserialize(root);
-        sessionController.onFileUploadEvent(new FileEvent(
-                fileEvent.getId(), fileEvent.getFrom(),
-                fileEvent.getName(), fileEvent.getSize(),
-                fileEvent.getMimeType()
-        ));
-      } else {
+      if (eventType != RequestDTO.EVENT_TYPE.FILE) {
         log.debug("unsupported event type: {}", DTOConverterManagerInterface.getSTRDTOEvent(root));
+        return;
       }
+      FileEvent fileEvent = (FileEvent) uploadDTOConverter.deserialize(root);
+      sessionController.onFileUploadEvent(new FileEvent(
+              fileEvent.getId(), fileEvent.getFrom(),
+              fileEvent.getName(), fileEvent.getSize(),
+              fileEvent.getMimeType()
+      ));
     } catch (UnableToDeserialize e) {
       log.error(e.getMessage(), e);
     }
   }
+
 
   public void uploadResponse(FileUploadCommand command) {
     executor.execute(() -> {
@@ -90,6 +92,7 @@ public class FileModule implements ChatModule {
     });
   }
 
+
   public void downloadResponse(FileDownloadCommand command) {
     executor.execute(() -> {
       try {
@@ -97,12 +100,16 @@ public class FileModule implements ChatModule {
         log.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           FileDownloadSuccess responseSuccess = (FileDownloadSuccess) response;
-          log.info(STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, " +
-                  STR."mimeType: \{responseSuccess.getMimeType()}, encoding \{responseSuccess.getEncoding()}");
+          log.info("{}{}",
+                  STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, ",
+                  STR."mimeType: \{responseSuccess.getMimeType()}, encoding \{responseSuccess.getEncoding()}"
+          );
+
           if (!responseSuccess.getEncoding().equals(FILE_REQUEST_ENCODING)) {
             log.info(STR."not supported encoding\{responseSuccess.getEncoding()}");
             return;
           }
+
           try {
             fileManager.saveFileEntry(
                     responseSuccess.getName(), responseSuccess.getMimeType(),
@@ -122,6 +129,7 @@ public class FileModule implements ChatModule {
       }
     });
   }
+
 
   public void uploadAction(Path path) {
     executor.execute(() -> {
@@ -148,6 +156,7 @@ public class FileModule implements ChatModule {
       }
     });
   }
+
 
   public void downloadAction(FileDownloadCommand command) {
     executor.execute(() -> {
@@ -188,6 +197,7 @@ public class FileModule implements ChatModule {
       }
     });
   }
+
 
   public void fileListResponse() {
     executor.execute(() -> {

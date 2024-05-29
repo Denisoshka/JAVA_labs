@@ -8,7 +8,6 @@ import client.view.ChatUsersInfo;
 import client.view.SessionInfoBlock;
 import client.view.chat_session.ChatSession;
 import client.view.chat_session.events.*;
-import dto.DataDTO;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.file.FileDownloadCommand;
@@ -17,6 +16,7 @@ import dto.subtypes.list.ListCommand;
 import dto.subtypes.list.ListSuccess;
 import dto.subtypes.message.MessageCommand;
 import dto.subtypes.message.MessageEvent;
+import dto.subtypes.other.LoginData;
 import dto.subtypes.user_profile.DeleteAvatarEvent;
 import dto.subtypes.user_profile.UpdateAvatarEvent;
 import javafx.scene.image.Image;
@@ -70,7 +70,7 @@ public class ChatSessionController {
 
 
   public void loginCommand(String login, String password, String hostname, int port) {
-    loginModule.commandAction(null, new DataDTO.LoginData(login, hostname, password, port));
+    loginModule.commandAction(null, new LoginData(login, hostname, password, port));
   }
 
 

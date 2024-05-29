@@ -13,6 +13,7 @@ import dto.subtypes.list.ListSuccess;
 import dto.subtypes.login.*;
 import dto.subtypes.logout.*;
 import dto.subtypes.message.*;
+import dto.subtypes.other.User;
 import jakarta.xml.bind.JAXBException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -230,10 +231,10 @@ public class DTOTest {
             ),
 
             Arguments.of(
-                    new ListSuccess(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
+                    new ListSuccess(List.of(new User("USER_1"), new User("USER_2"))),
                     ListSuccessSTR, listDTOConverter
             ), Arguments.of(
-                    new ListSuccess(List.of(new DataDTO.User("6"))),
+                    new ListSuccess(List.of(new User("6"))),
                     ListSuccessSTR2, listDTOConverter
             ), Arguments.of(
                     new ListError("XYI"),

@@ -6,6 +6,8 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
+import dto.subtypes.list.ListCommand;
+import dto.subtypes.list.ListDTOConverter;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -15,26 +17,28 @@ public class ListModule implements ChatModule {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ListModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
-  private final ListDTO.ListDTOConverter converter;
+  private final ListDTOConverter converter;
 
   public ListModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
-    this.converter = (ListDTO.ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LIST);
+    this.converter = (ListDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LIST);
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
   }
+
 
   public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
               try {
                 responseActon(null);
-                ioProcessor.sendMessage(converter.serialize(new ListDTO.Command()).getBytes());
+                ioProcessor.sendMessage(converter.serialize(new ListCommand()).getBytes());
               } catch (IOException e) {
                 log.info(e.getMessage(), e);
               }
             }
     );
   }
+
 
   public void responseActon(DTOInterfaces.COMMAND_DTO command) {
     chatSessionExecutor.executeModuleAction(() -> {
@@ -48,6 +52,7 @@ public class ListModule implements ChatModule {
       }
     });
   }
+
 
   @Override
   public void eventAction(Document root) {

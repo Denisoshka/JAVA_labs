@@ -1,4 +1,4 @@
-package server.model.server_sections.file;
+package server.model.server_sections;
 
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.connection_section.ServerConnection;
+import server.model.server_sections.file.SmallFileDAO;
+import server.model.server_sections.file.SmallFileEntity;
 import server.model.server_sections.interfaces.AbstractSection;
 
 import java.io.IOException;

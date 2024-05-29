@@ -37,6 +37,7 @@ public class UserProfileModule implements ChatModule {
 //    this.deleteAvatarCommandConverter = converter.getDeleteAvatarCommandConverter();
   }
 
+
   public void updateAvatarAction(File selectedFile) {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
@@ -57,6 +58,7 @@ public class UserProfileModule implements ChatModule {
       }
     });
   }
+
 
   private void updateAvatarResponse(byte[] imageBytes) {
     chatSessionExecutor.executeModuleAction(() -> {
@@ -91,6 +93,7 @@ public class UserProfileModule implements ChatModule {
     });
   }
 
+
   private void onDeleteAvatarResponse() {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
@@ -104,6 +107,7 @@ public class UserProfileModule implements ChatModule {
       }
     });
   }
+
 
   @Override
   public void eventAction(Document root) {

@@ -1,8 +1,8 @@
 package dto.interfaces;
 
-import dto.DataDTO;
 import dto.RequestDTO;
 import dto.subtypes.file.FileEntity;
+import dto.subtypes.other.User;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public interface DTOInterfaces {
   }
 
   interface USERS {
-    List<DataDTO.User> getUsers();
+    List<User> getUsers();
   }
 
   interface FILES {

@@ -5,7 +5,6 @@ import dto.subtypes.list.ListDTOConverter;
 import dto.subtypes.logout.LogoutDTOConverter;
 import dto.subtypes.message.MessageDTOConverter;
 import server.model.Server;
-import server.model.server_sections.file.FileSection;
 import server.model.server_sections.interfaces.AbstractSection;
 import server.model.server_sections.interfaces.CommandSupplier;
 
