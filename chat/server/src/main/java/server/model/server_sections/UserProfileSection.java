@@ -18,6 +18,7 @@ import java.io.IOException;
 import static dto.RequestDTO.COMMAND_TYPE.DELETEAVATAR;
 import static dto.RequestDTO.COMMAND_TYPE.UPDATEAVATAR;
 
+
 public class UserProfileSection implements AbstractSection {
   private static final Logger log = LoggerFactory.getLogger(UserProfileSection.class);
   private final Server server;

@@ -6,6 +6,6 @@ import jakarta.xml.bind.JAXBException;
 
 public  class MessageDTOConverter extends BaseDTOConverter {
   public MessageDTOConverter() throws JAXBException {
-    super(JAXBContext.newInstance(MessageDTO.Command.class, MessageDTO.Event.class, MessageDTO.Error.class, MessageDTO.Success.class));
+    super(JAXBContext.newInstance(MessageCommand.class, MessageEvent.class, MessageError.class, MessageSuccess.class));
   }
 }

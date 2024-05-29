@@ -5,7 +5,14 @@ import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.*;
+import dto.subtypes.file.*;
+import dto.subtypes.list.ListCommand;
+import dto.subtypes.list.ListDTOConverter;
+import dto.subtypes.list.ListError;
+import dto.subtypes.list.ListSuccess;
+import dto.subtypes.login.*;
+import dto.subtypes.logout.*;
+import dto.subtypes.message.*;
 import jakarta.xml.bind.JAXBException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,23 +58,23 @@ public class DTOTest {
   static String FileEventSTR = "<event name=\"file\"><id>0</id><from>CHAT_NAME_FROM</from><name>file name</name><size>0</size><mimeType>text/plain</mimeType></event>";
 
   static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-  static ListDTO.ListDTOConverter listDTOConverter;
-  static MessageDTO.MessageDTOConverter messageDTOConverter;
-  static LogoutDTO.LogoutDTOConverter logoutDTOConverter;
-  static LoginDTO.LoginDTOConverter loginDTOConverter;
-  static FileDTO.FileUploadDTOConverter fileUploadConverter;
-  static FileDTO.FileDownloadDTOConverter fileDownloadDTOConverter;
+  static ListDTOConverter listDTOConverter;
+  static MessageDTOConverter messageDTOConverter;
+  static LogoutDTOConverter logoutDTOConverter;
+  static LoginDTOConverter loginDTOConverter;
+  static FileUploadDTOConverter fileUploadConverter;
+  static FileDownloadDTOConverter fileDownloadDTOConverter;
   static dto.DTOConverterManager manager;
 
 
   @BeforeAll
   public void prepare() throws JAXBException {
-    loginDTOConverter = new LoginDTO.LoginDTOConverter();
-    logoutDTOConverter = new LogoutDTO.LogoutDTOConverter();
-    listDTOConverter = new ListDTO.ListDTOConverter();
-    fileUploadConverter = new FileDTO.FileUploadDTOConverter();
-    fileDownloadDTOConverter = new FileDTO.FileDownloadDTOConverter();
-    messageDTOConverter = new MessageDTO.MessageDTOConverter();
+    loginDTOConverter = new LoginDTOConverter();
+    logoutDTOConverter = new LogoutDTOConverter();
+    listDTOConverter = new ListDTOConverter();
+    fileUploadConverter = new FileUploadDTOConverter();
+    fileDownloadDTOConverter = new FileDownloadDTOConverter();
+    messageDTOConverter = new MessageDTOConverter();
     manager = new dto.DTOConverterManager(null);
   }
 
@@ -92,28 +99,28 @@ public class DTOTest {
     manager = new dto.DTOConverterManager(null);
     return Stream.of(
             Arguments.of(
-                    new MessageDTO.Command("MESSAGE"),
+                    new MessageCommand("MESSAGE"),
                     MessageCommandSTR,
                     RequestDTO.DTO_SECTION.MESSAGE,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    new LogoutDTO.Command(),
+                    new LogoutCommand(),
                     LogoutCommandSTR,
                     RequestDTO.DTO_SECTION.LOGOUT,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    new LoginDTO.Command("USER_NAME", "PASSWORD"),
+                    new LoginCommand("USER_NAME", "PASSWORD"),
                     LoginCommandSTR,
                     RequestDTO.DTO_SECTION.LOGIN,
                     RequestDTO.DTO_TYPE.COMMAND
             ),
 
             Arguments.of(
-                    new ListDTO.Command(),
+                    new ListCommand(),
                     ListCommandSTR,
                     RequestDTO.DTO_SECTION.LIST,
                     RequestDTO.DTO_TYPE.COMMAND
@@ -126,12 +133,12 @@ public class DTOTest {
                     RequestDTO.DTO_TYPE.COMMAND
             ),*/
             Arguments.of(
-                    new FileDTO.UploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    new FileUploadCommand("file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileUploadCommandSTR,
                     RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
             ), Arguments.of(
-                    new FileDTO.DownloadCommand(0L),
+                    new FileDownloadCommand(0L),
                     FileDownloadCommandSTR,
                     RequestDTO.DTO_SECTION.FILE,
                     RequestDTO.DTO_TYPE.COMMAND
@@ -158,25 +165,25 @@ public class DTOTest {
   public Stream<Arguments> EventsDTOTest() throws UnableToSerialize {
     return Stream.of(
             Arguments.of(
-                    new MessageDTO.Event("CHAT_NAME_FROM", "MESSAGE"),
+                    new MessageEvent("CHAT_NAME_FROM", "MESSAGE"),
                     MessageEventSTR,
                     RequestDTO.EVENT_TYPE.MESSAGE,
                     RequestDTO.DTO_TYPE.EVENT,
                     messageDTOConverter
             ), Arguments.of(
-                    new LogoutDTO.Event("USER_NAME"),
+                    new LogoutEvent("USER_NAME"),
                     LogoutEventSTR,
                     RequestDTO.EVENT_TYPE.USERLOGOUT,
                     RequestDTO.DTO_TYPE.EVENT,
                     logoutDTOConverter
             ), Arguments.of(
-                    new LoginDTO.Event("USER NAME"),
+                    new LoginEvent("USER NAME"),
                     LoginEventSTR,
                     RequestDTO.EVENT_TYPE.USERLOGIN,
                     RequestDTO.DTO_TYPE.EVENT,
                     loginDTOConverter
             ), Arguments.of(
-                    new FileDTO.Event(0L, "CHAT_NAME_FROM", "file name", 0, "text/plain"),
+                    new FileEvent(0L, "CHAT_NAME_FROM", "file name", 0, "text/plain"),
                     FileEventSTR,
                     RequestDTO.EVENT_TYPE.FILE,
                     RequestDTO.DTO_TYPE.EVENT,
@@ -199,37 +206,37 @@ public class DTOTest {
     manager = new dto.DTOConverterManager(null);
     return Stream.of(
             Arguments.of(
-                    new MessageDTO.Success(),
+                    new MessageSuccess(),
                     MessageSuccessSTR, messageDTOConverter
             ), Arguments.of(
-                    new MessageDTO.Error("XYI"),
+                    new MessageError("XYI"),
                     MessageErrorSTR, messageDTOConverter
             ),
 
             Arguments.of(
-                    new LogoutDTO.Success(),
+                    new LogoutSuccess(),
                     LogoutSuccessSTR, logoutDTOConverter
             ), Arguments.of(
-                    new LogoutDTO.Error("XYI"),
+                    new LogoutError("XYI"),
                     LogoutErrorSTR, logoutDTOConverter
             ),
 
             Arguments.of(
-                    new LoginDTO.Success(),
+                    new LoginSuccess(),
                     LoginSuccessSTR, loginDTOConverter
             ), Arguments.of(
-                    new LoginDTO.Error("XYI"),
+                    new LoginError("XYI"),
                     LoginErrorSTR, loginDTOConverter
             ),
 
             Arguments.of(
-                    new ListDTO.Success(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
+                    new ListSuccess(List.of(new DataDTO.User("USER_1"), new DataDTO.User("USER_2"))),
                     ListSuccessSTR, listDTOConverter
             ), Arguments.of(
-                    new ListDTO.Success(List.of(new DataDTO.User("6"))),
+                    new ListSuccess(List.of(new DataDTO.User("6"))),
                     ListSuccessSTR2, listDTOConverter
             ), Arguments.of(
-                    new ListDTO.Error("XYI"),
+                    new ListError("XYI"),
                     ListErrorSTR, listDTOConverter
             ),
 /*
@@ -244,12 +251,15 @@ public class DTOTest {
             ),*/
 
             Arguments.of(
-                    new FileDTO.UploadSuccess(0L),
+                    new FileUploadSuccess(0L),
                     FileUploadSuccessSTR, fileUploadConverter
             ), Arguments.of(
-                    new FileDTO.DownloadSuccess(0L, "file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
+                    new FileDownloadSuccess(0L, "file name", "text/plain", "base64", "Base64-encoded file content".getBytes()),
                     FileDownloadSuccessSTR, fileDownloadDTOConverter
-            ), Arguments.of(new FileDTO.Error("REASON"), FileErrorSTR, fileUploadConverter)
+            ), Arguments.of(
+                    new FileError("REASON"),
+                    FileErrorSTR, fileUploadConverter
+            )
     );
   }
 }

@@ -6,6 +6,9 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
+import dto.subtypes.message.MessageCommand;
+import dto.subtypes.message.MessageDTOConverter;
+import dto.subtypes.message.MessageEvent;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -15,24 +18,24 @@ public class MessageModule implements ChatModule<Object> {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(MessageModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
-  private final MessageDTO.MessageDTOConverter converter;
+  private final MessageDTOConverter converter;
 
   public MessageModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.converter = (MessageDTO.MessageDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE);
+    this.converter = (MessageDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE);
   }
 
 
   public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
-    log.info(STR."sending msg: \{((MessageDTO.Command) command).getMessage()}");
+    log.info(STR."sending msg: \{((MessageCommand) command).getMessage()}");
     var ioProcessor = chatSessionExecutor.getIOProcessor();
     var converter = chatSessionExecutor.getDTOConverterManager();
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         responseActon(command);
         ioProcessor.sendMessage(converter.serialize(command).getBytes());
-        log.info(STR."send msg: \{((MessageDTO.Command) command).getMessage()}");
+        log.info(STR."send msg: \{((MessageCommand) command).getMessage()}");
       } catch (IOException e) {
         log.warn(e.getMessage(), e);
       }
@@ -59,7 +62,7 @@ public class MessageModule implements ChatModule<Object> {
   public void eventAction(Document root) {
     try {
       var event = converter.deserialize(root);
-      chatSessionController.onMessageEvent((MessageDTO.Event) event);
+      chatSessionController.onMessageEvent((MessageEvent) event);
     } catch (UnableToDeserialize e) {
       log.error(e.getMessage(), e);
     }

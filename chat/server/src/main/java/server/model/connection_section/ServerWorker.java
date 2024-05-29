@@ -3,6 +3,7 @@ package server.model.connection_section;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
+import dto.subtypes.message.MessageError;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -47,7 +48,7 @@ public class ServerWorker implements Runnable {
             }
           } else {
             connection.sendMessage(DTOConverterManager.serialize(
-                    new MessageDTO.Error(STR."unhandled message in server protocol <\{DTOConverterManagerInterface.getSTRDTOType(xmlTree)} />")
+                    new MessageError(STR."unhandled message in server protocol <\{DTOConverterManagerInterface.getSTRDTOType(xmlTree)} />")
             ).getBytes());
           }
         } catch (UnableToDeserialize e) {

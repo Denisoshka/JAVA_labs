@@ -3,6 +3,9 @@ package server.model.server_sections;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
+import dto.subtypes.list.ListDTOConverter;
+import dto.subtypes.list.ListError;
+import dto.subtypes.list.ListSuccess;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -15,10 +18,10 @@ import java.util.List;
 
 public class ListSection implements AbstractSection {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(ListSection.class);
-  private final ListDTO.ListDTOConverter converter;
+  private final ListDTOConverter converter;
   private final Server server;
 
-  public ListSection(ListDTO.ListDTOConverter converter, Server server) {
+  public ListSection(ListDTOConverter converter, Server server) {
     this.converter = converter;
     this.server = server;
   }
@@ -29,7 +32,7 @@ public class ListSection implements AbstractSection {
       var errmsg = STR."not support \{type.name()}";
       server.getModuleLogger().info(errmsg);
       try {
-        connection.sendMessage(converter.serialize(new ListDTO.Error(errmsg)).getBytes());
+        connection.sendMessage(converter.serialize(new ListError(errmsg)).getBytes());
       } catch (IOException e) {
         server.submitExpiredConnection(connection);
       }
@@ -42,11 +45,11 @@ public class ListSection implements AbstractSection {
     }
 
     try {
-      connection.sendMessage(converter.serialize(new ListDTO.Success(users)).getBytes());
+      connection.sendMessage(converter.serialize(new ListSuccess(users)).getBytes());
       server.getModuleLogger().info("ListDTO.Success");
     } catch (UnableToSerialize e1) {
       try {
-        connection.sendMessage(converter.serialize(new ListDTO.Error(e1.getMessage())).getBytes());
+        connection.sendMessage(converter.serialize(new ListError(e1.getMessage())).getBytes());
       } catch (UnableToSerialize e2) {
 //        todo handle this
         log.warn(e1.getMessage(), e1);

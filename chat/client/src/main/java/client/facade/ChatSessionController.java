@@ -11,6 +11,7 @@ import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
+import dto.subtypes.file.FileDownloadCommand;
 import dto.subtypes.file.FileEntity;
 import dto.subtypes.list.ListCommand;
 import dto.subtypes.list.ListSuccess;
@@ -156,7 +157,7 @@ public class ChatSessionController {
 
   public void downloadFile(Long fileId) {
     log.info(STR."Download request of \{fileId}");
-    fileModule.downloadAction(new dto.subtypes.file.DownloadCommand(fileId));
+    fileModule.downloadAction(new FileDownloadCommand(fileId));
   }
 
 

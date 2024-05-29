@@ -7,6 +7,6 @@ import jakarta.xml.bind.JAXBException;
 
 public class FileUploadDTOConverter extends BaseDTOConverter {
   public FileUploadDTOConverter() throws JAXBException {
-    super(JAXBContext.newInstance(FileEvent.class, UploadCommand.class, UploadSuccess.class, FileError.class));
+    super(JAXBContext.newInstance(FileEvent.class, FileUploadCommand.class, FileUploadSuccess.class, FileError.class));
   }
 }

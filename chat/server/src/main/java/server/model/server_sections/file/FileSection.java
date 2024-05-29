@@ -4,7 +4,7 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
-import dto.subtypes.FileDTO;
+import dto.subtypes.file.*;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -19,14 +19,14 @@ public class FileSection implements AbstractSection {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(FileSection.class);
   private static final String FILE_ENCODING = "base64";
 
-  private final FileDTO.FileUploadDTOConverter uploadDTOConverter;
-  private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
-  private final FileDTO.FileListFileDTOConverter listFileDTOConverter;
+  private final FileUploadDTOConverter uploadDTOConverter;
+  private final FileDownloadDTOConverter downloadDTOConverter;
+  private final FileListFileDTOConverter listFileDTOConverter;
   private final Server server;
   private final SmallFileDAO smallFileDAO = new SmallFileDAO();
 
   public FileSection(Server server) throws IOException {
-    FileDTO.FileDTOConverter mainConverter = (FileDTO.FileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
+    FileDTOConverter mainConverter = (FileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
     this.server = server;
     this.uploadDTOConverter = mainConverter.getFileUploadDTOConverter();
     this.downloadDTOConverter = mainConverter.getFileDownloadDTOConverter();
@@ -55,13 +55,13 @@ public class FileSection implements AbstractSection {
 
   private void onUploadRequest(Document root, ServerConnection connection) {
     log.info(STR."Upload request from \{connection.getConnectionName()}");
-    FileDTO.UploadCommand command = null;
+    FileUploadCommand command = null;
     Long id = null;
     try {
-      command = (FileDTO.UploadCommand) uploadDTOConverter.deserialize(root);
+      command = (FileUploadCommand) uploadDTOConverter.deserialize(root);
     } catch (UnableToDeserialize e) {
       try {
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+        connection.sendMessage(uploadDTOConverter.serialize(new FileError(e.getMessage())).getBytes());
       } catch (IOException ioe) {
         log.error(ioe.getMessage(), ioe);
       }
@@ -72,7 +72,7 @@ public class FileSection implements AbstractSection {
     try {
       if (!command.getEncoding().equals(FILE_ENCODING)) {
         connection.sendMessage(uploadDTOConverter.serialize(
-                new FileDTO.Error(STR."support only \{FILE_ENCODING} encoding")
+                new FileError(STR."support only \{FILE_ENCODING} encoding")
         ).getBytes());
         return;
       }
@@ -81,7 +81,7 @@ public class FileSection implements AbstractSection {
               command.getMimeType(), command.getContent().length, command.getContent()
       ));
       if (id != null) {
-        var event = new FileDTO.Event(id, connection.getConnectionName(),
+        var event = new FileEvent(id, connection.getConnectionName(),
                 command.getName(), command.getContent().length, command.getMimeType());
         var strEvent = uploadDTOConverter.serialize(event);
         byte[] serEvent = strEvent.getBytes();
@@ -92,13 +92,13 @@ public class FileSection implements AbstractSection {
             server.submitExpiredConnection(connection);
           }
         }
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.UploadSuccess(id)).getBytes());
+        connection.sendMessage(uploadDTOConverter.serialize(new FileUploadSuccess(id)).getBytes());
       } else {
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error("unable to save file")).getBytes());
+        connection.sendMessage(uploadDTOConverter.serialize(new FileError("unable to save file")).getBytes());
       }
     } catch (UnableToSerialize e) {
       try {
-        connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+        connection.sendMessage(uploadDTOConverter.serialize(new FileError(e.getMessage())).getBytes());
       } catch (IOException ioe) {
         log.error(ioe.getMessage(), ioe);
         server.submitExpiredConnection(connection);
@@ -112,23 +112,23 @@ public class FileSection implements AbstractSection {
 
   private void onDownloadRequest(Document root, ServerConnection connection) {
     try {
-      FileDTO.DownloadCommand command = (FileDTO.DownloadCommand) downloadDTOConverter.deserialize(root);
+      FileDownloadCommand command = (FileDownloadCommand) downloadDTOConverter.deserialize(root);
       log.info(STR."Download request \{command.getId()} from \{connection.getConnectionName()}");
 
       SmallFileEntity fileEntity = smallFileDAO.getFile(command.getId());
       if (fileEntity != null) {
         connection.sendMessage(downloadDTOConverter.serialize(
-                new FileDTO.DownloadSuccess(command.getId(), fileEntity.getFileName(), fileEntity.getMimeType(), FILE_ENCODING, fileEntity.getContent())
+                new FileDownloadSuccess(command.getId(), fileEntity.getFileName(), fileEntity.getMimeType(), FILE_ENCODING, fileEntity.getContent())
         ).getBytes());
       } else {
         connection.sendMessage(downloadDTOConverter.serialize(
-                new FileDTO.Error(STR."file with ID: \{command.getId()} not avalibe")
+                new FileError(STR."file with ID: \{command.getId()} not avalibe")
         ).getBytes());
       }
     } catch (UnableToDeserialize e) {
       try {
         connection.sendMessage(
-                downloadDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes()
+                downloadDTOConverter.serialize(new FileError(e.getMessage())).getBytes()
         );
       } catch (UnableToSerialize e1) {
         log.trace(e1.getMessage(), e1);
@@ -144,20 +144,20 @@ public class FileSection implements AbstractSection {
 
   public void onListFileRequest(Document root, ServerConnection connection) {
     try {
-      FileDTO.ListFileCommand command = (FileDTO.ListFileCommand) listFileDTOConverter.deserialize(root);
+      ListFileCommand command = (ListFileCommand) listFileDTOConverter.deserialize(root);
       List<SmallFileEntity> files = smallFileDAO.getFilesPreview();
       if (files != null) {
-        List<FileDTO.FileEntity> rez = new ArrayList<>(files.size());
+        List<FileEntity> rez = new ArrayList<>(files.size());
         for (var file : files) {
-          rez.add(new FileDTO.FileEntity(file.getId(), file.getUserName(), file.getFileName(), file.getSize(), file.getMimeType()));
+          rez.add(new FileEntity(file.getId(), file.getUserName(), file.getFileName(), file.getSize(), file.getMimeType()));
         }
-        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.ListFileSuccess(rez)).getBytes());
+        connection.sendMessage(listFileDTOConverter.serialize(new ListFileSuccess(rez)).getBytes());
       } else {
-        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.Error()).getBytes());
+        connection.sendMessage(listFileDTOConverter.serialize(new FileError()).getBytes());
       }
     } catch (UnableToDeserialize | UnableToSerialize e) {
       try {
-        connection.sendMessage(listFileDTOConverter.serialize(new FileDTO.Error(e.getMessage())).getBytes());
+        connection.sendMessage(listFileDTOConverter.serialize(new FileError(e.getMessage())).getBytes());
       } catch (UnableToSerialize e1) {
         log.warn(e.getMessage(), e);
       } catch (IOException e1) {
@@ -173,7 +173,7 @@ public class FileSection implements AbstractSection {
 //    todo make get of type by str
     log.info(errmsg);
     try {
-      connection.sendMessage(uploadDTOConverter.serialize(new FileDTO.Error(errmsg)).getBytes());
+      connection.sendMessage(uploadDTOConverter.serialize(new FileError(errmsg)).getBytes());
     } catch (IOException e) {
       log.error(e.getMessage(), e);
       server.submitExpiredConnection(connection);

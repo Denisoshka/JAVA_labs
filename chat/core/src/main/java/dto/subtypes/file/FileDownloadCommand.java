@@ -11,15 +11,15 @@ import static dto.RequestDTO.COMMAND_TYPE.DOWNLOAD;
 @XmlType(name = "ownloadfilecommand")
 @XmlRootElement(name = "command")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DownloadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.ID {
+public class FileDownloadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.ID {
   @XmlAttribute(name = "name")
   private final String nameAttribute = DOWNLOAD.getName();
   private Long id;
 
-  public DownloadCommand() {
+  public FileDownloadCommand() {
   }
 
-  public DownloadCommand(Long id) {
+  public FileDownloadCommand(Long id) {
     this.id = id;
   }
 
@@ -46,7 +46,7 @@ public class DownloadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof DownloadCommand command)) return false;
+    if (!(o instanceof FileDownloadCommand command)) return false;
     return Objects.equals(nameAttribute, command.nameAttribute) && Objects.equals(id, command.id);
   }
 

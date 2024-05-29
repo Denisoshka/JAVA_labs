@@ -8,7 +8,6 @@ import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.FileDTO;
 import dto.subtypes.file.*;
 import file_section.FileManager;
 import file_section.SimpleFileManager;
@@ -68,12 +67,12 @@ public class FileModule implements ChatModule {
     }
   }
 
-  public void uploadResponse(UploadCommand command) {
+  public void uploadResponse(FileUploadCommand command) {
     executor.execute(() -> {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) uploadDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-          UploadSuccess responseSuccess = (UploadSuccess) response;
+          FileUploadSuccess responseSuccess = (FileUploadSuccess) response;
           /*sessionController.onFileUploadResponse(new FileDTO.Event(
                   responseSuccess.getId(), null,
                   command.getName(), command.getContent().length,
@@ -91,13 +90,13 @@ public class FileModule implements ChatModule {
     });
   }
 
-  public void downloadResponse(DownloadCommand command) {
+  public void downloadResponse(FileDownloadCommand command) {
     executor.execute(() -> {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) downloadDTOConverter.deserialize(moduleExchanger.take());
         log.info(STR."download response: \{response.getResponseType()}");
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-          FileDTO.DownloadSuccess responseSuccess = (FileDTO.DownloadSuccess) response;
+          FileDownloadSuccess responseSuccess = (FileDownloadSuccess) response;
           log.info(STR."successfully downloaded file id: \{responseSuccess.getId()}, name: \{responseSuccess.getName()}, " +
                   STR."mimeType: \{responseSuccess.getMimeType()}, encoding \{responseSuccess.getEncoding()}");
           if (!responseSuccess.getEncoding().equals(FILE_REQUEST_ENCODING)) {
@@ -132,7 +131,7 @@ public class FileModule implements ChatModule {
         String name = path.getFileName().toString();
         String mimeType = Files.probeContentType(path);
         try {
-          final FileDTO.UploadCommand uploadCommand = new FileDTO.UploadCommand(name, mimeType, FILE_REQUEST_ENCODING, content);
+          final FileUploadCommand uploadCommand = new FileUploadCommand(name, mimeType, FILE_REQUEST_ENCODING, content);
           log.info(STR."send file name: \{name}, mimeType: \{mimeType}, size: \{content.length}");
           ioProcessor.sendMessage(uploadDTOConverter.serialize(uploadCommand).getBytes());
           uploadResponse(uploadCommand);
@@ -150,7 +149,7 @@ public class FileModule implements ChatModule {
     });
   }
 
-  public void downloadAction(FileDTO.DownloadCommand command) {
+  public void downloadAction(FileDownloadCommand command) {
     executor.execute(() -> {
       log.info(STR."processing download request \{command.getId()}");
       IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
@@ -176,7 +175,7 @@ public class FileModule implements ChatModule {
       log.info("processing file list");
       try {
         IOProcessor ioProcessor = sessionExecutor.getIOProcessor();
-        ioProcessor.sendMessage(listFileDTOConverter.serialize(new FileDTO.ListFileCommand()).getBytes());
+        ioProcessor.sendMessage(listFileDTOConverter.serialize(new ListFileCommand()).getBytes());
         fileListResponse();
       } catch (UnableToSerialize e) {
         log.error(e.getMessage(), e);
@@ -195,11 +194,11 @@ public class FileModule implements ChatModule {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) listFileDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-          FileDTO.ListFileSuccess responseSuccess = (FileDTO.ListFileSuccess) response;
+          ListFileSuccess responseSuccess = (ListFileSuccess) response;
           log.debug(responseSuccess.getFiles().toString());
           sessionController.onListFileResponse(responseSuccess.getFiles());
         } else {
-          FileDTO.Error responseError = (FileDTO.Error) response;
+          FileError responseError = (FileError) response;
           log.error(responseError.getMessage());
         }
       } catch (UnableToDeserialize e) {

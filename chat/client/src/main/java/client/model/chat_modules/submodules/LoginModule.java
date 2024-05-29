@@ -8,6 +8,10 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOInterfaces;
+import dto.subtypes.login.LoginCommand;
+import dto.subtypes.login.LoginDTOConverter;
+import dto.subtypes.login.LoginError;
+import dto.subtypes.login.LoginEvent;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -16,7 +20,7 @@ import java.io.IOException;
 public class LoginModule implements ChatModule<DataDTO.LoginData> {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(LoginModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
-  private final LoginDTO.LoginDTOConverter converter;
+  private final LoginDTOConverter converter;
   private final ChatSessionController chatSessionController;
 
   private DataDTO.LoginData loginData = null;
@@ -24,7 +28,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
   public LoginModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.converter = (LoginDTO.LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
+    this.converter = (LoginDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
   }
 
 
@@ -41,7 +45,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
           chatSessionExecutor.introduceConnection(hostname, port);
         }
         var ioProcessor = chatSessionExecutor.getIOProcessor();
-        ioProcessor.sendMessage(converter.serialize(new LoginDTO.Command(additionalArg.getName(), additionalArg.getPassword())).getBytes());
+        ioProcessor.sendMessage(converter.serialize(new LoginCommand(additionalArg.getName(), additionalArg.getPassword())).getBytes());
         responseActon(null);
       } catch (UnableToSerialize e) {
         log.info(e.getMessage(), e);
@@ -67,7 +71,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
           log.info("login successful");
           chatSessionController.onLoginCommand(status);
         } else if (status == RequestDTO.RESPONSE_TYPE.ERROR) {
-          log.info(((LoginDTO.Error) response).getMessage());
+          log.info(((LoginError) response).getMessage());
         }
       } catch (UnableToDeserialize e) {
         log.error(e.getMessage(), e);
@@ -79,7 +83,7 @@ public class LoginModule implements ChatModule<DataDTO.LoginData> {
   public void eventAction(Document root) {
     try {
       converter.deserialize(root);
-      chatSessionController.onLoginEvent((LoginDTO.Event) root);
+      chatSessionController.onLoginEvent((LoginEvent) root);
     } catch (UnableToDeserialize e) {
       log.error(e.getMessage(), e);
     }

@@ -2,6 +2,9 @@ package server.model.server_sections;
 
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
+import dto.subtypes.logout.LogoutDTOConverter;
+import dto.subtypes.logout.LogoutEvent;
+import dto.subtypes.logout.LogoutSuccess;
 import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.connection_section.ServerConnection;
@@ -10,10 +13,10 @@ import server.model.server_sections.interfaces.AbstractSection;
 import java.io.IOException;
 
 public class LogoutSection implements AbstractSection {
-  private final LogoutDTO.LogoutDTOConverter converter;
+  private final LogoutDTOConverter converter;
   private final Server server;
 
-  public LogoutSection(LogoutDTO.LogoutDTOConverter converter, Server server) {
+  public LogoutSection(LogoutDTOConverter converter, Server server) {
     this.converter = converter;
     this.server = server;
   }
@@ -21,8 +24,8 @@ public class LogoutSection implements AbstractSection {
   @Override
   public void perform(ServerConnection connection, Document message, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) {
     try {
-      connection.sendMessage(converter.serialize(new LogoutDTO.Success()).getBytes());
-      byte[] msg = converter.serialize(new LogoutDTO.Event(connection.getConnectionName())).getBytes();
+      connection.sendMessage(converter.serialize(new LogoutSuccess()).getBytes());
+      byte[] msg = converter.serialize(new LogoutEvent(connection.getConnectionName())).getBytes();
       for (var con : server.getConnections()){
         con.sendMessage(msg);
       }

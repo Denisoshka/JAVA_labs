@@ -4,6 +4,7 @@ import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
+import dto.subtypes.login.*;
 import io_processing.IOProcessor;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -39,7 +40,7 @@ public class ConnectionAccepter implements Runnable {
 
   public static long MAX_CONNECTION_TIME = 30_000;
   private final Server server;
-  private final LoginDTO.LoginDTOConverter converter;
+  private final LoginDTOConverter converter;
   private final DTOConverterManager manager;
   private final IOProcessor ioProcessor;
   private RegistrationState registrationState = null;
@@ -63,7 +64,7 @@ public class ConnectionAccepter implements Runnable {
     this.server = server;
     this.chatUsersDAO = server.getChatUsersDAO();
     this.manager = server.getConverterManager();
-    this.converter = (LoginDTO.LoginDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
+    this.converter = (LoginDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGIN);
   }
 
   @Override
@@ -94,7 +95,7 @@ public class ConnectionAccepter implements Runnable {
         } catch (UnableToSerialize e) {
           log.error(e.getMessage(), e);
           try {
-            ioProcessor.sendMessage(manager.serialize(new LoginDTO.Error(e.getMessage())).getBytes());
+            ioProcessor.sendMessage(manager.serialize(new LoginError(e.getMessage())).getBytes());
           } catch (UnableToSerialize e1) {
             log.warn(e1.getMessage(), e1);
           }
@@ -113,7 +114,7 @@ public class ConnectionAccepter implements Runnable {
       ret = RegistrationState.USER_NOT_LOGIN;
     }
 
-    LoginDTO.Command command = (LoginDTO.Command) converter.deserialize(root);
+    LoginCommand command = (LoginCommand) converter.deserialize(root);
     ChatUserEntity chatUser = chatUsersDAO.findAccountByUserName(command.getName());
     if (chatUser != null && chatUser.getPasswordHash() == command.getPassword().hashCode()) {
       ret = RegistrationState.LOGIN_SUCCESS;
@@ -130,14 +131,14 @@ public class ConnectionAccepter implements Runnable {
     if (ret == RegistrationState.LOGIN_SUCCESS) {
       onLoginSuccess(ioProcessor, command.getName());
     } else {
-      ioProcessor.sendMessage(converter.serialize(new LoginDTO.Error(ret.description)).getBytes());
+      ioProcessor.sendMessage(converter.serialize(new LoginError(ret.description)).getBytes());
     }
     return ret;
   }
 
   private void onLoginSuccess(IOProcessor ioProcessor, String name) throws IOException {
-    byte[] successResponse = converter.serialize(new LoginDTO.Success()).getBytes();
-    byte[] loginEvent = converter.serialize(new LoginDTO.Event(name)).getBytes();
+    byte[] successResponse = converter.serialize(new LoginSuccess()).getBytes();
+    byte[] loginEvent = converter.serialize(new LoginEvent(name)).getBytes();
     ioProcessor.sendMessage(successResponse);
     for (var conn : server.getConnections()) {
       try {
@@ -151,7 +152,7 @@ public class ConnectionAccepter implements Runnable {
 
   private void onLoginTimeExpired() {
     try {
-      byte[] errmsg = converter.serialize(new LoginDTO.Error("login time expired")).getBytes();
+      byte[] errmsg = converter.serialize(new LoginError("login time expired")).getBytes();
       ioProcessor.sendMessage(errmsg);
     } catch (UnableToSerialize e) {
       log.warn(e.getMessage(), e);

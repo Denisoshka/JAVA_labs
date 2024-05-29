@@ -14,13 +14,13 @@ import static dto.RequestDTO.DTO_SECTION.FILE;
 @XmlType(name = "uploadsuccess")
 @XmlRootElement(name = "success")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class UploadSuccess implements DTOInterfaces.SUCCESS_RESPONSE_DTO, DTOInterfaces.ID {
+public class FileUploadSuccess implements DTOInterfaces.SUCCESS_RESPONSE_DTO, DTOInterfaces.ID {
   private Long id;
 
-  public UploadSuccess() {
+  public FileUploadSuccess() {
   }
 
-  public UploadSuccess(Long id) {
+  public FileUploadSuccess(Long id) {
     this.id = id;
   }
 
@@ -37,7 +37,7 @@ public class UploadSuccess implements DTOInterfaces.SUCCESS_RESPONSE_DTO, DTOInt
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof UploadSuccess that)) return false;
+    if (!(o instanceof FileUploadSuccess that)) return false;
     return Objects.equals(id, that.id);
   }
 

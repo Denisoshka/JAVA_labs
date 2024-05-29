@@ -1,6 +1,9 @@
 package server.model.server_sections;
 
 import dto.RequestDTO;
+import dto.subtypes.list.ListDTOConverter;
+import dto.subtypes.logout.LogoutDTOConverter;
+import dto.subtypes.message.MessageDTOConverter;
 import server.model.Server;
 import server.model.server_sections.file.FileSection;
 import server.model.server_sections.interfaces.AbstractSection;
@@ -18,15 +21,15 @@ public class SectionFactory implements CommandSupplier {
     commands = new HashMap<>(3);
     commands.put(
             RequestDTO.DTO_SECTION.LIST,
-            new ListSection((ListDTO.ListDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LIST), server)
+            new ListSection((ListDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LIST), server)
     );
     commands.put(
             RequestDTO.DTO_SECTION.MESSAGE,
-            new MessageSection((MessageDTO.MessageDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE), server)
+            new MessageSection((MessageDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.MESSAGE), server)
     );
     commands.put(
             RequestDTO.DTO_SECTION.LOGOUT,
-            new LogoutSection((LogoutDTO.LogoutDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT), server)
+            new LogoutSection((LogoutDTOConverter) manager.getConverterBySection(RequestDTO.DTO_SECTION.LOGOUT), server)
     );
     commands.put(
             RequestDTO.DTO_SECTION.FILE,

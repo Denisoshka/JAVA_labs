@@ -6,6 +6,6 @@ import jakarta.xml.bind.JAXBException;
 
 public  class LoginDTOConverter extends BaseDTOConverter {
   public LoginDTOConverter() throws JAXBException {
-    super(JAXBContext.newInstance(LoginDTO.Command.class, LoginDTO.Event.class, LoginDTO.Error.class, LoginDTO.Success.class));
+    super(JAXBContext.newInstance(LoginCommand.class, LoginEvent.class, LoginError.class, LoginSuccess.class));
   }
 }

@@ -1,5 +1,4 @@
 module core {
-  exports dto.subtypes;
   exports dto;
   exports dto.exceptions;
   exports dto.interfaces;
@@ -10,11 +9,14 @@ module core {
   requires java.xml;
   requires static lombok;
   requires jakarta.xml.bind;
-  opens dto.subtypes to jakarta.xml.bind;
   exports io_processing;
   exports file_section;
   exports dto.subtypes.file;
   opens dto.subtypes.file to jakarta.xml.bind;
+  opens dto.subtypes.list to jakarta.xml.bind;
+  opens dto.subtypes.logout to jakarta.xml.bind;
+  opens dto.subtypes.message to jakarta.xml.bind;
+  opens dto.subtypes.user_profile to jakarta.xml.bind;
   exports dto.subtypes.login;
   opens dto.subtypes.login to jakarta.xml.bind;
   exports dto.subtypes.user_profile;

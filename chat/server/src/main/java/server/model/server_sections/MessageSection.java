@@ -3,6 +3,10 @@ package server.model.server_sections;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
+import dto.subtypes.message.MessageCommand;
+import dto.subtypes.message.MessageDTOConverter;
+import dto.subtypes.message.MessageEvent;
+import dto.subtypes.message.MessageSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -14,10 +18,10 @@ import java.io.IOException;
 
 public class MessageSection implements AbstractSection {
   private static final Logger log = LoggerFactory.getLogger(MessageSection.class);
-  private final MessageDTO.MessageDTOConverter converter;
+  private final MessageDTOConverter converter;
   private final Server server;
 
-  public MessageSection(MessageDTO.MessageDTOConverter converter, Server server) {
+  public MessageSection(MessageDTOConverter converter, Server server) {
     this.converter = converter;
     this.server = server;
   }
@@ -25,10 +29,10 @@ public class MessageSection implements AbstractSection {
   @Override
   public void perform(ServerConnection connection, Document root, RequestDTO.DTO_TYPE type, RequestDTO.DTO_SECTION section) throws IOException {
     try {
-      MessageDTO.Command messageDTO;
+      MessageCommand messageDTO;
       try {
-        messageDTO = (MessageDTO.Command) converter.deserialize(root);
-        connection.sendMessage(converter.serialize(new MessageDTO.Success()).getBytes());
+        messageDTO = (MessageCommand) converter.deserialize(root);
+        connection.sendMessage(converter.serialize(new MessageSuccess()).getBytes());
       } catch (UnableToDeserialize e) {
         log.info(e.getMessage(), e);
         return;
@@ -38,7 +42,7 @@ public class MessageSection implements AbstractSection {
         return;
       }
 
-      byte[] msg = converter.serialize(new MessageDTO.Event(
+      byte[] msg = converter.serialize(new MessageEvent(
               connection.getConnectionName(),
               messageDTO.getMessage()
       )).getBytes();

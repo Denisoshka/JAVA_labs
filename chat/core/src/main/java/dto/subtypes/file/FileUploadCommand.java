@@ -12,7 +12,7 @@ import static dto.RequestDTO.COMMAND_TYPE.UPLOAD;
 @XmlType(name = "uploadfilecommand"/*, propOrder = {"name", "mimeType", "encoding", "content"}*/)
 @XmlRootElement(name = "command")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class UploadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
+public class FileUploadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.NAME, DTOInterfaces.MIME_TYPE, DTOInterfaces.ENCODING, DTOInterfaces.CONTENT {
   @XmlAttribute(name = "name")
   private final String nameAttribute = UPLOAD.getName();
   private String name;
@@ -20,10 +20,10 @@ public class UploadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.N
   private String encoding;
   private byte[] content;
 
-  public UploadCommand() {
+  public FileUploadCommand() {
   }
 
-  public UploadCommand(String name, String mimeType, String encoding, byte[] content) {
+  public FileUploadCommand(String name, String mimeType, String encoding, byte[] content) {
     this.name = name;
     this.mimeType = mimeType;
     this.encoding = encoding;
@@ -68,7 +68,7 @@ public class UploadCommand implements DTOInterfaces.COMMAND_DTO, DTOInterfaces.N
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof UploadCommand that)) return false;
+    if (!(o instanceof FileUploadCommand that)) return false;
     return Objects.equals(nameAttribute, that.nameAttribute) && Objects.equals(name, that.name) && Objects.equals(mimeType, that.mimeType) && Objects.equals(encoding, that.encoding) && Objects.deepEquals(content, that.content);
   }
 
