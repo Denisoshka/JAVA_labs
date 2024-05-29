@@ -1,9 +1,6 @@
 package server.model.server_sections;
 
 import dto.RequestDTO;
-import dto.subtypes.ListDTO;
-import dto.subtypes.LogoutDTO;
-import dto.subtypes.MessageDTO;
 import server.model.Server;
 import server.model.server_sections.file.FileSection;
 import server.model.server_sections.interfaces.AbstractSection;

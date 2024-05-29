@@ -9,6 +9,7 @@ import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.FileDTO;
+import dto.subtypes.file.*;
 import file_section.FileManager;
 import file_section.SimpleFileManager;
 import io_processing.IOProcessor;
@@ -30,9 +31,9 @@ public class FileModule implements ChatModule {
   private final ExecutorService executor;
   private final ChatSessionExecutor sessionExecutor;
   private final ChatSessionController sessionController;
-  private final FileDTO.FileUploadDTOConverter uploadDTOConverter;
-  private final FileDTO.FileDownloadDTOConverter downloadDTOConverter;
-  private final FileDTO.FileListFileDTOConverter listFileDTOConverter;
+  private final FileUploadDTOConverter uploadDTOConverter;
+  private final FileDownloadDTOConverter downloadDTOConverter;
+  private final FileListFileDTOConverter listFileDTOConverter;
 
   private final FileManager fileManager;
 
@@ -42,7 +43,7 @@ public class FileModule implements ChatModule {
     this.sessionController = sessionExecutor.getChatSessionController();
     this.moduleExchanger = sessionExecutor.getModuleExchanger();
     this.executor = sessionExecutor.getChatModuleExecutor();
-    FileDTO.FileDTOConverter converter = (FileDTO.FileDTOConverter) sessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
+    FileDTOConverter converter = (FileDTOConverter) sessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.FILE);
     this.uploadDTOConverter = converter.getFileUploadDTOConverter();
     this.downloadDTOConverter = converter.getFileDownloadDTOConverter();
     this.listFileDTOConverter = converter.getListFileDTOConverter();
@@ -53,8 +54,8 @@ public class FileModule implements ChatModule {
     try {
       var eventType = DTOConverterManagerInterface.getDTOEvent(root);
       if (eventType == RequestDTO.EVENT_TYPE.FILE) {
-        FileDTO.Event fileEvent = (FileDTO.Event) uploadDTOConverter.deserialize(root);
-        sessionController.onFileUploadEvent(new FileDTO.Event(
+        FileEvent fileEvent = (FileEvent) uploadDTOConverter.deserialize(root);
+        sessionController.onFileUploadEvent(new FileEvent(
                 fileEvent.getId(), fileEvent.getFrom(),
                 fileEvent.getName(), fileEvent.getSize(),
                 fileEvent.getMimeType()
@@ -67,19 +68,19 @@ public class FileModule implements ChatModule {
     }
   }
 
-  public void uploadResponse(FileDTO.UploadCommand command) {
+  public void uploadResponse(UploadCommand command) {
     executor.execute(() -> {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) uploadDTOConverter.deserialize(moduleExchanger.take());
         if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-          FileDTO.UploadSuccess responseSuccess = (FileDTO.UploadSuccess) response;
+          UploadSuccess responseSuccess = (UploadSuccess) response;
           /*sessionController.onFileUploadResponse(new FileDTO.Event(
                   responseSuccess.getId(), null,
                   command.getName(), command.getContent().length,
                   command.getMimeType()
           ));*/
         } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
-          log.info(STR."Upload failed \{((FileDTO.Error) response).getMessage()}");
+          log.info(STR."Upload failed \{((FileError) response).getMessage()}");
         } else {
           log.info(STR."Unknown response type \{response.getResponseType()}");
         }
@@ -90,7 +91,7 @@ public class FileModule implements ChatModule {
     });
   }
 
-  public void downloadResponse(FileDTO.DownloadCommand command) {
+  public void downloadResponse(DownloadCommand command) {
     executor.execute(() -> {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) downloadDTOConverter.deserialize(moduleExchanger.take());

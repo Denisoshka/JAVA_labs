@@ -7,7 +7,12 @@ import dto.exceptions.UnsupportedDTOType;
 import dto.interfaces.DTOConverter;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.*;
+import dto.subtypes.file.FileDTOConverter;
+import dto.subtypes.list.ListDTOConverter;
+import dto.subtypes.login.LoginDTOConverter;
+import dto.subtypes.logout.LogoutDTOConverter;
+import dto.subtypes.message.MessageDTOConverter;
+import dto.subtypes.user_profile.UserProfileDTOConverter;
 import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 
@@ -28,12 +33,12 @@ public class DTOConverterManager implements DTOConverter, DTOConverterManagerInt
     /*todo make properties usage*/
     this.converters = new HashMap<>();
     try {
-      converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTO.ListDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTO.LoginDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTO.LogoutDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTO.MessageDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.FILE, new FileDTO.FileDTOConverter());
-      converters.put(RequestDTO.DTO_SECTION.USERPROFILE, new UserProfileDTO.UserProfileDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.LIST, new ListDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.LOGIN, new LoginDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.LOGOUT, new LogoutDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.MESSAGE, new MessageDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.FILE, new FileDTOConverter());
+      converters.put(RequestDTO.DTO_SECTION.USERPROFILE, new UserProfileDTOConverter());
 
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       builder = requireNonNull(factory.newDocumentBuilder());

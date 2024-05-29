@@ -24,16 +24,16 @@
 
     Client message
     ```xml
-    <command name="login">
+    <messageCommand name="login">
         <name>USER_NAME</name>
         <password>PASSWORD</password>
-    </command>
+    </messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml
@@ -47,13 +47,13 @@
 
     Client message
     ```xml
-    <command name="list"></command>
+    <messageCommand name="list"></messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml
@@ -74,15 +74,15 @@
 
     Client message
     ```xml
-    <command name="message">
+    <messageCommand name="message">
         <message>MESSAGE</message>
-    </command>
+    </messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml
@@ -93,23 +93,23 @@
 
     Server message
     ```xml
-    <event name="message">
+    <messageEvent name="message">
         <from>CHAT_NAME_FROM</from>
         <message>MESSAGE</message>
-    </event>
+    </messageEvent>
     ```
 
 5. Отключение
 
     Client message
     ```xml
-    <command name="logout"></command>
+    <messageCommand name="logout"></messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml
@@ -121,18 +121,18 @@
 
     Server message
     ```xml
-    <event name="userlogin">
+    <messageEvent name="userlogin">
         <name>USER_NAME</name>
-    </event >
+    </messageEvent >
     ```
 
 7. Оповещение об отключении клиента (отправляется всем клиентам)
 
     Server message
     ```xml
-    <event name="userlogout">
+    <messageEvent name="userlogout">
         <name>USER_NAME</name>
-    </event>
+    </messageEvent>
     ```
 
 ## Дополнительно (оценка "4")
@@ -145,18 +145,18 @@
 
     Client message
     ```xml
-    <command name="upload">
+    <messageCommand name="upload">
         <name>file name</name>
         <mimeType>text/plain</mimeType>
         <encoding>base64</encoding>
         <content>Base64-encoded file content</content>
-    </command>
+    </messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml
@@ -172,13 +172,13 @@
 
     Server message
     ```xml
-    <event name="file">
+    <messageEvent name="file">
         <id>unique file ID</id>
         <from>CHAT_NAME_FROM</from>
         <name>file name</name>
         <size>file size in bytes</size>
         <mimeType>text/plain</mimeType>
-    </event>
+    </messageEvent>
     ```
     Это сообщение сервер отправляет другим клиентам. Обратите внимание, что оно не включает содержимое файла. 
 
@@ -188,15 +188,15 @@
 
     Client message
     ```xml
-    <command name="download">
+    <messageCommand name="download">
         <id>unique file ID</id>
-    </command>
+    </messageCommand>
     ```
-    Server error answer
+    Server logoutError answer
     ```xml
-    <error>
+    <logoutError>
         <message>REASON</message>
-    </error>
+    </logoutError>
     ```
     Server success answer
     ```xml

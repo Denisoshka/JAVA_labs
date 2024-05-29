@@ -2,7 +2,6 @@ package server.model.server_sections;
 
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
-import dto.subtypes.LogoutDTO;
 import org.w3c.dom.Document;
 import server.model.Server;
 import server.model.connection_section.ServerConnection;

@@ -13,4 +13,12 @@ module core {
   opens dto.subtypes to jakarta.xml.bind;
   exports io_processing;
   exports file_section;
+  exports dto.subtypes.file;
+  opens dto.subtypes.file to jakarta.xml.bind;
+  exports dto.subtypes.login;
+  opens dto.subtypes.login to jakarta.xml.bind;
+  exports dto.subtypes.user_profile;
+  exports dto.subtypes.message;
+  exports dto.subtypes.list;
+  exports dto.subtypes.logout;
 }

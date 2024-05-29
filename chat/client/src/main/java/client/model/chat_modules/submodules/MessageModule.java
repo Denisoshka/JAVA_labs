@@ -6,7 +6,6 @@ import client.model.main_context.ChatSessionExecutor;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 

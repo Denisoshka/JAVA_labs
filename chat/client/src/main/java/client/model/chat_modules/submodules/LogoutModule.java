@@ -7,7 +7,6 @@ import client.model.main_context.interfaces.ConnectionModule;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.LogoutDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 

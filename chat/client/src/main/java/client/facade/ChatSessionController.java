@@ -11,7 +11,13 @@ import client.view.chat_session.events.*;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.*;
+import dto.subtypes.file.FileEntity;
+import dto.subtypes.list.ListCommand;
+import dto.subtypes.list.ListSuccess;
+import dto.subtypes.message.MessageCommand;
+import dto.subtypes.message.MessageEvent;
+import dto.subtypes.user_profile.DeleteAvatarEvent;
+import dto.subtypes.user_profile.UpdateAvatarEvent;
 import javafx.scene.image.Image;
 import org.slf4j.Logger;
 
@@ -58,7 +64,7 @@ public class ChatSessionController {
 
 
   public void messageCommand(String message) {
-    messageModule.commandAction(new MessageDTO.Command(message), null);
+    messageModule.commandAction(new MessageCommand(message), null);
   }
 
 
@@ -96,11 +102,11 @@ public class ChatSessionController {
   }
 
 
-  public void onListResponse(ListDTO.Command command, DTOInterfaces.RESPONSE_DTO response) {
+  public void onListResponse(ListCommand command, DTOInterfaces.RESPONSE_DTO response) {
     if (response.getResponseType() != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }
-    ListDTO.Success successResponse = (ListDTO.Success) response;
+    ListSuccess successResponse = (ListSuccess) response;
     ArrayList<UserInfo> usersInfo = new ArrayList<>(successResponse.getUsers().size());
     for (var info : successResponse.getUsers()) {
       usersInfo.add(new UserInfo(info.getName()));
@@ -109,7 +115,7 @@ public class ChatSessionController {
   }
 
 
-  public void onMessageResponse(MessageDTO.Command message, DTOInterfaces.RESPONSE_DTO response) {
+  public void onMessageResponse(MessageCommand message, DTOInterfaces.RESPONSE_DTO response) {
     /*todo make for server sender desc and time*/
     /*todo remove this on release*/
     chatSession.addNewChatRecord(new ChatMessage(
@@ -119,24 +125,24 @@ public class ChatSessionController {
   }
 
 
-  public void onMessageEvent(MessageDTO.Event event) {
+  public void onMessageEvent(MessageEvent messageEvent) {
     /*todo make for server sender desc and time*/
-    Image avatar = userProfileImages.get(event.getFrom());
+    Image avatar = userProfileImages.get(messageEvent.getFrom());
     var rez = (avatar == null)
-            ? new ChatMessage(ChatSession.ChatEventType.RECEIVE, event.getFrom(), event.getMessage(), ZonedDateTime.now())
-            : new ChatMessage(ChatSession.ChatEventType.RECEIVE, avatar, event.getFrom(), event.getMessage(), ZonedDateTime.now());
+            ? new ChatMessage(ChatSession.ChatEventType.RECEIVE, messageEvent.getFrom(), messageEvent.getMessage(), ZonedDateTime.now())
+            : new ChatMessage(ChatSession.ChatEventType.RECEIVE, avatar, messageEvent.getFrom(), messageEvent.getMessage(), ZonedDateTime.now());
     chatSession.addNewChatRecord(rez);
   }
 
 
-  public void onLogoutEvent(LogoutDTO.Event event) {
+  public void onLogoutEvent(dto.subtypes.logout.LogoutEvent logoutEvent) {
     /*todo make for server sender desc and time*/
-    chatSession.addNewChatRecord(new LogoutEvent(event.getName(), ZonedDateTime.now()));
-    chatUsersInfo.removeUser(new UserInfo(event.getName()));
+    chatSession.addNewChatRecord(new LogoutEvent(logoutEvent.getName(), ZonedDateTime.now()));
+    chatUsersInfo.removeUser(new UserInfo(logoutEvent.getName()));
   }
 
 
-  public void onLoginEvent(LoginDTO.Event event) {
+  public void onLoginEvent(dto.subtypes.login.LoginEvent event) {
     /*todo make for server sender desc and time*/
     chatSession.addNewChatRecord(new LoginEvent(event.getName(), ZonedDateTime.now()));
     chatUsersInfo.addUser(new UserInfo(event.getName()));
@@ -150,33 +156,33 @@ public class ChatSessionController {
 
   public void downloadFile(Long fileId) {
     log.info(STR."Download request of \{fileId}");
-    fileModule.downloadAction(new FileDTO.DownloadCommand(fileId));
+    fileModule.downloadAction(new dto.subtypes.file.DownloadCommand(fileId));
   }
 
 
-  public void onFileUploadResponse(FileDTO.Event event) {
+  public void onFileUploadResponse(dto.subtypes.file.FileEvent fileEvent) {
 //    todo unused
-    addFileEvent(ChatSession.ChatEventType.SEND, event);
+    addFileEvent(ChatSession.ChatEventType.SEND, fileEvent);
 //    addFilePreview(event);
   }
 
 
-  public void onFileUploadEvent(FileDTO.Event event) {
-    addFileEvent(ChatSession.ChatEventType.EVENT, event);
+  public void onFileUploadEvent(dto.subtypes.file.FileEvent fileEvent) {
+    addFileEvent(ChatSession.ChatEventType.EVENT, fileEvent);
 //    addFilePreview(event);
   }
 
 
-  private void addFileEvent(ChatSession.ChatEventType eventType, FileDTO.Event event) {
+  private void addFileEvent(ChatSession.ChatEventType eventType, dto.subtypes.file.FileEvent fileEvent) {
     chatSession.addNewChatRecord(new FileEvent(
-            this, eventType, event.getId(),
-            event.getFrom(), event.getName(), event.getSize(),
-            event.getMimeType(), ZonedDateTime.now()
+            this, eventType, fileEvent.getId(),
+            fileEvent.getFrom(), fileEvent.getName(), fileEvent.getSize(),
+            fileEvent.getMimeType(), ZonedDateTime.now()
     ));
   }
 
 
-  private void addFilePreview(FileDTO.Event event) {
+  private void addFilePreview(dto.subtypes.file.FileEvent fileEvent) {
     /*chatSession.()
             .onFileUpload(new FileMetadata(String.valueOf(event.getId()), event.getName(),
                     (int) event.getSize(), event.getMimeType())
@@ -184,7 +190,7 @@ public class ChatSessionController {
   }
 
 
-  public void onListFileResponse(List<FileDTO.FileEntity> files) {
+  public void onListFileResponse(List<FileEntity> files) {
     ArrayList<FileMetadata> rez = new ArrayList<>(files.size());
     for (var file : files) {
       rez.add(new FileMetadata(String.valueOf(file.getId()), file.getName(), file.getSize(), file.getMimeType()));
@@ -226,11 +232,11 @@ public class ChatSessionController {
     }
   }
 
-  public void onUpdateAvatarEvent(UserProfileDTO.UpdateAvatarEvent event) {
+  public void onUpdateAvatarEvent(UpdateAvatarEvent event) {
     userProfileImages.put(event.getName(), new Image(new ByteArrayInputStream(event.getContent())));
   }
 
-  public void onDeleteAvatarEvent(UserProfileDTO.DeleteAvatarEvent event) {
+  public void onDeleteAvatarEvent(DeleteAvatarEvent event) {
     userProfileImages.remove(event.getName());
   }
 

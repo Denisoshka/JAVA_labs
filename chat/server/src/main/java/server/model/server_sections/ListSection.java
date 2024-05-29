@@ -3,7 +3,6 @@ package server.model.server_sections;
 import dto.DataDTO;
 import dto.RequestDTO;
 import dto.exceptions.UnableToSerialize;
-import dto.subtypes.ListDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;

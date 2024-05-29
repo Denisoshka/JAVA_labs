@@ -8,7 +8,6 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.LoginDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 

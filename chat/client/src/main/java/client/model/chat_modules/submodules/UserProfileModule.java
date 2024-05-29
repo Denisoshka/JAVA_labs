@@ -8,7 +8,10 @@ import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
 import dto.interfaces.DTOInterfaces;
-import dto.subtypes.UserProfileDTO;
+import dto.subtypes.user_profile.DeleteAvatarCommand;
+import dto.subtypes.user_profile.UpdateAvatarCommand;
+import dto.subtypes.user_profile.UpdateAvatarEvent;
+import dto.subtypes.user_profile.UserProfileDTOConverter;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 
@@ -20,7 +23,7 @@ import java.nio.file.Files;
 public class UserProfileModule implements ChatModule {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(UserProfileModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
-  private final UserProfileDTO.UserProfileDTOConverter converter;
+  private final UserProfileDTOConverter converter;
   private final ChatSessionController chatSessionController;
 //  private final UserProfileDTO.UpdateAvatarCommandConverter updateAvatarCommandConverter;
 //  private final UserProfileDTO.DeleteAvatarCommandConverter deleteAvatarCommandConverter;
@@ -29,7 +32,7 @@ public class UserProfileModule implements ChatModule {
   public UserProfileModule(ChatSessionExecutor chatSessionExecutor) {
     this.chatSessionExecutor = chatSessionExecutor;
     this.chatSessionController = chatSessionExecutor.getChatSessionController();
-    this.converter = (UserProfileDTO.UserProfileDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.USERPROFILE);
+    this.converter = (UserProfileDTOConverter) chatSessionExecutor.getDTOConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.USERPROFILE);
 //    this.updateAvatarCommandConverter = converter.getUpdateAvatarCommandConverter();
 //    this.deleteAvatarCommandConverter = converter.getDeleteAvatarCommandConverter();
   }
@@ -40,7 +43,7 @@ public class UserProfileModule implements ChatModule {
         var conv = converter.getUpdateAvatarCommandConverter();
         byte[] imageBytes = Files.readAllBytes(selectedFile.toPath());
         String mimeType = Files.probeContentType(selectedFile.toPath());
-        chatSessionExecutor.getIOProcessor().sendMessage(conv.serialize(new UserProfileDTO.UpdateAvatarCommand(mimeType, imageBytes.length, imageBytes)).getBytes());
+        chatSessionExecutor.getIOProcessor().sendMessage(conv.serialize(new UpdateAvatarCommand(mimeType, imageBytes.length, imageBytes)).getBytes());
         updateAvatarResponse(imageBytes);
       } catch (UnableToSerialize e) {
         log.info(e.getMessage(), e);
@@ -74,7 +77,7 @@ public class UserProfileModule implements ChatModule {
       var ioProcessor = chatSessionExecutor.getIOProcessor();
       var deleteConverter = converter.getDeleteAvatarCommandConverter();
       try {
-        ioProcessor.sendMessage(deleteConverter.serialize(new UserProfileDTO.DeleteAvatarCommand()).getBytes());
+        ioProcessor.sendMessage(deleteConverter.serialize(new DeleteAvatarCommand()).getBytes());
         log.info("perform delete avatar command");
         onDeleteAvatarResponse();
       } catch (UnableToSerialize e) {
@@ -108,10 +111,10 @@ public class UserProfileModule implements ChatModule {
     try {
       if (eventType == RequestDTO.EVENT_TYPE.UPDATEAVATAR) {
         var event = converter.getUpdateAvatarCommandConverter().deserialize(root);
-        chatSessionController.onUpdateAvatarEvent((UserProfileDTO.UpdateAvatarEvent) event);
+        chatSessionController.onUpdateAvatarEvent((UpdateAvatarEvent) event);
       } else if (eventType == RequestDTO.EVENT_TYPE.DELETEAVATAR) {
         var event = converter.getDeleteAvatarCommandConverter().deserialize(root);
-        chatSessionController.onDeleteAvatarEvent((UserProfileDTO.DeleteAvatarEvent) event);
+        chatSessionController.onDeleteAvatarEvent((dto.subtypes.user_profile.DeleteAvatarEvent) event);
       } else {
         log.error(DTOConverterManagerInterface.getSTRDTOEvent(root));
       }

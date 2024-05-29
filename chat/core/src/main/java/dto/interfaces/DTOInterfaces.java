@@ -2,7 +2,7 @@ package dto.interfaces;
 
 import dto.DataDTO;
 import dto.RequestDTO;
-import dto.subtypes.FileDTO;
+import dto.subtypes.file.FileEntity;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public interface DTOInterfaces {
   }
 
   interface FILES {
-    List<FileDTO.FileEntity> getFiles();
+    List<FileEntity> getFiles();
   }
 
   interface DTO_TYPE {

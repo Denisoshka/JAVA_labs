@@ -4,7 +4,7 @@ import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.exceptions.UnableToSerialize;
 import dto.interfaces.DTOConverterManagerInterface;
-import dto.subtypes.UserProfileDTO;
+import dto.subtypes.user_profile.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -21,13 +21,13 @@ import static dto.RequestDTO.COMMAND_TYPE.UPDATEAVATAR;
 public class UserProfileSection implements AbstractSection {
   private static final Logger log = LoggerFactory.getLogger(UserProfileSection.class);
   private final Server server;
-  private final UserProfileDTO.UpdateAvatarCommandConverter updateAvatarCommandConverter;
-  private final UserProfileDTO.DeleteAvatarCommandConverter deleteAvatarCommandConverter;
+  private final UpdateAvatarCommandConverter updateAvatarCommandConverter;
+  private final DeleteAvatarCommandConverter deleteAvatarCommandConverter;
   private final ChatUsersDAO chatUsersDAO;
 
   public UserProfileSection(Server server) {
     this.server = server;
-    var conv = (UserProfileDTO.UserProfileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.USERPROFILE);
+    var conv = (UserProfileDTOConverter) server.getConverterManager().getConverterBySection(RequestDTO.DTO_SECTION.USERPROFILE);
     updateAvatarCommandConverter = conv.getUpdateAvatarCommandConverter();
     deleteAvatarCommandConverter = conv.getDeleteAvatarCommandConverter();
     chatUsersDAO = server.getChatUsersDAO();
@@ -38,7 +38,7 @@ public class UserProfileSection implements AbstractSection {
     RequestDTO.COMMAND_TYPE commandType;
     if (type != RequestDTO.DTO_TYPE.COMMAND || (commandType = DTOConverterManagerInterface.getDTOCommand(root)) == null) {
       try {
-        connection.sendMessage(deleteAvatarCommandConverter.serialize(new UserProfileDTO.UserProfileCommandError(STR."support only COMMAND: \{DELETEAVATAR}/\{UPDATEAVATAR}")).getBytes());
+        connection.sendMessage(deleteAvatarCommandConverter.serialize(new UserProfileCommandError(STR."support only COMMAND: \{DELETEAVATAR}/\{UPDATEAVATAR}")).getBytes());
       } catch (IOException e) {
         log.error(e.getMessage(), e);
         server.submitExpiredConnection(connection);
@@ -47,13 +47,13 @@ public class UserProfileSection implements AbstractSection {
     }
     try {
       if (commandType == UPDATEAVATAR) {
-        onUpdateAvatar(connection, (UserProfileDTO.UpdateAvatarCommand) updateAvatarCommandConverter.deserialize(root));
+        onUpdateAvatar(connection, (UpdateAvatarCommand) updateAvatarCommandConverter.deserialize(root));
       } else if (commandType == DELETEAVATAR) {
-        onDeleteAvatar(connection, (UserProfileDTO.DeleteAvatarCommand) deleteAvatarCommandConverter.deserialize(root));
+        onDeleteAvatar(connection, (DeleteAvatarCommand) deleteAvatarCommandConverter.deserialize(root));
       } else {
         connection.sendMessage(deleteAvatarCommandConverter.serialize(
-                new UserProfileDTO.UserProfileCommandError(
-                        STR."unsupported command type \{DTOConverterManagerInterface.getSTRDTOCommand(root)}"
+                new UserProfileCommandError(
+                        STR."unsupported messageCommand type \{DTOConverterManagerInterface.getSTRDTOCommand(root)}"
                 )
         ).getBytes());
       }
@@ -62,14 +62,14 @@ public class UserProfileSection implements AbstractSection {
     }
   }
 
-  private void onUpdateAvatar(ServerConnection connection, UserProfileDTO.UpdateAvatarCommand updateAvatarCommand) {
+  private void onUpdateAvatar(ServerConnection connection, UpdateAvatarCommand updateAvatarCommand) {
     try {
       String status = chatUsersDAO.updateProfilePictureByUserName(connection.getConnectionName(), updateAvatarCommand.getMimeType(), updateAvatarCommand.getContent());
       if (status == null) {
-        connection.sendMessage(updateAvatarCommandConverter.serialize(new UserProfileDTO.UpdateAvatarCommandSuccess()).getBytes());
+        connection.sendMessage(updateAvatarCommandConverter.serialize(new UpdateAvatarCommandSuccess()).getBytes());
         try {
           byte[] msg = updateAvatarCommandConverter.serialize(
-                  new UserProfileDTO.UpdateAvatarEvent(
+                  new UpdateAvatarEvent(
                           connection.getConnectionName(),
                           updateAvatarCommand.getMimeType(),
                           updateAvatarCommand.getContent()
@@ -81,7 +81,7 @@ public class UserProfileSection implements AbstractSection {
         }
       } else {
         connection.sendMessage(updateAvatarCommandConverter.serialize(
-                new UserProfileDTO.UserProfileCommandError(status)
+                new UserProfileCommandError(status)
         ).getBytes());
       }
     } catch (UnableToSerialize e) {
@@ -92,16 +92,16 @@ public class UserProfileSection implements AbstractSection {
     }
   }
 
-  private void onDeleteAvatar(ServerConnection connection, UserProfileDTO.DeleteAvatarCommand deleteAvatarCommand) {
+  private void onDeleteAvatar(ServerConnection connection, DeleteAvatarCommand deleteAvatarCommand) {
     try {
       String status = chatUsersDAO.deleteProfilePictureByUserName(connection.getConnectionName());
       if (status == null) {
         connection.sendMessage(deleteAvatarCommandConverter.serialize(
-                new UserProfileDTO.DeleteAvatarCommandSuccess()
+                new DeleteAvatarCommandSuccess()
         ).getBytes());
         try {
           byte[] msg = deleteAvatarCommandConverter.serialize(
-                  new UserProfileDTO.DeleteAvatarEvent(connection.getConnectionName())
+                  new DeleteAvatarEvent(connection.getConnectionName())
           ).getBytes();
           connection.sendBroadcastMessage(server, msg, log);
         } catch (IOException e) {
@@ -109,7 +109,7 @@ public class UserProfileSection implements AbstractSection {
         }
       } else {
         connection.sendMessage(deleteAvatarCommandConverter.serialize(
-                new UserProfileDTO.UserProfileCommandError(status)
+                new UserProfileCommandError(status)
         ).getBytes());
       }
     } catch (UnableToSerialize e) {
@@ -123,7 +123,7 @@ public class UserProfileSection implements AbstractSection {
 
   private void onUnableToSerializeEx(ServerConnection connection, Throwable e) {
     try {
-      connection.sendMessage(updateAvatarCommandConverter.serialize(new UserProfileDTO.UserProfileCommandError(e.getMessage())).getBytes());
+      connection.sendMessage(updateAvatarCommandConverter.serialize(new UserProfileCommandError(e.getMessage())).getBytes());
     } catch (IOException e1) {
       log.error(e1.getMessage(), e1);
       server.submitExpiredConnection(connection);

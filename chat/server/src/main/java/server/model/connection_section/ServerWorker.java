@@ -3,7 +3,6 @@ package server.model.connection_section;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
-import dto.subtypes.MessageDTO;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import server.model.Server;
@@ -44,7 +43,7 @@ public class ServerWorker implements Runnable {
               log.info(STR."new message for section: \{dtoSection} with type: \{dtoType}");
               commandSupplier.getSection(dtoSection).perform(connection, xmlTree, dtoType, dtoSection);
             } else {
-              log.info(STR."Unrecognized command type\{DTOConverterManagerInterface.getSTRDTOCommand(xmlTree)}");
+              log.info(STR."Unrecognized messageCommand type\{DTOConverterManagerInterface.getSTRDTOCommand(xmlTree)}");
             }
           } else {
             connection.sendMessage(DTOConverterManager.serialize(
