@@ -30,6 +30,9 @@ services:
       dockerfile: Dockerfile
     #    ports:
     #      - "127.0.0.1:9876:9876"
+    environment:
+      - PORT="8000"
+      - HOST="127.0.0.1"
     network_mode: "host"
 
     depends_on:

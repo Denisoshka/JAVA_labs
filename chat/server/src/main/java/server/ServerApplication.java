@@ -6,14 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import server.model.Server;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Properties;
 
 public class ServerApplication {
-  static final private Logger log = LoggerFactory.getLogger(ServerApplication.class);
-  static final private String CONFIG = "config";
+  private static final Logger log = LoggerFactory.getLogger(ServerApplication.class);
+
+  private static final String PORT = "port";
+  private static final String HOST = "host";
 
   public static void main(String[] args) throws IOException {
     CommandLine commandLine;
@@ -30,13 +29,7 @@ public class ServerApplication {
       log.info("process finished by parse args ex", e);
       return;
     }
-    Properties serverProperties = new Properties();
-    try (var reader = new BufferedReader(new FileReader(commandLine.getOptionValue(CONFIG)))) {
-      serverProperties.load(reader);
-    } catch (IOException e) {
-      throw new IOException(e.getMessage());
-    }
-    new Server(serverProperties).run();
+    new Server(commandLine.getOptionValue(HOST), commandLine.getOptionValue(PORT)).run();
     commandLine = null;
     cliParser = null;
   }

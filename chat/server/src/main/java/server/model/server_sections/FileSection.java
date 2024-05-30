@@ -155,7 +155,7 @@ public class FileSection implements AbstractSection {
         }
         connection.sendMessage(listFileDTOConverter.serialize(new ListFileSuccess(rez)).getBytes());
       } else {
-        connection.sendMessage(listFileDTOConverter.serialize(new FileError()).getBytes());
+        connection.sendMessage(listFileDTOConverter.serialize(new FileError("files not avaliable now")).getBytes());
       }
     } catch (UnableToDeserialize | UnableToSerialize e) {
       try {

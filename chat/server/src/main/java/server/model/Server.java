@@ -14,8 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -40,13 +38,10 @@ public class Server implements Runnable {
   private final ExecutorService connectionsPool = Executors.newCachedThreadPool();
   private final ExecutorService expiredConnectionsDeleter = Executors.newSingleThreadExecutor();
 
-  public Server(Properties properties) throws IOException {
+  public Server(String host, String port) throws IOException {
     serverSocket = new ServerSocket();
     try {
-      serverSocket.bind(
-              new InetSocketAddress(Objects.requireNonNull(properties.getProperty(IP_ADDRESS)),
-                      Integer.parseInt(Objects.requireNonNull(properties.getProperty(PORT))))
-      );
+      serverSocket.bind(new InetSocketAddress(host,  Integer.parseInt(port)));
     } catch (IOException e) {
       serverSocket.close();
     }
