@@ -26,7 +26,7 @@ public class ListModule implements ChatModule {
   }
 
 
-  public void commandAction(DTOInterfaces.COMMAND_DTO command, Object additionalArg) {
+  public void commandAction() {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
               try {
@@ -45,7 +45,7 @@ public class ListModule implements ChatModule {
       try {
         var docResponse = chatSessionExecutor.getModuleExchanger().take();
         final var response = (DTOInterfaces.RESPONSE_DTO) converter.deserialize(docResponse);
-        chatSessionController.onListResponse(null, response);
+        chatSessionController.onListResponse(response);
       } catch (InterruptedException _) {
       } catch (UnableToDeserialize e) {
         log.warn(e.getMessage(), e);

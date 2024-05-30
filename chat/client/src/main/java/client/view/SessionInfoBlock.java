@@ -54,14 +54,18 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
   private Label connectionStatusLabel;
 
   public enum ConnectionStatus {
-    Connected(Color.GREEN),
-    Disconnected(Color.RED),
+    CONNECTED(Color.GREEN),
+    DISCONNECTED(Color.RED),
     ;
 
     private final Color statusColor;
 
     ConnectionStatus(Color color) {
       statusColor = color;
+    }
+
+    public Color getStatusColor() {
+      return statusColor;
     }
   }
 
@@ -85,7 +89,7 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
     logout.setOnAction(this::performLogout);
     updateAvatar.setOnAction(this::updateAvatarAction);
     deleteAvatar.setOnAction(this::deleteAvatarAction);
-    updateStatus(ConnectionStatus.Disconnected);
+    updateStatus(ConnectionStatus.DISCONNECTED);
     hostname.setPromptText("Hostname");
     port.setPromptText("Port");
     userLogin.setPromptText("Login");
@@ -111,9 +115,9 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
 
   public void setConnectionStatus(ConnectionModule.ConnectionState connectionState) {
     if (connectionState == ConnectionModule.ConnectionState.CONNECTED) {
-      updateStatus(ConnectionStatus.Connected);
+      updateStatus(ConnectionStatus.CONNECTED);
     } else {
-      updateStatus(ConnectionStatus.Disconnected);
+      updateStatus(ConnectionStatus.DISCONNECTED);
     }
   }
 
@@ -143,7 +147,7 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
     }
   }
 
-  public void onUpdateAvatar(Image image) {
+  public void updateAvatar(Image image) {
     if (image != null) {
       Platform.runLater(() -> profileAvatar.setImage(image));
     }
@@ -153,7 +157,7 @@ public class SessionInfoBlock extends VBox implements ControllerIntroduce {
     chatSessionController.deleteAvatar();
   }
 
-  public void onDeleteAvatar() {
+  public void deleteAvatar() {
     Platform.runLater(() -> {
       profileAvatar.setImage(null);
     });

@@ -38,12 +38,12 @@ public class ConnectionAccepter implements Runnable {
     }
   }
 
-  public static long MAX_CONNECTION_TIME = 30_000;
+  private static long MAX_CONNECTION_TIME = 30_000;
+
   private final Server server;
   private final LoginDTOConverter converter;
   private final DTOConverterManager manager;
   private final IOProcessor ioProcessor;
-  private RegistrationState registrationState = null;
   private final ChatUsersDAO chatUsersDAO;
 
   /**
@@ -81,8 +81,6 @@ public class ConnectionAccepter implements Runnable {
         try {
           byte[] bytemsg = ioProcessor.receiveMessage();
           root = manager.getXMLTree(bytemsg);
-          RequestDTO.DTO_SECTION section = DTOConverterManagerInterface.getDTOSection(root);
-          RequestDTO.COMMAND_TYPE commandType = DTOConverterManagerInterface.getDTOCommand(root);
           var ret = handleLoginRequest(root);
           if (ret == RegistrationState.LOGIN_SUCCESS) {
             return;
@@ -107,11 +105,10 @@ public class ConnectionAccepter implements Runnable {
   }
 
   private RegistrationState handleLoginRequest(Document root) throws IOException {
-    RequestDTO.DTO_SECTION section = DTOConverterManagerInterface.getDTOSection(root);
     RequestDTO.COMMAND_TYPE commandType = DTOConverterManagerInterface.getDTOCommand(root);
     RegistrationState ret;
-    if (section != RequestDTO.DTO_SECTION.LOGIN || commandType != RequestDTO.COMMAND_TYPE.LOGIN) {
-      ret = RegistrationState.USER_NOT_LOGIN;
+    if (commandType != RequestDTO.COMMAND_TYPE.LOGIN) {
+      return RegistrationState.INCORRECT_LOGIN_REQUEST;
     }
 
     LoginCommand command = (LoginCommand) converter.deserialize(root);
@@ -129,16 +126,18 @@ public class ConnectionAccepter implements Runnable {
       }
     }
     if (ret == RegistrationState.LOGIN_SUCCESS) {
-      onLoginSuccess(ioProcessor, command.getName());
+      onLoginSuccess(ioProcessor, chatUsersDAO.findAccountByUserName(command.getName()));
     } else {
       ioProcessor.sendMessage(converter.serialize(new LoginError(ret.description)).getBytes());
     }
     return ret;
   }
 
-  private void onLoginSuccess(IOProcessor ioProcessor, String name) throws IOException {
-    byte[] successResponse = converter.serialize(new LoginSuccess()).getBytes();
-    byte[] loginEvent = converter.serialize(new LoginEvent(name)).getBytes();
+  private void onLoginSuccess(IOProcessor ioProcessor, ChatUserEntity entity) throws IOException {
+    byte[] successResponse = converter.serialize(new LoginSuccess(entity.getAvatar(), entity.getAvatarMimeType())).getBytes();
+    byte[] loginEvent = converter.serialize(
+            new LoginEvent(entity.getUserName(), entity.getAvatar(), entity.getAvatarMimeType())
+    ).getBytes();
     ioProcessor.sendMessage(successResponse);
     for (var conn : server.getConnections()) {
       try {
@@ -147,7 +146,7 @@ public class ConnectionAccepter implements Runnable {
         server.submitExpiredConnection(conn);
       }
     }
-    server.submitNewConnection(new ServerConnection(ioProcessor, name));
+    server.submitNewConnection(new ServerConnection(ioProcessor, entity.getUserName()));
   }
 
   private void onLoginTimeExpired() {
@@ -159,14 +158,9 @@ public class ConnectionAccepter implements Runnable {
     } catch (IOException _) {
     } finally {
       try {
-        shutdownIO();
-      } catch (IOException e) {
-        log.error(e.getMessage(), e);
+        ioProcessor.close();
+      } catch (IOException _) {
       }
     }
-  }
-
-  private void shutdownIO() throws IOException {
-    ioProcessor.close();
   }
 }

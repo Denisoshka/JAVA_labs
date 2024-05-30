@@ -12,8 +12,8 @@ import dto.RequestDTO;
 import dto.interfaces.DTOInterfaces;
 import dto.subtypes.file.FileDownloadCommand;
 import dto.subtypes.file.FileEntity;
-import dto.subtypes.list.ListCommand;
 import dto.subtypes.list.ListSuccess;
+import dto.subtypes.login.LoginSuccess;
 import dto.subtypes.message.MessageCommand;
 import dto.subtypes.message.MessageEvent;
 import dto.subtypes.other.LoginData;
@@ -70,48 +70,54 @@ public class ChatSessionController {
 
 
   public void loginCommand(String login, String password, String hostname, int port) {
-    loginModule.commandAction(null, new LoginData(login, hostname, password, port));
+    loginModule.commandAction(new LoginData(login, hostname, password, port));
   }
 
 
-  public void onLoginCommand(RequestDTO.RESPONSE_TYPE responseType) {
-    if (responseType != RequestDTO.RESPONSE_TYPE.SUCCESS) {
-      return;
+  public void onLoginResponse(DTOInterfaces.RESPONSE_DTO response) {
+    if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
+      var sucresp = (LoginSuccess) response;
+      sessionInfoBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
+      sessionInfoBlock.updateAvatar(new Image(new ByteArrayInputStream(sucresp.getContent())));
+      reloadUsers();
     }
-    sessionInfoBlock.setConnectionStatus(ConnectionModule.ConnectionState.CONNECTED);
-    reloadUsers();
   }
 
 
   public void logoutCommand() {
-    logoutModule.commandAction(null, null);
+    logoutModule.logoutAction();
   }
 
 
-  public void onLogoutCommand(DTOInterfaces.RESPONSE_DTO response) {
+  public void onLogoutResponse(DTOInterfaces.RESPONSE_DTO response) {
+    updateConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
     chatSession.clearSession();
-    sessionInfoBlock.setConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
+    userProfileImages.clear();
+    sessionInfoBlock.deleteAvatar();
   }
 
-  public void onConnectResponse(ConnectionModule.ConnectionState state) {
+  public void updateConnectionStatus(ConnectionModule.ConnectionState state) {
     sessionInfoBlock.setConnectionStatus(state);
   }
 
 
   public void reloadUsers() {
-    listModule.commandAction(null, null);
+    listModule.commandAction();
   }
 
 
-  public void onListResponse(ListCommand command, DTOInterfaces.RESPONSE_DTO response) {
-    log.info(response.getResponseType().toString());
+  public void onListResponse(DTOInterfaces.RESPONSE_DTO response) {
     if (response.getResponseType() != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }
+
     ListSuccess successResponse = (ListSuccess) response;
     ArrayList<UserInfo> usersInfo = new ArrayList<>(successResponse.getUsers().size());
+    userProfileImages.clear();
     for (var info : successResponse.getUsers()) {
       usersInfo.add(new UserInfo(info.getName()));
+      if (info.getContent() != null)
+        userProfileImages.put(info.getName(), new Image(new ByteArrayInputStream(info.getContent())));
     }
     chatUsersInfo.onReloadUsers(usersInfo);
   }
@@ -216,9 +222,9 @@ public class ChatSessionController {
   }
 
 
-  public void onUpdateAvatar(byte[] imageBytes, DTOInterfaces.RESPONSE_DTO responseDto) {
+  public void onUpdateAvatarResponse(byte[] imageBytes, DTOInterfaces.RESPONSE_DTO responseDto) {
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-      sessionInfoBlock.onUpdateAvatar(new Image(new ByteArrayInputStream(imageBytes)));
+      sessionInfoBlock.updateAvatar(new Image(new ByteArrayInputStream(imageBytes)));
     }
   }
 
@@ -231,7 +237,7 @@ public class ChatSessionController {
   public void onDeleteAvatar(DTOInterfaces.RESPONSE_DTO responseDto) {
     log.debug(STR."RESPONSE_TYPE  \{responseDto.getResponseType()}");
     if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-      sessionInfoBlock.onDeleteAvatar();
+      sessionInfoBlock.deleteAvatar();
     } else if (responseDto.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
       log.info((((DTOInterfaces.ERROR_RESPONSE_DTO) responseDto).getMessage()));
     }

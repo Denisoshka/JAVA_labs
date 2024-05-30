@@ -58,7 +58,7 @@ public class ChatSessionExecutor implements AbstractChatSessionExecutor, Abstrac
 
   @Override
   public void shutdownConnection() throws IOException {
-    chatSessionController.onConnectResponse(ConnectionModule.ConnectionState.DISCONNECTED);
+    chatSessionController.updateConnectionStatus(ConnectionModule.ConnectionState.DISCONNECTED);
     try {
       connection.close();
     } finally {

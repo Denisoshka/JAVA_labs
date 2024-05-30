@@ -10,6 +10,7 @@ import java.util.Objects;
 
 @XmlRootElement(name = "user")
 @XmlType(name = "user_type")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class User implements DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInterfaces.MIME_TYPE {
   private String name;
   private byte[] content;

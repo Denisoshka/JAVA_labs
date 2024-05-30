@@ -51,7 +51,6 @@ public class ListSection implements AbstractSection {
 
     try {
       connection.sendMessage(converter.serialize(new ListSuccess(users)).getBytes());
-      log.info("ListDTO.Success");
     } catch (UnableToSerialize e1) {
       try {
         connection.sendMessage(converter.serialize(new ListError(e1.getMessage())).getBytes());

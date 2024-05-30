@@ -17,7 +17,7 @@ import org.w3c.dom.Document;
 
 import java.io.IOException;
 
-public class LoginModule implements ChatModule<LoginData> {
+public class LoginModule implements ChatModule {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(LoginModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final LoginDTOConverter converter;
@@ -33,7 +33,7 @@ public class LoginModule implements ChatModule<LoginData> {
   }
 
 
-  public void commandAction(DTOInterfaces.COMMAND_DTO command, LoginData additionalArg) {
+  public void commandAction(LoginData additionalArg) {
     String hostname = additionalArg.getHostname();
     int port = additionalArg.getPort();
 
@@ -69,7 +69,7 @@ public class LoginModule implements ChatModule<LoginData> {
         RequestDTO.RESPONSE_TYPE status = response.getResponseType();
         if (status == RequestDTO.RESPONSE_TYPE.SUCCESS) {
           log.info("login successful");
-          chatSessionController.onLoginCommand(status);
+          chatSessionController.onLoginResponse(response);
         } else if (status == RequestDTO.RESPONSE_TYPE.ERROR) {
           log.info(((LoginError) response).getMessage());
         }

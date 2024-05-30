@@ -11,16 +11,24 @@ import java.util.Objects;
 
 @XmlRootElement(name = "event")
 @XmlAccessorType(XmlAccessType.FIELD)
-public  class LoginEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME {
+public class LoginEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME, DTOInterfaces.CONTENT, DTOInterfaces.MIME_TYPE {
   @XmlAttribute(name = "name")
   private final String nameAttribute = RequestDTO.EVENT_TYPE.USERLOGIN.getName();
   private String name;
+  private byte[] content;
+  private String mimeType;
 
   public LoginEvent() {
   }
 
   public LoginEvent(String name) {
     this.name = name;
+  }
+
+  public LoginEvent(String name, byte[] content, String mimeType) {
+    this.name = name;
+    this.content = content;
+    this.mimeType = mimeType;
   }
 
   @Override
@@ -41,6 +49,16 @@ public  class LoginEvent implements DTOInterfaces.EVENT_DTO, DTOInterfaces.NAME 
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public byte[] getContent() {
+    return content;
+  }
+
+  @Override
+  public String getMimeType() {
+    return mimeType;
   }
 
   @Override

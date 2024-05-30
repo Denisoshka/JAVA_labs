@@ -66,7 +66,7 @@ public class UserProfileModule implements ChatModule {
         Document root = chatSessionExecutor.getModuleExchanger().take();
         var upconf = converter.getUpdateAvatarCommandConverter();
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) upconf.deserialize(root);
-        chatSessionController.onUpdateAvatar(imageBytes, response);
+        chatSessionController.onUpdateAvatarResponse(imageBytes, response);
       } catch (UnableToDeserialize e) {
         log.error(e.getMessage());
       } catch (InterruptedException _) {

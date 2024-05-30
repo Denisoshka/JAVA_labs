@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SimpleFileManager implements FileManager {
   //  todo delete hardcode
-  private final static String SUPPORTED_ENCODING = "base64";
   private final String fileSectionPath;
   private final ConcurrentHashMap<String, StorageFileEntry> existingFiles = new ConcurrentHashMap<>();
   private final AtomicInteger idCounter = new AtomicInteger(0);

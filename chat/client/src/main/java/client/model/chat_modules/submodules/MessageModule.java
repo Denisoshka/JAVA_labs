@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 
 import java.io.IOException;
 
-public class MessageModule implements ChatModule<Object> {
+public class MessageModule implements ChatModule {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(MessageModule.class);
   private final ChatSessionExecutor chatSessionExecutor;
   private final ChatSessionController chatSessionController;
