@@ -1,6 +1,7 @@
 package client.view;
 
 import client.facade.ChatSessionController;
+import client.view.chat_session.interfaces.ControllerIntroduce;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

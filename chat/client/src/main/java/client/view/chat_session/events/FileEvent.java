@@ -2,6 +2,7 @@ package client.view.chat_session.events;
 
 import client.facade.ChatSessionController;
 import client.view.chat_session.ChatSession;
+import client.view.chat_session.interfaces.ChatRecord;
 import javafx.event.Event;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

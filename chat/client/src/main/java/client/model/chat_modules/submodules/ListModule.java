@@ -30,8 +30,8 @@ public class ListModule implements ChatModule {
     final var ioProcessor = chatSessionExecutor.getIOProcessor();
     chatSessionExecutor.executeModuleAction(() -> {
               try {
-                responseActon(null);
                 ioProcessor.sendMessage(converter.serialize(new ListCommand()).getBytes());
+                responseActon();
               } catch (IOException e) {
                 log.info(e.getMessage(), e);
               }
@@ -40,7 +40,7 @@ public class ListModule implements ChatModule {
   }
 
 
-  public void responseActon(DTOInterfaces.COMMAND_DTO command) {
+  private void responseActon() {
     chatSessionExecutor.executeModuleAction(() -> {
       try {
         var docResponse = chatSessionExecutor.getModuleExchanger().take();
@@ -56,7 +56,6 @@ public class ListModule implements ChatModule {
 
   @Override
   public void eventAction(Document root) {
-    log.warn("unimplemented event");
 //    unhandle list event
   }
 }

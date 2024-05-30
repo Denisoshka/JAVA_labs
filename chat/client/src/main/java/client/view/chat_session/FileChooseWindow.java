@@ -1,7 +1,7 @@
 package client.view.chat_session;
 
 import client.facade.ChatSessionController;
-import client.view.ControllerIntroduce;
+import client.view.chat_session.interfaces.ControllerIntroduce;
 import client.view.chat_session.events.FileMetadata;
 import client.view.chat_session.events.FilePreviewCell;
 import javafx.application.Platform;

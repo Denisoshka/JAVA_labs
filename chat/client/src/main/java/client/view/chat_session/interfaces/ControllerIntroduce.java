@@ -1,4 +1,4 @@
-package client.view;
+package client.view.chat_session.interfaces;
 
 import client.facade.ChatSessionController;
 

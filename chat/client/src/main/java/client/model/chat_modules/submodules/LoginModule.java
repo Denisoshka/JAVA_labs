@@ -83,8 +83,7 @@ public class LoginModule implements ChatModule<LoginData> {
 
   public void eventAction(Document root) {
     try {
-      converter.deserialize(root);
-      chatSessionController.onLoginEvent((LoginEvent) root);
+      chatSessionController.onLoginEvent((LoginEvent) converter.deserialize(root));
     } catch (UnableToDeserialize e) {
       log.error(e.getMessage(), e);
     }

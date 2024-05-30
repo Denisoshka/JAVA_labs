@@ -73,17 +73,8 @@ public class FileModule implements ChatModule {
     executor.execute(() -> {
       try {
         DTOInterfaces.RESPONSE_DTO response = (DTOInterfaces.RESPONSE_DTO) uploadDTOConverter.deserialize(moduleExchanger.take());
-        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.SUCCESS) {
-          FileUploadSuccess responseSuccess = (FileUploadSuccess) response;
-          /*sessionController.onFileUploadResponse(new FileDTO.Event(
-                  responseSuccess.getId(), null,
-                  command.getName(), command.getContent().length,
-                  command.getMimeType()
-          ));*/
-        } else if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
+        if (response.getResponseType() == RequestDTO.RESPONSE_TYPE.ERROR) {
           log.info(STR."Upload failed \{((FileError) response).getMessage()}");
-        } else {
-          log.info(STR."Unknown response type \{response.getResponseType()}");
         }
       } catch (UnableToDeserialize e) {
         log.error(e.getMessage(), e);

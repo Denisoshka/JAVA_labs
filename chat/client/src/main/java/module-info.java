@@ -29,4 +29,6 @@ module client_application {
   opens client.view.chat_session to javafx.fxml;
   exports client.view.chat_session.events;
   opens client.view.chat_session.events to javafx.fxml;
+  exports client.view.chat_session.interfaces;
+  opens client.view.chat_session.interfaces to javafx.fxml;
 }

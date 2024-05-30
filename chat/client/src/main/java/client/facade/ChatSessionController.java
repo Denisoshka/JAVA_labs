@@ -104,6 +104,7 @@ public class ChatSessionController {
 
 
   public void onListResponse(ListCommand command, DTOInterfaces.RESPONSE_DTO response) {
+    log.info(response.getResponseType().toString());
     if (response.getResponseType() != RequestDTO.RESPONSE_TYPE.SUCCESS) {
       return;
     }

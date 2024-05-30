@@ -2,6 +2,7 @@ package client.view;
 
 import client.facade.ChatSessionController;
 import client.model.main_context.interfaces.ConnectionModule;
+import client.view.chat_session.interfaces.ControllerIntroduce;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;

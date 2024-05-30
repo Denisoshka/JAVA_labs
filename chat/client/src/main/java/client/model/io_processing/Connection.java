@@ -2,6 +2,7 @@ package client.model.io_processing;
 
 import client.model.chat_modules.ChatModuleManager;
 import client.model.main_context.ChatSessionExecutor;
+import dto.DTOConverterManager;
 import dto.RequestDTO;
 import dto.exceptions.UnableToDeserialize;
 import dto.interfaces.DTOConverterManagerInterface;
@@ -17,12 +18,13 @@ import java.util.concurrent.BlockingQueue;
 
 public class Connection implements Runnable, AutoCloseable {
   private static final Logger log = org.slf4j.LoggerFactory.getLogger(Connection.class);
+
+  private final BlockingQueue<Document> moduleExchanger;
+  private final DTOConverterManager dtoConverterManager;
+  private final ChatModuleManager chatModuleManager;
+  private final IOProcessor ioProcessor;
   private final Socket socket;
   private volatile boolean expired;
-  private final IOProcessor ioProcessor;
-  private dto.DTOConverterManager dtoConverterManager;
-  private ChatModuleManager chatModuleManager;
-  private BlockingQueue<Document> moduleExchanger;
 
   public Connection(ChatSessionExecutor chatSessionExecutor, String ipaddr, int port) throws IOException {
     this.socket = new Socket(ipaddr, port);
@@ -47,14 +49,11 @@ public class Connection implements Runnable, AutoCloseable {
           if (type == null) {
             continue;
           }
-          log.info("message with type {}", type);
           if (type == RequestDTO.DTO_TYPE.EVENT) {
             RequestDTO.EVENT_TYPE eventType = DTOConverterManagerInterface.getDTOEvent(tree);
             if (eventType != null) {
               log.info("perform event {}", eventType);
               chatModuleManager.getChatModule(eventType.geDTOSection()).eventAction(tree);
-            } else {
-              log.info("unsupported event {}", DTOConverterManagerInterface.getSTRDTOEvent(tree));
             }
           } else if (type == RequestDTO.DTO_TYPE.SUCCESS || type == RequestDTO.DTO_TYPE.ERROR) {
             moduleExchanger.put(tree);

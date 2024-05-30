@@ -1,8 +1,8 @@
 package client.view.chat_session;
 
 import client.facade.ChatSessionController;
-import client.view.ControllerIntroduce;
-import client.view.chat_session.events.ChatRecord;
+import client.view.chat_session.interfaces.ControllerIntroduce;
+import client.view.chat_session.interfaces.ChatRecord;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
